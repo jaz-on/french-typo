@@ -1,5 +1,8 @@
 # French Typo #
 
+:warning: Attention, le plugin n'est plus à jour avec les dernières versions de WordPress (testé sur la 5.8 dernièrement et ce n'est pas fonctionnel). Il faudra sûrement trouver un peu de temps pour le mettre à jour afin de l'utiliser.
+
+## Intro ##
 Petit plugin qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site motorisé par [WordPress](http://fr.wordpress.org/) .
 
 ## Fork ##
