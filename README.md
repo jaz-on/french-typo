@@ -1,13 +1,11 @@
 # French Typo #
 
-:warning: Attention, le plugin n'est plus à jour avec les dernières versions de WordPress (testé sur la 5.8 dernièrement et ce n'est pas fonctionnel). Il faudra sûrement trouver un peu de temps pour le mettre à jour afin de l'utiliser.
-
 ## Intro ##
-Petit plugin qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site motorisé par [WordPress](http://fr.wordpress.org/) .
+Petite extension qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/) .
 
 ## Fork ##
 
-Pour info, la paternité de ce plugin est attribuée à "Gilles Marchand" et/ou [l'utilisateur Travis du le forum WPFR](https://wpfr.net/support/sujet/espace-insecables-supprimes-par-wordpress/#post-614173). Le repository d'origine sur BitBucket ne semble plus accessible publiquement. Si vous avez plus d'infos à propos de l'auteur, faites moi signe que je puisse mettre mon Readme à jour !
+Pour info, la paternité de cette extension est attribuée à "Gilles Marchand" et/ou [l'utilisateur Travis du le forum WPFR](https://wpfr.net/support/sujet/espace-insecables-supprimes-par-wordpress/#post-614173). Le repository d'origine sur BitBucket ne semble plus accessible publiquement. Si vous avez plus d'infos à propos de l'auteur, faites moi signe que je puisse mettre mon Readme à jour !
 
 ## Règles utilisées ##
 
@@ -22,6 +20,6 @@ Les caractères `(c)` et `(r)` sont remplacés par `©` et `®`.
 ## Installation ##
 
 1. Clonez la dernière version de French Typo.
-2. Décompressez le contenu du fichier `zip` et ajoutez le dossier `french-typo` dans le répertoire `/wp-content/plugins/` (ou `/wp-content/mu-plugins/` si vous voulez le rendre obligatoire par défaut sur votre site par exemple).
-3. Activez le plugin.
-4. Configurez le plugin comme vous le désirez dans le menu `Réglages > French Typo` (`Settings > French Typo`) à partir back-office de de WordPress.
+2. Décompressez le contenu du fichier `zip` et ajoutez le dossier `french-typo` dans le répertoire `/wp-content/plugins/` (ou `/wp-content/mu-plugins/` si vous voulez la rendre obligatoire par défaut sur votre site par exemple).
+3. Activez l’extension.
+4. Configurez l'extension comme vous le désirez dans le menu `Réglages > French Typo` (`Settings > French Typo`) à partir back-office de de WordPress.
