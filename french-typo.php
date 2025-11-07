@@ -675,16 +675,16 @@ function french_typo_replace( $text ) {
 	// Pattern 1: Add non-breaking space before ; : ! ? % » (but not if followed by word char or //).
 	// Pattern 2: Add non-breaking space after «.
 	// Pattern 3: Fix cases where non-breaking space was incorrectly added before semicolon in HTML entities.
-	$french_typo_dynamique_characters   = array();
-	$french_typo_dynamique_replacements = array();
+	$french_typo_dynamic_characters   = array();
+	$french_typo_dynamic_replacements = array();
 
 	if ( null !== $narrow_space ) {
-		$french_typo_dynamique_characters[]   = '#\s?([?!:;%»])(?!\w|//)#u';
-		$french_typo_dynamique_replacements[] = $narrow_space . '$1';
-		$french_typo_dynamique_characters[]   = '#([«])\s?#u';
-		$french_typo_dynamique_replacements[] = '$1' . $narrow_space;
-		$french_typo_dynamique_characters[]   = '/(&#?[a-zA-Z0-9]+)' . preg_quote( $narrow_space, '/' ) . ';/';
-		$french_typo_dynamique_replacements[] = '$1;';
+		$french_typo_dynamic_characters[]   = '#\s?([?!:;%»])(?!\w|//)#u';
+		$french_typo_dynamic_replacements[] = $narrow_space . '$1';
+		$french_typo_dynamic_characters[]   = '#([«])\s?#u';
+		$french_typo_dynamic_replacements[] = '$1' . $narrow_space;
+		$french_typo_dynamic_characters[]   = '/(&#?[a-zA-Z0-9]+)' . preg_quote( $narrow_space, '/' ) . ';/';
+		$french_typo_dynamic_replacements[] = '$1;';
 	}
 
 	// Check if text contains HTML tags or shortcodes before processing.
@@ -715,8 +715,8 @@ function french_typo_replace( $text ) {
 			}
 
 			// Apply non-breaking space rules if enabled.
-			if ( null !== $narrow_space && ! empty( $french_typo_dynamique_characters ) ) {
-				$curl = preg_replace( $french_typo_dynamique_characters, $french_typo_dynamique_replacements, $curl );
+			if ( null !== $narrow_space && ! empty( $french_typo_dynamic_characters ) ) {
+				$curl = preg_replace( $french_typo_dynamic_characters, $french_typo_dynamic_replacements, $curl );
 			}
 		}
 		$text .= $curl;

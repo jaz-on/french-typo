@@ -20,9 +20,10 @@
 *.log
 
 # Documentation (not needed in WordPress.org repo)
-README.md
-CHANGELOG.md
-TODO.md
+*.md
+
+# Assets
+assets/
 
 # Translation source files (WordPress.org generates these from GlotPress)
 languages/*.po

@@ -4,19 +4,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: French Typo 1.0.0\n"
 "Report-Msgid-Bugs-To: https://github.com/jaz-on/french-typo\n"
-"Last-Translator: Jason Rouet <bonjour@jasonrouet.com>\n"
-"Language-Team: French\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-07T11:23:57+00:00\n"
+"POT-Creation-Date: 2025-11-07T23:00:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: french-typo\n"
 
 #. Plugin Name of the plugin
 #: french-typo.php
-#: french-typo.php:138
+#: french-typo.php:735
 msgid "French Typo"
 msgstr ""
 
@@ -40,65 +40,194 @@ msgstr ""
 msgid "https://profiles.wordpress.org/jaz_on/"
 msgstr ""
 
-#: french-typo.php:137
-#: french-typo.php:334
+#: french-typo.php:734
 msgid "French Typo Settings"
 msgstr ""
 
-#: french-typo.php:157
+#: french-typo.php:778
 msgid "Settings"
 msgstr ""
 
-#: french-typo.php:173
+#: french-typo.php:794
+#: french-typo.php:1286
 msgid "Non-breaking spaces"
 msgstr ""
 
-#: french-typo.php:179
-#: french-typo.php:193
+#: french-typo.php:800
+#: french-typo.php:814
 msgid "Automatic replacement"
 msgstr ""
 
-#: french-typo.php:187
+#: french-typo.php:808
+#: french-typo.php:1292
 msgid "Special characters"
 msgstr ""
 
+#: french-typo.php:822
+#: french-typo.php:1299
+msgid "Content types"
+msgstr ""
+
+#: french-typo.php:828
+msgid "Apply to"
+msgstr ""
+
+#: french-typo.php:836
+#: french-typo.php:1305
+msgid "Advanced options"
+msgstr ""
+
+#: french-typo.php:842
+msgid "Additional content"
+msgstr ""
+
 #. translators: %1$s and %2$s are links to Wikipedia articles
-#: french-typo.php:208
+#: french-typo.php:861
 #, php-format
 msgid "This plugin automatically handles <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">non-breaking spaces</a> or <a href=\"%2$s\" target=\"_blank\" rel=\"noopener noreferrer\">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>."
 msgstr ""
 
-#: french-typo.php:228
-#: french-typo.php:290
+#: french-typo.php:885
+#: french-typo.php:953
 msgid "Disable"
 msgstr ""
 
 #. translators: %1$s and %2$s are HTML entity codes
-#: french-typo.php:236
+#: french-typo.php:892
 #, php-format
 msgid "Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)"
 msgstr ""
 
 #. translators: %s is an HTML entity code
-#: french-typo.php:248
+#: french-typo.php:903
 #, php-format
 msgid "Enable and use thin non-breaking spaces (HTML entity %s)"
 msgstr ""
 
-#: french-typo.php:254
+#: french-typo.php:910
 msgid "Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used."
 msgstr ""
 
 #. translators: %1$s, %2$s, %3$s, and %4$s are character codes
-#: french-typo.php:268
+#: french-typo.php:927
 #, php-format
 msgid "French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>."
 msgstr ""
 
-#: french-typo.php:295
+#: french-typo.php:957
 msgid "Enable"
 msgstr ""
 
-#: french-typo.php:330
+#: french-typo.php:1073
+msgid "Choose which content types should have French typography rules applied."
+msgstr ""
+
+#. translators: %s is a code example
+#: french-typo.php:1089
+#, php-format
+msgid "Apply typography rules to additional content areas like widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs. Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast, Rank Math, SEOPress) are also processed automatically. You can also use the filter <code>%s</code> in your code to process custom content."
+msgstr ""
+
+#: french-typo.php:1140
+msgid "Toggle advanced options visibility"
+msgstr ""
+
+#: french-typo.php:1141
+msgid "Show advanced options"
+msgstr ""
+
+#: french-typo.php:1146
+msgid "Core WordPress Areas"
+msgstr ""
+
+#: french-typo.php:1150
+msgid "Excerpts"
+msgstr ""
+
+#: french-typo.php:1154
+msgid "Widgets (text widgets and widget titles)"
+msgstr ""
+
+#: french-typo.php:1158
+msgid "Menu items"
+msgstr ""
+
+#: french-typo.php:1162
+msgid "Archives (titles and descriptions)"
+msgstr ""
+
+#: french-typo.php:1166
+msgid "Comments (text and author names)"
+msgstr ""
+
+#: french-typo.php:1170
+msgid "User profiles (descriptions)"
+msgstr ""
+
+#: french-typo.php:1177
+msgid "Custom Content"
+msgstr ""
+
+#: french-typo.php:1181
+msgid "Custom fields (ACF, Meta Box, etc.)"
+msgstr ""
+
+#: french-typo.php:1185
+msgid "Taxonomies (categories, tags, custom taxonomies)"
+msgstr ""
+
+#: french-typo.php:1192
+msgid "Integrations"
+msgstr ""
+
+#: french-typo.php:1196
+msgid "RSS feeds"
+msgstr ""
+
+#: french-typo.php:1200
+msgid "REST API responses"
+msgstr ""
+
+#: french-typo.php:1204
+msgid "Breadcrumbs (Yoast, Rank Math, SEOPress)"
+msgstr ""
+
+#: french-typo.php:1210
+msgid "By default, all additional content areas are processed. Uncheck to disable processing for specific areas."
+msgstr ""
+
+#: french-typo.php:1234
+msgid "Post and page titles"
+msgstr ""
+
+#: french-typo.php:1238
+msgid "Post and page content"
+msgstr ""
+
+#: french-typo.php:1242
+msgid "By default, both titles and content are processed. Uncheck to disable processing for specific content types."
+msgstr ""
+
+#: french-typo.php:1254
 msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+
+#: french-typo.php:1262
+msgid "Thank you for using this plugin"
+msgstr ""
+
+#: french-typo.php:1264
+msgid "This plugin automatically applies French typography rules to your WordPress content: non-breaking spaces before punctuation marks and special character replacements. Configure the options below according to your needs."
+msgstr ""
+
+#. translators: %1$s is a link to GitHub, %2$s is a link to Ko-fi
+#: french-typo.php:1271
+#, php-format
+msgid "Find the source code on %1$s. If this plugin is useful to you, you can support its author and help make further developments on %2$s."
+msgstr ""
+
+#. translators: %s is the version number
+#: french-typo.php:1338
+#, php-format
+msgid "Installed version: %s"
 msgstr ""

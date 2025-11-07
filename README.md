@@ -134,6 +134,12 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 * Support des breadcrumbs (Yoast SEO, Rank Math, SEOPress)
 * Support des meta descriptions SEO (Yoast SEO, Rank Math, SEOPress)
 * Support des tags sociaux (Open Graph, Twitter Cards)
+* Optimisations de performance : cache statique des options pour réduire les requêtes base de données
+* Qualité du code : patterns regex optimisés et retours anticipés pour de meilleures performances
+* Interface admin : CSS moderne avec propriétés personnalisées et interactions simplifiées
+* Accessibilité : amélioration du contraste des couleurs (conformité WCAG 2.1 AA)
+* Sécurité : sanitization et validation appropriées des données
+* Standards WordPress : conformité complète avec les standards WordPress-Extra
 
 ---
 
@@ -270,3 +276,9 @@ This plugin is licensed under [GPLv2 or later](https://www.gnu.org/licenses/gpl-
 * Breadcrumbs support (Yoast SEO, Rank Math, SEOPress)
 * SEO meta descriptions support (Yoast SEO, Rank Math, SEOPress)
 * Social tags support (Open Graph, Twitter Cards)
+* Performance optimizations: static cache for plugin options to reduce database queries
+* Code quality: optimized regex patterns and early returns for better performance
+* Admin interface: modern CSS with custom properties and simplified interactions
+* Accessibility: improved color contrast (WCAG 2.1 AA compliance)
+* Security: proper data sanitization and validation throughout
+* WordPress Coding Standards: full compliance with WordPress-Extra standards
