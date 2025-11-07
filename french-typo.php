@@ -815,39 +815,36 @@ function french_typo_narrow_space() {
 		$options['narrow_space'] = 1;
 	}
 	?>
-	<fieldset>
-		<legend class="screen-reader-text"><span><?php esc_html_e( 'Automatic replacement', 'french-typo' ); ?></span></legend>
-		<div class="french-typo-checkbox-group">
-			<label>
-				<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
-				<?php esc_html_e( 'Disable', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
-				<?php
-				printf(
-					/* translators: %1$s and %2$s are HTML entity codes */
-					esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
-					'<code>&amp;nbsp;</code>',
-					'<code>&amp;#160;</code>'
-				);
-				?>
-			</label>
-			<label>
-				<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
-				<?php
-				printf(
-					/* translators: %s is an HTML entity code */
-					esc_html__( 'Enable and use thin non-breaking spaces (HTML entity %s)', 'french-typo' ),
-					'<code>&amp;#8239;</code>'
-				);
-				?>
-			</label>
-		</div>
-		<p class="description">
-			<?php esc_html_e( 'Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used.', 'french-typo' ); ?>
-		</p>
-	</fieldset>
+	<div class="french-typo-checkbox-group">
+		<label>
+			<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
+			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
+		</label>
+		<label>
+			<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
+			<?php
+			printf(
+				/* translators: %1$s and %2$s are HTML entity codes */
+				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
+				'<code>&amp;nbsp;</code>',
+				'<code>&amp;#160;</code>'
+			);
+			?>
+		</label>
+		<label>
+			<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
+			<?php
+			printf(
+				/* translators: %s is an HTML entity code */
+				esc_html__( 'Enable and use thin non-breaking spaces (HTML entity %s)', 'french-typo' ),
+				'<code>&amp;#8239;</code>'
+			);
+			?>
+		</label>
+	</div>
+	<p class="description">
+		<?php esc_html_e( 'Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used.', 'french-typo' ); ?>
+	</p>
 	<?php
 }
 
@@ -886,19 +883,16 @@ function french_typo_special_characters() {
 		$options['special_characters'] = 1;
 	}
 	?>
-	<fieldset>
-		<legend class="screen-reader-text"><span><?php esc_html_e( 'Automatic replacement', 'french-typo' ); ?></span></legend>
-		<div class="french-typo-checkbox-group">
-			<label>
-				<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
-				<?php esc_html_e( 'Disable', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
-				<?php esc_html_e( 'Enable', 'french-typo' ); ?>
-			</label>
-		</div>
-	</fieldset>
+	<div class="french-typo-checkbox-group">
+		<label>
+			<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
+			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
+		</label>
+		<label>
+			<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
+			<?php esc_html_e( 'Enable', 'french-typo' ); ?>
+		</label>
+	</div>
 	<?php
 }
 
@@ -1080,9 +1074,6 @@ function french_typo_advanced() {
 			<span class="french-typo-toggle-text"><?php esc_html_e( 'Show advanced options', 'french-typo' ); ?></span>
 		</summary>
 		<div class="french-typo-advanced-content">
-			<fieldset>
-			<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
-			
 			<!-- Core WordPress Areas -->
 			<div class="french-typo-checkbox-subgroup">
 				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Core WordPress Areas', 'french-typo' ); ?></h3>
@@ -1151,7 +1142,6 @@ function french_typo_advanced() {
 			<p class="description">
 				<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
 			</p>
-		</fieldset>
 		</div>
 	</details>
 	<?php
@@ -1171,22 +1161,19 @@ function french_typo_content_types() {
 		$options['apply_to_content'] = 1;
 	}
 	?>
-	<fieldset>
-		<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
-		<div class="french-typo-checkbox-group">
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], 1 ); ?> />
-				<?php esc_html_e( 'Post and page titles', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], 1 ); ?> />
-				<?php esc_html_e( 'Post and page content', 'french-typo' ); ?>
-			</label>
-		</div>
-		<p class="description">
-			<?php esc_html_e( 'By default, both titles and content are processed. Uncheck to disable processing for specific content types.', 'french-typo' ); ?>
-		</p>
-	</fieldset>
+	<div class="french-typo-checkbox-group">
+		<label>
+			<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], 1 ); ?> />
+			<?php esc_html_e( 'Post and page titles', 'french-typo' ); ?>
+		</label>
+		<label>
+			<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], 1 ); ?> />
+			<?php esc_html_e( 'Post and page content', 'french-typo' ); ?>
+		</label>
+	</div>
+	<p class="description">
+		<?php esc_html_e( 'By default, both titles and content are processed. Uncheck to disable processing for specific content types.', 'french-typo' ); ?>
+	</p>
 	<?php
 }
 
@@ -1228,30 +1215,30 @@ function french_typo_admin_options() {
 			
 			<div class="card french-typo-settings-card">
 				<!-- Typography Rules -->
-				<div class="french-typo-fieldset-group">
-					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></legend>
 					<?php french_typo_narrow_space_text(); ?>
 					<?php french_typo_narrow_space(); ?>
-				</div>
+				</fieldset>
 
-				<div class="french-typo-fieldset-group">
-					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></legend>
 					<?php french_typo_special_characters_text(); ?>
 					<?php french_typo_special_characters(); ?>
-				</div>
+				</fieldset>
 
 				<!-- Application Zones -->
-				<div class="french-typo-fieldset-group">
-					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></legend>
 					<?php french_typo_content_types_text(); ?>
 					<?php french_typo_content_types(); ?>
-				</div>
+				</fieldset>
 
-				<div class="french-typo-fieldset-group">
-					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></legend>
 					<?php french_typo_advanced_text(); ?>
 					<?php french_typo_advanced(); ?>
-				</div>
+				</fieldset>
 
 				<div class="french-typo-save-wrapper">
 					<?php submit_button(); ?>

@@ -64,8 +64,9 @@
    ========================================================================== */
 
 .french-typo-fieldset-group {
-	border: 0;
-	padding: 0;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: var(--french-typo-space-md);
 	margin: 0 0 var(--french-typo-space-md) 0;
 }
 
@@ -78,55 +79,32 @@
 	line-height: 1.4;
 	font-weight: 600;
 	color: #1d2327;
-	margin-top: 0;
-	margin-bottom: var(--french-typo-space-md);
-	padding: 0;
-}
-
-.french-typo-fieldset-group:first-child .french-typo-fieldset-title {
-	margin-top: 0;
+	margin: 0 0 var(--french-typo-space-md) 0;
+	padding: 0 var(--french-typo-space-sm);
 }
 
 /* ==========================================================================
    Forms
    ========================================================================== */
 
-.french-typo-settings-card fieldset {
-	border: 0;
-	padding: 0;
-	margin: 0;
-}
-
-.french-typo-settings-card fieldset legend.screen-reader-text {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-
-.french-typo-settings-card fieldset label {
+.french-typo-settings-card label {
 	display: block;
 	margin-bottom: var(--french-typo-space-sm);
 	line-height: 1.6;
 }
 
-.french-typo-settings-card fieldset label:last-of-type {
+.french-typo-settings-card label:last-of-type {
 	margin-bottom: 0;
 }
 
-.french-typo-settings-card fieldset input[type="radio"],
-.french-typo-settings-card fieldset input[type="checkbox"] {
+.french-typo-settings-card input[type="radio"],
+.french-typo-settings-card input[type="checkbox"] {
 	margin-right: var(--french-typo-space-sm);
 	margin-top: 0;
 	vertical-align: middle;
 }
 
-.french-typo-settings-card fieldset br {
+.french-typo-settings-card br {
 	display: none;
 }
 
