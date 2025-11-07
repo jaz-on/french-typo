@@ -13,4 +13,12 @@ languages/*.mo
 
 # Composer dependencies
 vendor/
+composer/
+
+# PHP CodeSniffer cache
+.phpcs-cache/
+
+# PHPUnit cache
+.phpunit.result.cache
+.phpunit.cache/
 

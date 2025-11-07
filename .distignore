@@ -35,12 +35,28 @@ languages/*.mo
 node_modules/
 package.json
 package-lock.json
+
+# Composer and PHP dependencies
 composer.json
 composer.lock
 vendor/
+composer/
+
+# PHP CodeSniffer configuration files
+.phpcs.xml
+.phpcs.xml.dist
+phpcs.xml
+phpcs.xml.dist
+.phpcs.xml.dist.bak
+
+# PHPUnit configuration files
+phpunit.xml
+phpunit.xml.dist
+.phpunit.result.cache
+.phpunit.cache/
 
 # Build and test files
-.phpunit.result.cache
-phpunit.xml
 tests/
+test/
+spec/
 
