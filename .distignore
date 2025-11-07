@@ -1,0 +1,46 @@
+# Files and directories to exclude from WordPress.org distribution
+# This file will be used when deploying to WordPress.org SVN
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# GitHub files
+.github/
+
+# Development files
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.cursor/
+*.log
+
+# Documentation (not needed in WordPress.org repo)
+README.md
+CHANGELOG.md
+TODO.md
+
+# Translation source files (WordPress.org generates these from GlotPress)
+languages/*.po
+languages/*.pot
+
+# Compiled translation files (generated automatically)
+languages/*.mo
+
+# Node modules and build files (if any)
+node_modules/
+package.json
+package-lock.json
+composer.json
+composer.lock
+vendor/
+
+# Build and test files
+.phpunit.result.cache
+phpunit.xml
+tests/
+

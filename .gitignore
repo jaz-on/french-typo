@@ -1,0 +1,13 @@
+# Exclude files from WordPress.org releases
+.gitattributes
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.cursor/
+
+# Exclude compiled translation files (.mo files are generated from .po files)
+languages/*.mo
+
