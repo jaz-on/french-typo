@@ -1,16 +1,50 @@
 <?php
-/*
+/**
  * Plugin Name: Typographie française
+ * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Applique les règles de la typographie française. Fork de l'extension French Typo (par Gilles Marchand), non maintenue.
- * Author: Jb Audras & Whodunit
- * Author URI: https://whodunit.fr
- * Version: 0.1
-*/
-defined( 'ABSPATH' ) or die( 'Le silence est d’or.' );
+ * Version: 1.0.0
+ * Requires at least: 6.0
+ * Requires PHP: 8.3
+ * Tested up to: 6.9
+ * Author: Jason Rouet
+ * Author URI: https://profiles.wordpress.org/jaz_on/
+ * Contributors: jaz_on, audrasjb
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: french-typo
+ * Domain Path: /languages
+ */
+// Security check: prevent direct access to the file.
+defined( 'ABSPATH' ) or die( 'Silence is golden.' );
 
+/**
+ * Load plugin text domain for translations.
+ *
+ * @since 1.0.0
+ */
+function french_typo_load_textdomain() {
+	load_plugin_textdomain(
+		'french-typo',
+		false,
+		dirname( plugin_basename( __FILE__ ) ) . '/languages'
+	);
+}
+add_action( 'plugins_loaded', 'french_typo_load_textdomain' );
+
+/**
+ * Initialize plugin hooks.
+ *
+ * Sets up filters for content processing and admin menu if in admin area.
+ *
+ * @since 1.0.0
+ */
 function french_typo_hooks() {
+	// Apply typography rules to post titles and content.
 	add_filter( 'the_title', 'french_typo_replace' );
 	add_filter( 'the_content', 'french_typo_replace' );
+	
+	// Only load admin functionality when in WordPress admin area.
 	if ( is_admin() ) {
 		add_action( 'admin_menu', 'french_typo_admin_menu');
 		add_action( 'admin_init', 'french_typo_admin_init');
@@ -18,74 +52,165 @@ function french_typo_hooks() {
 }
 add_action( 'init', 'french_typo_hooks' );
 
+/**
+ * Apply French typography rules to text content.
+ *
+ * Processes text to add non-breaking spaces before/after punctuation and replaces
+ * special character sequences. Carefully avoids processing HTML tags and shortcodes
+ * to prevent breaking the markup.
+ *
+ * @since 1.0.0
+ *
+ * @param string $text The text content to process.
+ * @return string The processed text with French typography rules applied.
+ */
 function french_typo_replace( $text ) {
-		$options = get_option( 'french_typo_options', array() );
-		if ( isset( $options['narrow_space'] ) ) {
-			switch( $options['narrow_space'] ) {
-				case '0':
-					$narrow_space = null;
-					break;
-				default:
-				case '1':
-					$narrow_space = '&#160;';
-					break;
-				case '2':
-					$narrow_space = '&#8239;';
-					break;
-			}
-		} else {
-			$narrow_space = null;
+	// Get plugin options from database.
+	$options = get_option( 'french_typo_options', array() );
+	
+	// Determine which type of non-breaking space to use based on settings.
+	// 0 = disabled, 1 = regular (&#160;), 2 = thin (&#8239;).
+	if ( isset( $options['narrow_space'] ) ) {
+		switch( $options['narrow_space'] ) {
+			case '0':
+				$narrow_space = null;
+				break;
+			default:
+			case '1':
+				$narrow_space = '&#160;';
+				break;
+			case '2':
+				$narrow_space = '&#8239;';
+				break;
 		}
-
-		if ( isset( $options['narrow_space'] ) ) {
-			$special_characters = $options['special_characters'];
-		} else {
-			$special_characters = null;
-		}
-
-		$french_typo_static_characters = array( '(c)', '(r)' );
-		$french_typo_static_replacements = array( '&#169;', '&#174;' );
-
-		$french_typo_dynamique_characters = array( '#\s?([?!:;%»])(?!\w|//)#u', '#([«])\s?#u', '/(&#?[a-zA-Z0-9]+)' . $narrow_space . ';/' );
-		$french_typo_dynamique_replacements = array( $narrow_space . '$1', '$1' . $narrow_space, '$1;' );
-
-		$textarr = preg_split( '#(<.*>|\[.*\])#Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE );
-		$stop = count($textarr);
-
-		$text = '';
-
-		for( $i = 0; $i < $stop; $i++ ) {
-			$curl = $textarr[$i];
-			if ( !empty($curl) && '<' != $curl[0] && '[' != $curl[0] ) {
-				if ( $special_characters > 0 ) {
-					$curl = str_replace( $french_typo_static_characters, $french_typo_static_replacements, $curl );
-				}
-
-				if ( $narrow_space !== null ) {
-					$curl = preg_replace( $french_typo_dynamique_characters, $french_typo_dynamique_replacements, $curl );
-				}
-			}
-			$text .= $curl;
-		}
-		return $text;
+	} else {
+		$narrow_space = null;
 	}
 
-function french_typo_admin_menu() {
-	add_options_page( 'Réglages typographiques', 'Réglages typographiques', 'manage_options', 'french-typo', 'french_typo_admin_options' );
+	// Check if special character replacement is enabled.
+	if ( isset( $options['special_characters'] ) ) {
+		$special_characters = $options['special_characters'];
+	} else {
+		$special_characters = null;
+	}
+
+	// Static replacements: simple character sequences that don't need regex.
+	$french_typo_static_characters = array( '(c)', '(r)' );
+	$french_typo_static_replacements = array( '&#169;', '&#174;' );
+
+	// Dynamic replacements using regex patterns:
+	// Pattern 1: Add non-breaking space before ; : ! ? % » (but not if followed by word char or //)
+	// Pattern 2: Add non-breaking space after «
+	// Pattern 3: Fix cases where non-breaking space was incorrectly added before semicolon in HTML entities
+	$french_typo_dynamique_characters = array(
+		'#\s?([?!:;%»])(?!\w|//)#u',
+		'#([«])\s?#u',
+		'/(&#?[a-zA-Z0-9]+)' . $narrow_space . ';/'
+	);
+	$french_typo_dynamique_replacements = array(
+		$narrow_space . '$1',
+		'$1' . $narrow_space,
+		'$1;'
+	);
+
+	// Split text into array, preserving HTML tags and shortcodes as separate elements.
+	$textarr = preg_split( '#(<.*>|\[.*\])#Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE );
+	$stop = count($textarr);
+
+	$text = '';
+
+	// Process each segment of the text.
+	for( $i = 0; $i < $stop; $i++ ) {
+		$curl = $textarr[$i];
+
+		// Only process text segments (not HTML tags or shortcodes).
+		if ( !empty($curl) && '<' != $curl[0] && '[' != $curl[0] ) {
+			// Replace special characters if enabled.
+			if ( $special_characters > 0 ) {
+				$curl = str_replace( $french_typo_static_characters, $french_typo_static_replacements, $curl );
+			}
+
+			// Apply non-breaking space rules if enabled.
+			if ( $narrow_space !== null ) {
+				$curl = preg_replace( $french_typo_dynamique_characters, $french_typo_dynamique_replacements, $curl );
+			}
+		}
+		$text .= $curl;
+	}
+	return $text;
 }
 
+/**
+ * Add settings page to WordPress admin menu.
+ *
+ * @since 1.0.0
+ */
+function french_typo_admin_menu() {
+	add_options_page(
+		__( 'French Typo Settings', 'french-typo' ),
+		__( 'French Typo', 'french-typo' ),
+		'manage_options',
+		'french-typo',
+		'french_typo_admin_options'
+	);
+}
+
+/**
+ * Register plugin settings and fields.
+ *
+ * @since 1.0.0
+ */
 function french_typo_admin_init() {
 	register_setting( 'french_typo_settings', 'french_typo_options', 'french_typo_options_validate' );
-	add_settings_section( 'narrow_space_section', 'Espaces insécables', 'french_typo_narrow_space_text', 'admin_options' );
-	add_settings_field( 'narrow_space_field', 'Remplacement automatique', 'french_typo_narrow_space', 'admin_options', 'narrow_space_section' );
-	add_settings_section( 'special_characters_section', 'Caractères spéciaux', 'french_typo_special_characters_text', 'admin_options' );
-	add_settings_field( 'special_characters_field', 'Remplacement automatique', 'french_typo_special_characters', 'admin_options', 'special_characters_section' );
+
+	add_settings_section(
+		'narrow_space_section',
+		__( 'Non-breaking spaces', 'french-typo' ),
+		'french_typo_narrow_space_text',
+		'admin_options'
+	);
+	add_settings_field(
+		'narrow_space_field',
+		__( 'Automatic replacement', 'french-typo' ),
+		'french_typo_narrow_space',
+		'admin_options',
+		'narrow_space_section'
+	);
+
+	add_settings_section(
+		'special_characters_section',
+		__( 'Special characters', 'french-typo' ),
+		'french_typo_special_characters_text',
+		'admin_options'
+	);
+	add_settings_field(
+		'special_characters_field',
+		__( 'Automatic replacement', 'french-typo' ),
+		'french_typo_special_characters',
+		'admin_options',
+		'special_characters_section'
+	);
 }
 
+/**
+ * Display description text for the non-breaking spaces section.
+ *
+ * @since 1.0.0
+ */
 function french_typo_narrow_space_text() {
-	echo '<p>Cette extension gère automatiquement les <a href="http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable" target="_blank">espaces insécables</a> ou les <a href="https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable" target="_blank">espaces fines insécables</a> pour les caractères <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%</code>, <code>«</code> et <code>»</code>.</p>';
+	echo '<p>' . sprintf(
+		/* translators: %1$s and %2$s are links to Wikipedia articles */
+		__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>.', 'french-typo' ),
+		'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable',
+		'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable'
+	) . '</p>';
 }
 
+/**
+ * Render the non-breaking spaces settings field.
+ *
+ * @since 1.0.0
+ */
 function french_typo_narrow_space() {
 	$options = get_option( 'french_typo_options', array() );
 	if ( ! isset( $options['narrow_space'] ) ) {
@@ -95,27 +220,59 @@ function french_typo_narrow_space() {
 	<fieldset>
 		<label>
 			<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
-			Désactiver
+			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
 		</label>
 		<br>
 		<label>
 			<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
-			Activer et utiliser des espaces «&nbsp;normaux&nbsp;» insécables (entité HTML <code>&amp;nbsp;</code> ou <code>&amp;#160;</code>)
+			<?php
+			printf(
+				/* translators: %1$s and %2$s are HTML entity codes */
+				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
+				'<code>&amp;nbsp;</code>',
+				'<code>&amp;#160;</code>'
+			);
+			?>
 		</label>
 		<br>
 		<label>
 			<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
-			Activer et utiliser des espaces fines insécables (entité HTML <code>&amp;#8239;</code>)
+			<?php
+			printf(
+				/* translators: %s is an HTML entity code */
+				esc_html__( 'Enable and use thin non-breaking spaces (HTML entity %s)', 'french-typo' ),
+				'<code>&amp;#8239;</code>'
+			);
+			?>
 		</label>
-		<p class="description">À noter : l’espace fine insécable peut ne pas s’afficher correctement. Cela dépend de la fonte, de la version du navigateur et du système d’exploitation utilisé.</p>
+		<p class="description">
+			<?php esc_html_e( 'Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used.', 'french-typo' ); ?>
+		</p>
 	</fieldset>
 	<?php
 }
 
+/**
+ * Display description text for the special characters section.
+ *
+ * @since 1.0.0
+ */
 function french_typo_special_characters_text() {
-		echo '<p>French Typo remplace les caractères <code>(c)</code> et <code>(r)</code> par <code>©</code> et <code>®</code>.</p>';
-	}
+	echo '<p>' . sprintf(
+		/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
+		__( 'French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>.', 'french-typo' ),
+		'(c)',
+		'(r)',
+		'©',
+		'®'
+	) . '</p>';
+}
 
+/**
+ * Render the special characters settings field.
+ *
+ * @since 1.0.0
+ */
 function french_typo_special_characters() {
 	$options = get_option( 'french_typo_options', array() );
 	if ( ! isset( $options['special_characters'] ) ) {
@@ -125,37 +282,56 @@ function french_typo_special_characters() {
 	<fieldset>
 		<label>
 			<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
-			Désactiver
+			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
 		</label>
 		<br>
 		<label>
 			<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
-			Activer
+			<?php esc_html_e( 'Enable', 'french-typo' ); ?>
 		</label>
 	</fieldset>
 	<?php
 }
 
+/**
+ * Validate and sanitize plugin options before saving.
+ *
+ * @since 1.0.0
+ *
+ * @param array $input The input data from the form.
+ * @return array Sanitized options array.
+ */
 function french_typo_options_validate( $input ) {
 	$newinput = array();
-	$newinput['narrow_space'] = absint( $input['narrow_space'] );
-	$newinput['special_characters'] = absint( $input['special_characters'] );
+
+	if ( isset( $input['narrow_space'] ) ) {
+		$newinput['narrow_space'] = absint( $input['narrow_space'] );
+	}
+
+	if ( isset( $input['special_characters'] ) ) {
+		$newinput['special_characters'] = absint( $input['special_characters'] );
+	}
+	
 	return $newinput;
 }
 
+/**
+ * Render the main settings page.
+ *
+ * @since 1.0.0
+ */
 function french_typo_admin_options() {
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( __( 'You do not have sufficient permissions to access this page.', 'french-typo' ) );
-	} else {
-		?>
-		<div class="wrap">
-			<h1>Options de French Typo</h1>
-			<form method="post" action="options.php" novalidate="novalidate">
-				<?php settings_fields( 'french_typo_settings' ); ?>
-				<?php do_settings_sections( 'admin_options' ); ?>
-				<?php submit_button(); ?>
-			</form>
-		</div>
-		<?php
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'french-typo' ) );
 	}
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html__( 'French Typo Settings', 'french-typo' ); ?></h1>
+		<form method="post" action="options.php" novalidate="novalidate">
+			<?php settings_fields( 'french_typo_settings' ); ?>
+			<?php do_settings_sections( 'admin_options' ); ?>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+	<?php
 }
