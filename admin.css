@@ -55,7 +55,8 @@
    Main Layout
    ========================================================================== */
 
-.french-typo-settings-layout {
+.wrap form .french-typo-settings-layout,
+.wrap .french-typo-settings-layout {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
@@ -93,7 +94,8 @@
    Cards
    ========================================================================== */
 
-.french-typo-settings-layout .card,
+.wrap form .french-typo-settings-layout .card,
+.wrap .french-typo-settings-layout .card,
 .french-typo-typography-rules .card,
 .french-typo-application-zones .card {
 	display: flex;
@@ -107,7 +109,8 @@
 	transition: border-color 0.2s ease;
 }
 
-.french-typo-settings-layout .card:hover,
+.wrap form .french-typo-settings-layout .card:hover,
+.wrap .french-typo-settings-layout .card:hover,
 .french-typo-typography-rules .card:hover,
 .french-typo-application-zones .card:hover {
 	border-color: #8c8f94;
@@ -356,11 +359,13 @@
 
 /* --- Mobile (≤782px) --- */
 @media screen and (max-width: 782px) {
-	.french-typo-settings-layout {
+	.wrap form .french-typo-settings-layout,
+	.wrap .french-typo-settings-layout {
 		gap: var(--french-typo-space-md);
 	}
 
-	.french-typo-settings-layout .card,
+	.wrap form .french-typo-settings-layout .card,
+	.wrap .french-typo-settings-layout .card,
 	.french-typo-typography-rules .card,
 	.french-typo-application-zones .card {
 		padding: var(--french-typo-space-md);
