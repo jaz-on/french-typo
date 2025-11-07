@@ -84,7 +84,8 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 
 ---
 
-## English {#english}
+<a name="english"></a>
+## English
 
 WordPress plugin that allows you to apply French typography rules to the content you publish on a site powered by [WordPress](http://wordpress.org/).
 
