@@ -26,7 +26,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-// Test webhook update - 2025-11-07
+// Test webhook update - 2025-11-07 - Clé API corrigée
 /**
  * Initialize plugin hooks.
  *
