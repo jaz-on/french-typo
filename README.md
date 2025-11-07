@@ -16,6 +16,27 @@ Les [espaces insécables](http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable) so
 
 Les caractères `(c)` et `(r)` sont remplacés automatiquement par `©` et `®`.
 
+### Zones de contenu couvertes
+
+Le plugin applique automatiquement les règles typographiques à de nombreuses zones de votre site WordPress :
+
+* **Contenu principal** : Titres et contenus des posts et pages, extraits
+* **Custom Post Types** : Tous les types de contenus personnalisés
+* **Custom Fields** : Support pour ACF (Advanced Custom Fields) et Meta Box
+* **Taxonomies** : Catégories, tags et taxonomies personnalisées (titres et descriptions)
+* **Archives** : Titres et descriptions de toutes les pages d'archives
+* **Commentaires** : Texte des commentaires et noms d'auteurs
+* **Widgets** : Contenu et titres des widgets de texte
+* **Menus** : Éléments de navigation
+* **RSS Feeds** : Flux RSS (titres, contenus, extraits, commentaires)
+* **REST API** : Réponses de l'API REST pour posts, pages et attachments
+* **Profils utilisateurs** : Descriptions des utilisateurs
+* **Breadcrumbs** : Support pour Yoast SEO, Rank Math et SEOPress
+* **SEO** : Meta descriptions et titres (Yoast SEO, Rank Math, SEOPress)
+* **Social Media** : Tags Open Graph et Twitter Cards (Yoast SEO, Rank Math, SEOPress)
+
+Toutes ces zones peuvent être activées ou désactivées individuellement depuis la page de réglages du plugin.
+
 ## Installation
 
 1. Téléchargez la dernière version de Typographie française.
@@ -43,7 +64,25 @@ Non, le plugin applique les règles typographiques à la volée lors de l'affich
 
 ### Puis-je désactiver certaines fonctionnalités ?
 
-Oui, vous pouvez désactiver indépendamment les espaces insécables ou les remplacements de caractères spéciaux dans les réglages du plugin.
+Oui, vous pouvez désactiver indépendamment les espaces insécables ou les remplacements de caractères spéciaux dans les réglages du plugin. Vous pouvez également choisir précisément quelles zones de contenu doivent être traitées (titres, contenus, widgets, menus, taxonomies, archives, commentaires, RSS, REST API, etc.).
+
+### Quelles zones de contenu sont couvertes ?
+
+Le plugin traite automatiquement :
+* Les titres et contenus des posts et pages (y compris les Custom Post Types)
+* Les extraits
+* Les widgets et menus
+* Les taxonomies (catégories, tags, custom taxonomies)
+* Les archives
+* Les commentaires
+* Les custom fields (ACF, Meta Box)
+* Les flux RSS
+* Les réponses REST API
+* Les profils utilisateurs
+* Les breadcrumbs (Yoast, Rank Math, SEOPress)
+* Les meta descriptions et tags sociaux (Open Graph, Twitter Cards)
+
+Toutes ces zones peuvent être activées ou désactivées individuellement depuis les réglages.
 
 ## Auteur et sponsoring
 
@@ -63,11 +102,11 @@ Ce plugin est un fork de l'extension **French Typo** créée par **Gilles Marcha
 
 ### Inspirations
 
-Ce plugin s'inspire également d'autres extensions actives ou archivées/inactives :
+Ce plugin s'inspire également d'autres projets :
 
-* [TypoFR](https://wordpress.org/plugins/typofr/) — Plugin WordPress pour la typographie française
-* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Orthotypographie automatique
-* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg
+* [TypoFR](https://wordpress.org/plugins/typofr/) — Plugin WordPress pour la typographie française (archivé)
+* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Orthotypographie automatique (inactif)
+* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg (actif et plugin le plus avancé avec des options Gutenberg modernes)
 
 ## Licence
 
@@ -80,7 +119,19 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 * Refonte complète depuis le plugin French Typo original
 * Support des espaces insécables (normaux et fins)
 * Support du remplacement de caractères spéciaux
-* Page de réglages configurable
+* Page de réglages configurable avec options granulaires
+* Support complet des Custom Post Types
+* Support des Custom Fields (ACF, Meta Box)
+* Support des taxonomies (catégories, tags, custom taxonomies)
+* Support des archives (tous types)
+* Support des commentaires
+* Support des widgets et menus
+* Support des flux RSS
+* Support de l'API REST
+* Support des profils utilisateurs
+* Support des breadcrumbs (Yoast SEO, Rank Math, SEOPress)
+* Support des meta descriptions SEO (Yoast SEO, Rank Math, SEOPress)
+* Support des tags sociaux (Open Graph, Twitter Cards)
 
 ---
 
@@ -100,6 +151,27 @@ WordPress plugin that allows you to apply French typography rules to the content
 #### Special characters
 
 The characters `(c)` and `(r)` are automatically replaced by `©` and `®`.
+
+#### Content areas covered
+
+The plugin automatically applies typography rules to many areas of your WordPress site:
+
+* **Main content**: Post and page titles and content, excerpts
+* **Custom Post Types**: All custom content types
+* **Custom Fields**: Support for ACF (Advanced Custom Fields) and Meta Box
+* **Taxonomies**: Categories, tags and custom taxonomies (titles and descriptions)
+* **Archives**: Titles and descriptions of all archive pages
+* **Comments**: Comment text and author names
+* **Widgets**: Text widget content and titles
+* **Menus**: Navigation items
+* **RSS Feeds**: RSS feeds (titles, content, excerpts, comments)
+* **REST API**: REST API responses for posts, pages and attachments
+* **User Profiles**: User descriptions
+* **Breadcrumbs**: Support for Yoast SEO, Rank Math and SEOPress
+* **SEO**: Meta descriptions and titles (Yoast SEO, Rank Math, SEOPress)
+* **Social Media**: Open Graph and Twitter Cards tags (Yoast SEO, Rank Math, SEOPress)
+
+All these areas can be enabled or disabled individually from the plugin settings page.
 
 ### Installation
 
@@ -128,7 +200,25 @@ No, the plugin applies typography rules on-the-fly when content is displayed, wi
 
 #### Can I disable certain features?
 
-Yes, you can disable non-breaking spaces or special character replacements independently in the plugin settings.
+Yes, you can disable non-breaking spaces or special character replacements independently in the plugin settings. You can also choose precisely which content areas should be processed (titles, content, widgets, menus, taxonomies, archives, comments, RSS, REST API, etc.).
+
+#### Which content areas are covered?
+
+The plugin automatically processes:
+* Post and page titles and content (including Custom Post Types)
+* Excerpts
+* Widgets and menus
+* Taxonomies (categories, tags, custom taxonomies)
+* Archives
+* Comments
+* Custom fields (ACF, Meta Box)
+* RSS feeds
+* REST API responses
+* User profiles
+* Breadcrumbs (Yoast, Rank Math, SEOPress)
+* SEO meta descriptions and social tags (Open Graph, Twitter Cards)
+
+All these areas can be enabled or disabled individually from the settings.
 
 ### Author & Sponsorship
 
@@ -148,11 +238,11 @@ This plugin is a fork of the **French Typo** extension created by **Gilles March
 
 #### Inspirations
 
-This plugin is also inspired by other active or archived/inactive plugins:
+This plugin is also inspired by other projects:
 
-* [TypoFR](https://wordpress.org/plugins/typofr/) — WordPress plugin for French typography
-* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Automatic orthotypography
-* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg
+* [TypoFR](https://wordpress.org/plugins/typofr/) — WordPress plugin for French typography (archived)
+* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Automatic orthotypography (inactive)
+* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg (active and a most advanced plugin with modern Gutenberg options)
 
 ### License
 
@@ -165,4 +255,16 @@ This plugin is licensed under [GPLv2 or later](https://www.gnu.org/licenses/gpl-
 * Complete rewrite from the original French Typo plugin
 * Support for non-breaking spaces (regular and thin)
 * Support for special character replacements
-* Configurable settings page
+* Configurable settings page with granular options
+* Full Custom Post Types support
+* Custom Fields support (ACF, Meta Box)
+* Taxonomies support (categories, tags, custom taxonomies)
+* Archives support (all types)
+* Comments support
+* Widgets and menus support
+* RSS feeds support
+* REST API support
+* User profiles support
+* Breadcrumbs support (Yoast SEO, Rank Math, SEOPress)
+* SEO meta descriptions support (Yoast SEO, Rank Math, SEOPress)
+* Social tags support (Open Graph, Twitter Cards)
