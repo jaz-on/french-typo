@@ -59,10 +59,13 @@
 .wrap .french-typo-settings-layout {
 	display: grid;
 	grid-template-columns: 1fr;
+	grid-auto-rows: min-content;
+	align-items: start;
 	gap: var(--french-typo-space-md);
 	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
 	width: 100%;
+	box-sizing: border-box;
 }
 
 /* ==========================================================================
@@ -106,6 +109,8 @@
 	padding: var(--french-typo-space-md);
 	margin: 0;
 	width: 100%;
+	box-sizing: border-box;
+	align-self: start;
 	transition: border-color 0.2s ease;
 }
 
