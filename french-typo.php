@@ -1026,7 +1026,7 @@ function french_typo_advanced_text() {
 			sprintf(
 			/* translators: %s is a code example */
 				__( 'Apply typography rules to additional content areas like widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs. Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast, Rank Math, SEOPress) are also processed automatically. You can also use the filter <code>%s</code> in your code to process custom content.', 'french-typo' ),
-				'<code>apply_filters( \'french_typo_process_text\', $text )</code>'
+				'apply_filters( \'french_typo_process_text\', $text )'
 			)
 		);
 		?>
@@ -1075,12 +1075,12 @@ function french_typo_advanced() {
 		$options['apply_to_breadcrumbs'] = 1;
 	}
 	?>
-	<button type="button" class="french-typo-advanced-toggle" aria-expanded="false" aria-controls="french-typo-advanced-content">
-		<span class="french-typo-toggle-icon">▶</span>
-		<span class="french-typo-toggle-text"><?php esc_html_e( 'Show advanced options', 'french-typo' ); ?></span>
-	</button>
-	<div id="french-typo-advanced-content" class="french-typo-advanced-content" aria-hidden="true">
-		<fieldset>
+	<details class="french-typo-advanced-details">
+		<summary class="french-typo-advanced-toggle" aria-label="<?php esc_attr_e( 'Toggle advanced options visibility', 'french-typo' ); ?>">
+			<span class="french-typo-toggle-text"><?php esc_html_e( 'Show advanced options', 'french-typo' ); ?></span>
+		</summary>
+		<div class="french-typo-advanced-content">
+			<fieldset>
 			<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
 			
 			<!-- Core WordPress Areas -->
@@ -1152,7 +1152,8 @@ function french_typo_advanced() {
 				<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
 			</p>
 		</fieldset>
-	</div>
+		</div>
+	</details>
 	<?php
 }
 
@@ -1264,29 +1265,6 @@ function french_typo_admin_options() {
 		
 		<?php french_typo_display_version_info(); ?>
 	</div>
-	<script>
-	(function() {
-		'use strict';
-		var toggle = document.querySelector('.french-typo-advanced-toggle');
-		var content = document.getElementById('french-typo-advanced-content');
-		var toggleText = toggle ? toggle.querySelector('.french-typo-toggle-text') : null;
-
-		if (toggle && content && toggleText) {
-			toggle.addEventListener('click', function() {
-				var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-				var newExpanded = !isExpanded;
-
-				toggle.setAttribute('aria-expanded', newExpanded);
-				content.setAttribute('aria-hidden', !newExpanded);
-
-				// Update button text
-				toggleText.textContent = newExpanded
-					? <?php echo wp_json_encode( esc_html__( 'Hide advanced options', 'french-typo' ) ); ?>
-					: <?php echo wp_json_encode( esc_html__( 'Show advanced options', 'french-typo' ) ); ?>;
-			});
-		}
-	})();
-	</script>
 	<?php
 }
 
