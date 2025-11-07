@@ -1248,25 +1248,18 @@ function french_typo_display_version_info() {
 	$plugin_file = plugin_basename( __FILE__ );
 	$repo        = 'jaz-on/french-typo';
 	
-	// Try to get version info from Git Updater cache.
-	$git_updater_data = get_site_option( 'git_updater' );
-	$version_info     = null;
+	// Try to get version info from Git Updater's cached data first.
+	$version_info = french_typo_get_git_updater_version_info( $plugin_file, $repo );
 
-	if ( isset( $git_updater_data[ $plugin_file ] ) ) {
-		$plugin_data = $git_updater_data[ $plugin_file ];
-		
-		// Check if it's a release or commit.
-		if ( isset( $plugin_data['release_asset'] ) && $plugin_data['release_asset'] ) {
-			// It's a release, try to get latest release from GitHub API.
+	// Fallback to GitHub API if Git Updater data not available.
+	if ( ! $version_info ) {
+		// Check if Release Asset is enabled in plugin header.
+		$plugin_headers = get_file_data( __FILE__, array( 'Release Asset' => 'Release Asset' ) );
+		$is_release     = isset( $plugin_headers['Release Asset'] ) && 'true' === strtolower( trim( $plugin_headers['Release Asset'] ) );
+
+		if ( $is_release ) {
 			$version_info = french_typo_get_latest_release( $repo );
 		} else {
-			// It's a commit, try to get last commit from GitHub API.
-			$version_info = french_typo_get_latest_commit( $repo );
-		}
-	} else {
-		// Fallback: try to get info from GitHub API directly.
-		$version_info = french_typo_get_latest_release( $repo );
-		if ( ! $version_info ) {
 			$version_info = french_typo_get_latest_commit( $repo );
 		}
 	}
@@ -1294,6 +1287,51 @@ function french_typo_display_version_info() {
 		?>
 	</div>
 	<?php
+}
+
+/**
+ * Get version information from Git Updater's cached data.
+ *
+ * @since 1.0.0
+ *
+ * @param string $plugin_file Plugin basename.
+ * @param string $repo        Repository in format 'owner/repo'.
+ * @return array|false Version information or false on failure.
+ */
+function french_typo_get_git_updater_version_info( $plugin_file, $repo ) {
+	// Try to get data from Git Updater's transients.
+	$transient_key = md5( $plugin_file );
+	$repo_data     = get_site_transient( 'ghu_' . $transient_key );
+
+	if ( $repo_data && isset( $repo_data['version'] ) ) {
+		// Git Updater stores version info.
+		$version = $repo_data['version'];
+		
+		// Check if it's a release (tag) or commit (branch).
+		if ( preg_match( '/^v?\d+\.\d+\.\d+/', $version ) ) {
+			// Looks like a release version.
+			return array(
+				'type'    => 'release',
+				'version' => $version,
+				'url'     => sprintf( 'https://github.com/%s/releases/tag/%s', $repo, $version ),
+			);
+		}
+	}
+
+	// Try to get from Git Updater's file meta.
+	$file_meta = get_site_transient( 'ghu_file_meta_' . $transient_key );
+	if ( $file_meta && isset( $file_meta['sha'] ) ) {
+		$commit_date = isset( $file_meta['date'] ) ? date_i18n( get_option( 'date_format' ), strtotime( $file_meta['date'] ) ) : '';
+		
+		return array(
+			'type' => 'commit',
+			'hash' => substr( $file_meta['sha'], 0, 7 ),
+			'url'  => sprintf( 'https://github.com/%s/commit/%s', $repo, $file_meta['sha'] ),
+			'date' => $commit_date,
+		);
+	}
+
+	return false;
 }
 
 /**
