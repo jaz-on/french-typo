@@ -4,27 +4,36 @@
  * @package French_Typo
  */
 
-/* Two-column layout for settings page */
+:root {
+	--french-typo-space-16: 16px;
+	--french-typo-space-20: 20px;
+	--french-typo-breakpoint: 782px;
+}
+
+/* Two-column layout for settings page using CSS Grid */
 .french-typo-settings-layout {
-	display: flex;
-	align-items: flex-start;
-	gap: 20px;
-	margin-top: 20px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+	gap: var(--french-typo-space-20);
+	margin-top: var(--french-typo-space-20);
 }
 
 .french-typo-settings-layout .french-typo-column {
-	flex: 1;
 	min-width: 0;
 }
 
 .french-typo-settings-layout .french-typo-column .card {
-	margin-bottom: 20px;
+	margin-bottom: var(--french-typo-space-20);
 }
 
-/* Responsive: stack columns on smaller screens */
+/* Reset margin-top for first h2.title in cards */
+.french-typo-settings-layout .card > h2.title:first-child {
+	margin-top: 0;
+}
+
+/* Responsive: ensure single column on smaller screens */
 @media screen and (max-width: 782px) {
 	.french-typo-settings-layout {
-		flex-direction: column;
+		grid-template-columns: 1fr;
 	}
 }
-
