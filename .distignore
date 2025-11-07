@@ -5,6 +5,8 @@
 .git/
 .gitignore
 .gitattributes
+.gitkeep
+*.gitkeep
 
 # GitHub files
 .github/
@@ -60,4 +62,7 @@ phpunit.xml.dist
 tests/
 test/
 spec/
+
+# Deployment configuration (not needed in submission zip)
+.distignore
 
