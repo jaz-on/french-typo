@@ -14,6 +14,13 @@
 :root {
 	--french-typo-space-sm: 8px;   /* Small spacing */
 	--french-typo-space-md: 16px;  /* Medium spacing */
+
+	/* WordPress color palette */
+	--french-typo-color-primary: #2271b1;      /* Primary blue (links) */
+	--french-typo-color-text: #1d2327;        /* Primary text color */
+	--french-typo-color-text-secondary: #50575e; /* Secondary text color */
+	--french-typo-color-bg: #f6f7f7;          /* Background (light) */
+	--french-typo-color-border: #dcdcde;      /* Border color */
 }
 
 /* ==========================================================================
@@ -36,19 +43,14 @@
 .french-typo-intro-footer {
 	font-size: 13px;
 	font-style: italic;
-	color: #646970;
+	color: var(--french-typo-color-text-secondary);
 	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
 }
 
 .french-typo-intro-card a {
-	color: #2271b1;
+	color: var(--french-typo-color-primary);
 	text-decoration: none;
-}
-
-.french-typo-intro-card a:hover {
-	color: #135e96;
-	text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -64,7 +66,7 @@
    ========================================================================== */
 
 .french-typo-fieldset-group {
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--french-typo-color-border);
 	border-radius: 4px;
 	padding: var(--french-typo-space-md);
 	margin: 0 0 var(--french-typo-space-md) 0;
@@ -78,7 +80,7 @@
 	font-size: 1.125rem;
 	line-height: 1.4;
 	font-weight: 600;
-	color: #1d2327;
+	color: var(--french-typo-color-text);
 	margin: 0 0 var(--french-typo-space-md) 0;
 	padding: 0 var(--french-typo-space-sm);
 }
@@ -109,7 +111,7 @@
 }
 
 .french-typo-settings-card .description {
-	color: #646970;
+	color: var(--french-typo-color-text-secondary);
 	font-size: 13px;
 	line-height: 1.5;
 	margin-top: var(--french-typo-space-md);
@@ -127,8 +129,8 @@
 }
 
 .french-typo-settings-card code {
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
+	background: var(--french-typo-color-bg);
+	border: 1px solid var(--french-typo-color-border);
 	border-radius: 3px;
 	padding: 2px 6px;
 	font-size: 13px;
@@ -136,13 +138,8 @@
 }
 
 .french-typo-settings-card a {
-	color: #2271b1;
+	color: var(--french-typo-color-primary);
 	text-decoration: none;
-}
-
-.french-typo-settings-card a:hover {
-	color: #135e96;
-	text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -167,7 +164,7 @@
 .french-typo-checkbox-subgroup {
 	margin-top: var(--french-typo-space-md);
 	padding-top: var(--french-typo-space-md);
-	border-top: 1px solid #f0f0f1;
+	border-top: 1px solid var(--french-typo-color-border);
 }
 
 .french-typo-checkbox-subgroup:first-child {
@@ -179,7 +176,7 @@
 .french-typo-checkbox-subgroup-title {
 	font-weight: 600;
 	font-size: 14px;
-	color: #1d2327;
+	color: var(--french-typo-color-text);
 	margin-top: 0;
 	margin-bottom: var(--french-typo-space-md);
 	line-height: 1.4;
@@ -200,13 +197,12 @@
 	align-items: center;
 	gap: var(--french-typo-space-sm);
 	padding: var(--french-typo-space-sm) var(--french-typo-space-md);
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
+	background: var(--french-typo-color-bg);
+	border: 1px solid var(--french-typo-color-border);
 	border-radius: 4px;
 	font-size: 14px;
 	font-weight: 500;
-	color: #1d2327;
-	transition: background-color 0.2s ease, border-color 0.2s ease;
+	color: var(--french-typo-color-text);
 	list-style: none;
 }
 
@@ -217,19 +213,13 @@
 .french-typo-advanced-toggle::before {
 	content: "▶";
 	display: inline-block;
-	transition: transform 0.2s ease;
 	font-size: var(--french-typo-space-md);
 	line-height: 1;
 	margin-right: var(--french-typo-space-sm);
 }
 
 .french-typo-advanced-details[open] .french-typo-advanced-toggle::before {
-	transform: rotate(90deg);
-}
-
-.french-typo-advanced-toggle:hover {
-	background: #f0f0f1;
-	border-color: #c3c4c7;
+	content: "▼";
 }
 
 .french-typo-toggle-text {
@@ -247,7 +237,7 @@
 .french-typo-save-wrapper {
 	margin-top: var(--french-typo-space-md);
 	padding-top: var(--french-typo-space-md);
-	border-top: 1px solid #dcdcde;
+	border-top: 1px solid var(--french-typo-color-border);
 }
 
 .french-typo-save-wrapper .button-primary {
@@ -261,18 +251,13 @@
 .french-typo-version-info {
 	margin-top: var(--french-typo-space-md);
 	padding-top: var(--french-typo-space-md);
-	border-top: 1px solid #dcdcde;
+	border-top: 1px solid var(--french-typo-color-border);
 	font-size: 13px;
-	color: #646970;
+	color: var(--french-typo-color-text-secondary);
 	text-align: center;
 }
 
 .french-typo-version-info a {
-	color: #2271b1;
+	color: var(--french-typo-color-primary);
 	text-decoration: none;
-}
-
-.french-typo-version-info a:hover {
-	color: #135e96;
-	text-decoration: underline;
 }
