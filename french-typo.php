@@ -26,7 +26,6 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-// Test webhook update - 2025-11-07 - Clé API corrigée
 /**
  * Initialize plugin hooks.
  *
@@ -1076,58 +1075,84 @@ function french_typo_advanced() {
 		$options['apply_to_breadcrumbs'] = 1;
 	}
 	?>
-	<fieldset>
-		<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
-		<div class="french-typo-checkbox-group">
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], 1 ); ?> />
-				<?php esc_html_e( 'Excerpts', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], 1 ); ?> />
-				<?php esc_html_e( 'Widgets (text widgets and widget titles)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], 1 ); ?> />
-				<?php esc_html_e( 'Menu items', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], 1 ); ?> />
-				<?php esc_html_e( 'Custom fields (ACF, Meta Box, etc.)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], 1 ); ?> />
-				<?php esc_html_e( 'Taxonomies (categories, tags, custom taxonomies)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], 1 ); ?> />
-				<?php esc_html_e( 'Archives (titles and descriptions)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], 1 ); ?> />
-				<?php esc_html_e( 'Comments (text and author names)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], 1 ); ?> />
-				<?php esc_html_e( 'RSS feeds', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], 1 ); ?> />
-				<?php esc_html_e( 'REST API responses', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], 1 ); ?> />
-				<?php esc_html_e( 'User profiles (descriptions)', 'french-typo' ); ?>
-			</label>
-			<label>
-				<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], 1 ); ?> />
-				<?php esc_html_e( 'Breadcrumbs (Yoast, Rank Math, SEOPress)', 'french-typo' ); ?>
-			</label>
-		</div>
-		<p class="description">
-			<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
-		</p>
-	</fieldset>
+	<button type="button" class="french-typo-advanced-toggle" aria-expanded="false" aria-controls="french-typo-advanced-content">
+		<span class="french-typo-toggle-icon">▶</span>
+		<span class="french-typo-toggle-text"><?php esc_html_e( 'Show advanced options', 'french-typo' ); ?></span>
+	</button>
+	<div id="french-typo-advanced-content" class="french-typo-advanced-content" aria-hidden="true">
+		<fieldset>
+			<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
+			
+			<!-- Core WordPress Areas -->
+			<div class="french-typo-checkbox-subgroup">
+				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Core WordPress Areas', 'french-typo' ); ?></h3>
+				<div class="french-typo-checkbox-group">
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], 1 ); ?> />
+						<?php esc_html_e( 'Excerpts', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], 1 ); ?> />
+						<?php esc_html_e( 'Widgets (text widgets and widget titles)', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], 1 ); ?> />
+						<?php esc_html_e( 'Menu items', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], 1 ); ?> />
+						<?php esc_html_e( 'Archives (titles and descriptions)', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], 1 ); ?> />
+						<?php esc_html_e( 'Comments (text and author names)', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], 1 ); ?> />
+						<?php esc_html_e( 'User profiles (descriptions)', 'french-typo' ); ?>
+					</label>
+				</div>
+			</div>
+
+			<!-- Custom Content -->
+			<div class="french-typo-checkbox-subgroup">
+				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Custom Content', 'french-typo' ); ?></h3>
+				<div class="french-typo-checkbox-group">
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], 1 ); ?> />
+						<?php esc_html_e( 'Custom fields (ACF, Meta Box, etc.)', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], 1 ); ?> />
+						<?php esc_html_e( 'Taxonomies (categories, tags, custom taxonomies)', 'french-typo' ); ?>
+					</label>
+				</div>
+			</div>
+
+			<!-- Integrations -->
+			<div class="french-typo-checkbox-subgroup">
+				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Integrations', 'french-typo' ); ?></h3>
+				<div class="french-typo-checkbox-group">
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], 1 ); ?> />
+						<?php esc_html_e( 'RSS feeds', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], 1 ); ?> />
+						<?php esc_html_e( 'REST API responses', 'french-typo' ); ?>
+					</label>
+					<label>
+						<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], 1 ); ?> />
+						<?php esc_html_e( 'Breadcrumbs (Yoast, Rank Math, SEOPress)', 'french-typo' ); ?>
+					</label>
+				</div>
+			</div>
+
+			<p class="description">
+				<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
+			</p>
+		</fieldset>
+	</div>
 	<?php
 }
 
@@ -1201,36 +1226,67 @@ function french_typo_admin_options() {
 			<?php settings_fields( 'french_typo_settings' ); ?>
 			
 			<div class="french-typo-settings-layout">
-				<div class="card">
-					<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
-					<?php french_typo_narrow_space_text(); ?>
-					<?php french_typo_narrow_space(); ?>
+				<!-- Section: Règles Typographiques -->
+				<div class="french-typo-typography-rules">
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+						<?php french_typo_narrow_space_text(); ?>
+						<?php french_typo_narrow_space(); ?>
+					</div>
+
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+						<?php french_typo_special_characters_text(); ?>
+						<?php french_typo_special_characters(); ?>
+					</div>
 				</div>
 
-				<div class="card">
-					<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
-					<?php french_typo_special_characters_text(); ?>
-					<?php french_typo_special_characters(); ?>
-				</div>
+				<!-- Section: Zones d'Application -->
+				<div class="french-typo-application-zones">
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+						<?php french_typo_content_types_text(); ?>
+						<?php french_typo_content_types(); ?>
+					</div>
 
-				<div class="card">
-					<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
-					<?php french_typo_content_types_text(); ?>
-					<?php french_typo_content_types(); ?>
-				</div>
-
-				<div class="card">
-					<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
-					<?php french_typo_advanced_text(); ?>
-					<?php french_typo_advanced(); ?>
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+						<?php french_typo_advanced_text(); ?>
+						<?php french_typo_advanced(); ?>
+					</div>
 				</div>
 			</div>
 
-			<?php submit_button(); ?>
+			<div class="french-typo-save-wrapper">
+				<?php submit_button(); ?>
+			</div>
 		</form>
 		
 		<?php french_typo_display_version_info(); ?>
 	</div>
+	<script>
+	(function() {
+		'use strict';
+		var toggle = document.querySelector('.french-typo-advanced-toggle');
+		var content = document.getElementById('french-typo-advanced-content');
+		var toggleText = toggle ? toggle.querySelector('.french-typo-toggle-text') : null;
+
+		if (toggle && content && toggleText) {
+			toggle.addEventListener('click', function() {
+				var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+				var newExpanded = !isExpanded;
+
+				toggle.setAttribute('aria-expanded', newExpanded);
+				content.setAttribute('aria-hidden', !newExpanded);
+
+				// Update button text
+				toggleText.textContent = newExpanded
+					? <?php echo wp_json_encode( esc_html__( 'Hide advanced options', 'french-typo' ) ); ?>
+					: <?php echo wp_json_encode( esc_html__( 'Show advanced options', 'french-typo' ) ); ?>;
+			});
+		}
+	})();
+	</script>
 	<?php
 }
 
