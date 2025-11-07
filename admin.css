@@ -44,22 +44,44 @@
 }
 
 /* Grid layout for settings cards - 2 columns on desktop, 1 on mobile */
-.french-typo-settings-layout {
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: var(--french-typo-space-16);
-	margin-top: 20px;
+.wrap form .french-typo-settings-layout,
+.wrap .french-typo-settings-layout {
+	display: grid !important;
+	grid-template-columns: repeat(2, 1fr) !important;
+	grid-auto-rows: min-content !important;
+	align-items: start !important;
+	gap: var(--french-typo-space-16) !important;
+	margin-top: 20px !important;
+	margin-bottom: 0 !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
+	clear: both;
+	float: none !important;
 }
 
 /* Cards styling - clean and modern */
-.french-typo-settings-layout > .card {
-	display: flex;
-	flex-direction: column;
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	padding: var(--french-typo-space-16);
-	margin: 0;
+.wrap form .french-typo-settings-layout > .card,
+.wrap .french-typo-settings-layout > .card {
+	display: flex !important;
+	flex-direction: column !important;
+	background: #fff !important;
+	border: 1px solid #dcdcde !important;
+	border-radius: 4px !important;
+	padding: var(--french-typo-space-16) !important;
+	margin: 0 !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
+	height: auto !important;
+	min-height: 0 !important;
+	align-self: start !important;
+	float: none !important;
+	clear: none !important;
 }
 
 .french-typo-settings-layout .card > h2.title:first-child {
@@ -202,8 +224,8 @@
 
 /* Responsive: single column on smaller screens */
 @media screen and (max-width: 782px) {
-	.french-typo-settings-layout {
-		grid-template-columns: 1fr;
-		gap: var(--french-typo-space-12);
+	.wrap .french-typo-settings-layout {
+		grid-template-columns: 1fr !important;
+		gap: var(--french-typo-space-12) !important;
 	}
 }
