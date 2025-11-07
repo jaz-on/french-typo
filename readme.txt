@@ -1,4 +1,4 @@
-=== Typographie française ===
+=== French Typo ===
 Contributors: jaz_on, audrasjb
 Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
