@@ -164,6 +164,27 @@
 	text-decoration: underline;
 }
 
+/* Version info footer */
+.french-typo-version-info {
+	margin-top: 20px;
+	padding-top: var(--french-typo-space-12);
+	border-top: 1px solid #dcdcde;
+	font-size: 13px;
+	color: #646970;
+	text-align: center;
+}
+
+.french-typo-version-info a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.french-typo-version-info a:hover,
+.french-typo-version-info a:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
 /* Responsive: single column on smaller screens */
 @media screen and (max-width: 782px) {
 	.french-typo-settings-layout {
