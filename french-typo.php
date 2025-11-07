@@ -1155,31 +1155,62 @@ function french_typo_admin_options() {
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 		<?php settings_errors(); ?>
+		
+		<div class="card">
+			<p>
+				<?php esc_html_e( 'Thank you for using French Typo! This plugin automatically applies French typography rules to your WordPress content: non-breaking spaces before punctuation marks and special character replacements. Configure the options below according to your needs.', 'french-typo' ); ?>
+			</p>
+			<p>
+				<?php
+				echo wp_kses_post(
+					sprintf(
+					/* translators: %1$s is a link to GitHub, %2$s is a link to Ko-fi */
+						__( 'Find the source code on %1$s. If this plugin is useful to you, you can support its author and help make further developments on %2$s.', 'french-typo' ),
+						'<a href="' . esc_url( 'https://github.com/jaz-on/french-typo' ) . '" target="_blank" rel="noopener noreferrer">GitHub</a>',
+						'<a href="' . esc_url( 'https://ko-fi.com/jasonrouet' ) . '" target="_blank" rel="noopener noreferrer">Ko-fi</a>'
+					)
+				);
+				?>
+			</p>
+		</div>
+
 		<form method="post" action="options.php" novalidate="novalidate">
 			<?php settings_fields( 'french_typo_settings' ); ?>
 			
-			<div class="card">
-				<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
-				<?php french_typo_narrow_space_text(); ?>
-				<?php french_typo_narrow_space(); ?>
-			</div>
+			<div id="poststuff">
+				<div id="post-body" class="metabox-holder columns-2">
+					<div id="post-body-content">
+						<div class="meta-box-sortables ui-sortable">
+							<div class="card">
+								<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+								<?php french_typo_narrow_space_text(); ?>
+								<?php french_typo_narrow_space(); ?>
+							</div>
 
-			<div class="card">
-				<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
-				<?php french_typo_special_characters_text(); ?>
-				<?php french_typo_special_characters(); ?>
-			</div>
+							<div class="card">
+								<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+								<?php french_typo_special_characters_text(); ?>
+								<?php french_typo_special_characters(); ?>
+							</div>
+						</div>
+					</div>
 
-			<div class="card">
-				<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
-				<?php french_typo_content_types_text(); ?>
-				<?php french_typo_content_types(); ?>
-			</div>
+					<div id="postbox-container-1" class="postbox-container">
+						<div class="meta-box-sortables ui-sortable">
+							<div class="card">
+								<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+								<?php french_typo_content_types_text(); ?>
+								<?php french_typo_content_types(); ?>
+							</div>
 
-			<div class="card">
-				<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
-				<?php french_typo_advanced_text(); ?>
-				<?php french_typo_advanced(); ?>
+							<div class="card">
+								<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+								<?php french_typo_advanced_text(); ?>
+								<?php french_typo_advanced(); ?>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<?php submit_button(); ?>
