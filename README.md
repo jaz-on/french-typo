@@ -1,6 +1,8 @@
-# Typographie française
+# French Typo (typographie française)
 
-Petite extension WordPress qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
+> <small>*English? [See section below](#english)*</small>
+
+Extension WordPress qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
 
 ## Fonctionnalités
 
@@ -82,7 +84,7 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 
 ---
 
-## English
+## English {#english}
 
 WordPress plugin that allows you to apply French typography rules to the content you publish on a site powered by [WordPress](http://wordpress.org/).
 
