@@ -52,61 +52,52 @@
 }
 
 /* ==========================================================================
-   Main Layout Container
+   Settings Card
    ========================================================================== */
 
-.wrap form .french-typo-settings-layout,
-.wrap .french-typo-settings-layout {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--french-typo-space-md);
-	margin-top: var(--french-typo-space-md);
-	margin-bottom: 0;
+.french-typo-settings-card {
+	margin-bottom: var(--french-typo-space-md);
 }
 
 /* ==========================================================================
-   Zone: Typography Rules (Autonome)
+   Fieldset Groups
    ========================================================================== */
 
-.french-typo-typography-rules {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--french-typo-space-md);
+.french-typo-fieldset-group {
+	border: 0;
+	padding: 0;
+	margin: 0 0 var(--french-typo-space-md) 0;
 }
 
-/* --- Cards --- */
-.french-typo-typography-rules .card {
-	display: flex;
-	flex-direction: column;
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	padding: var(--french-typo-space-md);
-	margin: 0;
-	box-sizing: border-box;
-	transition: border-color 0.2s ease;
+.french-typo-fieldset-group:last-of-type {
+	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card:hover {
-	border-color: #8c8f94;
-}
-
-.french-typo-typography-rules .card > h2.title:first-child {
-	margin-top: 0;
-	margin-bottom: var(--french-typo-space-md);
+.french-typo-fieldset-title {
 	font-size: 1.125rem;
 	line-height: 1.4;
 	font-weight: 600;
+	color: #1d2327;
+	margin-top: 0;
+	margin-bottom: var(--french-typo-space-md);
+	padding: 0;
 }
 
-/* --- Forms --- */
-.french-typo-typography-rules .card fieldset {
+.french-typo-fieldset-group:first-child .french-typo-fieldset-title {
+	margin-top: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+.french-typo-settings-card fieldset {
 	border: 0;
 	padding: 0;
 	margin: 0;
 }
 
-.french-typo-typography-rules .card fieldset legend {
+.french-typo-settings-card fieldset legend.screen-reader-text {
 	position: absolute;
 	width: 1px;
 	height: 1px;
@@ -118,28 +109,28 @@
 	border: 0;
 }
 
-.french-typo-typography-rules .card fieldset label {
+.french-typo-settings-card fieldset label {
 	display: block;
 	margin-bottom: var(--french-typo-space-sm);
 	line-height: 1.6;
 }
 
-.french-typo-typography-rules .card fieldset label:last-of-type {
+.french-typo-settings-card fieldset label:last-of-type {
 	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card fieldset input[type="radio"],
-.french-typo-typography-rules .card fieldset input[type="checkbox"] {
+.french-typo-settings-card fieldset input[type="radio"],
+.french-typo-settings-card fieldset input[type="checkbox"] {
 	margin-right: var(--french-typo-space-sm);
 	margin-top: 0;
 	vertical-align: middle;
 }
 
-.french-typo-typography-rules .card fieldset br {
+.french-typo-settings-card fieldset br {
 	display: none;
 }
 
-.french-typo-typography-rules .card .description {
+.french-typo-settings-card .description {
 	color: #646970;
 	font-size: 13px;
 	line-height: 1.5;
@@ -147,17 +138,17 @@
 	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card p:not(.description) {
+.french-typo-settings-card p:not(.description) {
 	margin-top: 0;
 	margin-bottom: var(--french-typo-space-md);
 	line-height: 1.6;
 }
 
-.french-typo-typography-rules .card p:not(.description):last-child {
+.french-typo-settings-card p:not(.description):last-child {
 	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card code {
+.french-typo-settings-card code {
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
@@ -166,124 +157,12 @@
 	font-family: Consolas, Monaco, monospace;
 }
 
-.french-typo-typography-rules .card a {
+.french-typo-settings-card a {
 	color: #2271b1;
 	text-decoration: none;
 }
 
-.french-typo-typography-rules .card a:hover {
-	color: #135e96;
-	text-decoration: underline;
-}
-
-/* ==========================================================================
-   Zone: Application Zones (Autonome)
-   ========================================================================== */
-
-.french-typo-application-zones {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--french-typo-space-md);
-}
-
-/* --- Cards --- */
-.french-typo-application-zones .card {
-	display: flex;
-	flex-direction: column;
-	background: #fff;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	padding: var(--french-typo-space-md);
-	margin: 0;
-	box-sizing: border-box;
-	transition: border-color 0.2s ease;
-}
-
-.french-typo-application-zones .card:hover {
-	border-color: #8c8f94;
-}
-
-.french-typo-application-zones .card > h2.title:first-child {
-	margin-top: 0;
-	margin-bottom: var(--french-typo-space-md);
-	font-size: 1.125rem;
-	line-height: 1.4;
-	font-weight: 600;
-}
-
-/* --- Forms --- */
-.french-typo-application-zones .card fieldset {
-	border: 0;
-	padding: 0;
-	margin: 0;
-}
-
-.french-typo-application-zones .card fieldset legend {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-
-.french-typo-application-zones .card fieldset label {
-	display: block;
-	margin-bottom: var(--french-typo-space-sm);
-	line-height: 1.6;
-}
-
-.french-typo-application-zones .card fieldset label:last-of-type {
-	margin-bottom: 0;
-}
-
-.french-typo-application-zones .card fieldset input[type="radio"],
-.french-typo-application-zones .card fieldset input[type="checkbox"] {
-	margin-right: var(--french-typo-space-sm);
-	margin-top: 0;
-	vertical-align: middle;
-}
-
-.french-typo-application-zones .card fieldset br {
-	display: none;
-}
-
-.french-typo-application-zones .card .description {
-	color: #646970;
-	font-size: 13px;
-	line-height: 1.5;
-	margin-top: var(--french-typo-space-md);
-	margin-bottom: 0;
-}
-
-.french-typo-application-zones .card p:not(.description) {
-	margin-top: 0;
-	margin-bottom: var(--french-typo-space-md);
-	line-height: 1.6;
-}
-
-.french-typo-application-zones .card p:not(.description):last-child {
-	margin-bottom: 0;
-}
-
-.french-typo-application-zones .card code {
-	background: #f6f7f7;
-	border: 1px solid #dcdcde;
-	border-radius: 3px;
-	padding: 2px 6px;
-	font-size: 13px;
-	font-family: Consolas, Monaco, monospace;
-}
-
-.french-typo-application-zones .card a {
-	color: #2271b1;
-	text-decoration: none;
-}
-
-.french-typo-application-zones .card a:hover {
+.french-typo-settings-card a:hover {
 	color: #135e96;
 	text-decoration: underline;
 }
@@ -384,17 +263,13 @@
 }
 
 /* ==========================================================================
-   Sticky Button
+   Save Button
    ========================================================================== */
 
 .french-typo-save-wrapper {
-	position: sticky;
-	bottom: 0;
-	background: #fff;
-	padding: var(--french-typo-space-md) 0;
 	margin-top: var(--french-typo-space-md);
+	padding-top: var(--french-typo-space-md);
 	border-top: 1px solid #dcdcde;
-	z-index: 10;
 }
 
 .french-typo-save-wrapper .button-primary {
@@ -422,30 +297,4 @@
 .french-typo-version-info a:hover {
 	color: #135e96;
 	text-decoration: underline;
-}
-
-/* ==========================================================================
-   Responsive
-   ========================================================================== */
-
-/* --- Desktop large (≥1200px) --- */
-@media screen and (min-width: 1200px) {
-	/* Layout principal : 2 colonnes (typography-rules à gauche, application-zones à droite) */
-	.wrap form .french-typo-settings-layout,
-	.wrap .french-typo-settings-layout {
-		grid-template-columns: repeat(2, 1fr);
-	}
-
-	/* Typography Rules : 2 colonnes pour ses 2 cards internes */
-	.french-typo-typography-rules {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-/* --- Mobile (≤782px) --- */
-@media screen and (max-width: 782px) {
-	.french-typo-typography-rules .card,
-	.french-typo-application-zones .card {
-		padding: var(--french-typo-space-md);
-	}
 }

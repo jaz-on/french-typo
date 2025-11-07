@@ -1226,40 +1226,36 @@ function french_typo_admin_options() {
 		<form method="post" action="options.php" novalidate="novalidate">
 			<?php settings_fields( 'french_typo_settings' ); ?>
 			
-			<div class="french-typo-settings-layout">
-				<!-- Section: Règles Typographiques -->
-				<div class="french-typo-typography-rules">
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
-						<?php french_typo_narrow_space_text(); ?>
-						<?php french_typo_narrow_space(); ?>
-					</div>
-
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
-						<?php french_typo_special_characters_text(); ?>
-						<?php french_typo_special_characters(); ?>
-					</div>
+			<div class="card french-typo-settings-card">
+				<!-- Typography Rules -->
+				<div class="french-typo-fieldset-group">
+					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+					<?php french_typo_narrow_space_text(); ?>
+					<?php french_typo_narrow_space(); ?>
 				</div>
 
-				<!-- Section: Zones d'Application -->
-				<div class="french-typo-application-zones">
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
-						<?php french_typo_content_types_text(); ?>
-						<?php french_typo_content_types(); ?>
-					</div>
-
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
-						<?php french_typo_advanced_text(); ?>
-						<?php french_typo_advanced(); ?>
-					</div>
+				<div class="french-typo-fieldset-group">
+					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+					<?php french_typo_special_characters_text(); ?>
+					<?php french_typo_special_characters(); ?>
 				</div>
-			</div>
 
-			<div class="french-typo-save-wrapper">
-				<?php submit_button(); ?>
+				<!-- Application Zones -->
+				<div class="french-typo-fieldset-group">
+					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+					<?php french_typo_content_types_text(); ?>
+					<?php french_typo_content_types(); ?>
+				</div>
+
+				<div class="french-typo-fieldset-group">
+					<h2 class="french-typo-fieldset-title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+					<?php french_typo_advanced_text(); ?>
+					<?php french_typo_advanced(); ?>
+				</div>
+
+				<div class="french-typo-save-wrapper">
+					<?php submit_button(); ?>
+				</div>
 			</div>
 		</form>
 		
