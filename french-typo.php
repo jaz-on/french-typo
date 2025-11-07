@@ -690,7 +690,7 @@ function french_typo_admin_enqueue_scripts( $hook_suffix ) {
 		'french-typo-admin',
 		plugin_dir_url( __FILE__ ) . 'admin.css',
 		array(),
-		'1.0.1'
+		'1.0.0'
 	);
 }
 
@@ -812,33 +812,33 @@ function french_typo_narrow_space() {
 	?>
 	<fieldset>
 		<legend class="screen-reader-text"><span><?php esc_html_e( 'Automatic replacement', 'french-typo' ); ?></span></legend>
-		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
-			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
-			<?php
-			printf(
-				/* translators: %1$s and %2$s are HTML entity codes */
-				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
-				'<code>&amp;nbsp;</code>',
-				'<code>&amp;#160;</code>'
-			);
-			?>
-		</label>
-		<br>
-		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
-			<?php
-			printf(
-				/* translators: %s is an HTML entity code */
-				esc_html__( 'Enable and use thin non-breaking spaces (HTML entity %s)', 'french-typo' ),
-				'<code>&amp;#8239;</code>'
-			);
-			?>
-		</label>
+		<div class="french-typo-checkbox-group">
+			<label>
+				<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
+				<?php esc_html_e( 'Disable', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
+				<?php
+				printf(
+					/* translators: %1$s and %2$s are HTML entity codes */
+					esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
+					'<code>&amp;nbsp;</code>',
+					'<code>&amp;#160;</code>'
+				);
+				?>
+			</label>
+			<label>
+				<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
+				<?php
+				printf(
+					/* translators: %s is an HTML entity code */
+					esc_html__( 'Enable and use thin non-breaking spaces (HTML entity %s)', 'french-typo' ),
+					'<code>&amp;#8239;</code>'
+				);
+				?>
+			</label>
+		</div>
 		<p class="description">
 			<?php esc_html_e( 'Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used.', 'french-typo' ); ?>
 		</p>
@@ -883,15 +883,16 @@ function french_typo_special_characters() {
 	?>
 	<fieldset>
 		<legend class="screen-reader-text"><span><?php esc_html_e( 'Automatic replacement', 'french-typo' ); ?></span></legend>
-		<label>
-			<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
-			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
-			<?php esc_html_e( 'Enable', 'french-typo' ); ?>
-		</label>
+		<div class="french-typo-checkbox-group">
+			<label>
+				<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
+				<?php esc_html_e( 'Disable', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
+				<?php esc_html_e( 'Enable', 'french-typo' ); ?>
+			</label>
+		</div>
 	</fieldset>
 	<?php
 }
@@ -1071,60 +1072,52 @@ function french_typo_advanced() {
 	?>
 	<fieldset>
 		<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], 1 ); ?> />
-			<?php esc_html_e( 'Excerpts', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], 1 ); ?> />
-			<?php esc_html_e( 'Widgets (text widgets and widget titles)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], 1 ); ?> />
-			<?php esc_html_e( 'Menu items', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], 1 ); ?> />
-			<?php esc_html_e( 'Custom fields (ACF, Meta Box, etc.)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], 1 ); ?> />
-			<?php esc_html_e( 'Taxonomies (categories, tags, custom taxonomies)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], 1 ); ?> />
-			<?php esc_html_e( 'Archives (titles and descriptions)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], 1 ); ?> />
-			<?php esc_html_e( 'Comments (text and author names)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], 1 ); ?> />
-			<?php esc_html_e( 'RSS feeds', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], 1 ); ?> />
-			<?php esc_html_e( 'REST API responses', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], 1 ); ?> />
-			<?php esc_html_e( 'User profiles (descriptions)', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], 1 ); ?> />
-			<?php esc_html_e( 'Breadcrumbs (Yoast, Rank Math, SEOPress)', 'french-typo' ); ?>
-		</label>
+		<div class="french-typo-checkbox-group">
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], 1 ); ?> />
+				<?php esc_html_e( 'Excerpts', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], 1 ); ?> />
+				<?php esc_html_e( 'Widgets (text widgets and widget titles)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], 1 ); ?> />
+				<?php esc_html_e( 'Menu items', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], 1 ); ?> />
+				<?php esc_html_e( 'Custom fields (ACF, Meta Box, etc.)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], 1 ); ?> />
+				<?php esc_html_e( 'Taxonomies (categories, tags, custom taxonomies)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], 1 ); ?> />
+				<?php esc_html_e( 'Archives (titles and descriptions)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], 1 ); ?> />
+				<?php esc_html_e( 'Comments (text and author names)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], 1 ); ?> />
+				<?php esc_html_e( 'RSS feeds', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], 1 ); ?> />
+				<?php esc_html_e( 'REST API responses', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], 1 ); ?> />
+				<?php esc_html_e( 'User profiles (descriptions)', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], 1 ); ?> />
+				<?php esc_html_e( 'Breadcrumbs (Yoast, Rank Math, SEOPress)', 'french-typo' ); ?>
+			</label>
+		</div>
 		<p class="description">
 			<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
 		</p>
@@ -1148,15 +1141,16 @@ function french_typo_content_types() {
 	?>
 	<fieldset>
 		<legend class="screen-reader-text"><span><?php esc_html_e( 'Apply to', 'french-typo' ); ?></span></legend>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], 1 ); ?> />
-			<?php esc_html_e( 'Post and page titles', 'french-typo' ); ?>
-		</label>
-		<br>
-		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], 1 ); ?> />
-			<?php esc_html_e( 'Post and page content', 'french-typo' ); ?>
-		</label>
+		<div class="french-typo-checkbox-group">
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], 1 ); ?> />
+				<?php esc_html_e( 'Post and page titles', 'french-typo' ); ?>
+			</label>
+			<label>
+				<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], 1 ); ?> />
+				<?php esc_html_e( 'Post and page content', 'french-typo' ); ?>
+			</label>
+		</div>
 		<p class="description">
 			<?php esc_html_e( 'By default, both titles and content are processed. Uncheck to disable processing for specific content types.', 'french-typo' ); ?>
 		</p>
