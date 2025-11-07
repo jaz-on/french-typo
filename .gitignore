@@ -11,3 +11,6 @@
 # Exclude compiled translation files (.mo files are generated from .po files)
 languages/*.mo
 
+# Composer dependencies
+vendor/
+

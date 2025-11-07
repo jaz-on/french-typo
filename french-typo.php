@@ -14,9 +14,12 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: french-typo
  * Domain Path: /languages
+ *
+ * @package French_Typo
  */
+
 // Security check: prevent direct access to the file.
-defined( 'ABSPATH' ) or die( 'Silence is golden.' );
+defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
 /**
  * Initialize plugin hooks.
@@ -29,11 +32,11 @@ function french_typo_hooks() {
 	// Apply typography rules to post titles and content.
 	add_filter( 'the_title', 'french_typo_replace' );
 	add_filter( 'the_content', 'french_typo_replace' );
-	
+
 	// Only load admin functionality when in WordPress admin area.
 	if ( is_admin() ) {
-		add_action( 'admin_menu', 'french_typo_admin_menu');
-		add_action( 'admin_init', 'french_typo_admin_init');
+		add_action( 'admin_menu', 'french_typo_admin_menu' );
+		add_action( 'admin_init', 'french_typo_admin_init' );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'french_typo_action_links' );
 	}
 }
@@ -54,11 +57,11 @@ add_action( 'init', 'french_typo_hooks' );
 function french_typo_replace( $text ) {
 	// Get plugin options from database.
 	$options = get_option( 'french_typo_options', array() );
-	
+
 	// Determine which type of non-breaking space to use based on settings.
 	// 0 = disabled, 1 = regular (&#160;), 2 = thin (&#8239;).
 	if ( isset( $options['narrow_space'] ) ) {
-		switch( $options['narrow_space'] ) {
+		switch ( $options['narrow_space'] ) {
 			case '0':
 				$narrow_space = null;
 				break;
@@ -82,43 +85,43 @@ function french_typo_replace( $text ) {
 	}
 
 	// Static replacements: simple character sequences that don't need regex.
-	$french_typo_static_characters = array( '(c)', '(r)' );
+	$french_typo_static_characters   = array( '(c)', '(r)' );
 	$french_typo_static_replacements = array( '&#169;', '&#174;' );
 
 	// Dynamic replacements using regex patterns:
-	// Pattern 1: Add non-breaking space before ; : ! ? % » (but not if followed by word char or //)
-	// Pattern 2: Add non-breaking space after «
-	// Pattern 3: Fix cases where non-breaking space was incorrectly added before semicolon in HTML entities
-	$french_typo_dynamique_characters = array(
+	// Pattern 1: Add non-breaking space before ; : ! ? % » (but not if followed by word char or //).
+	// Pattern 2: Add non-breaking space after «.
+	// Pattern 3: Fix cases where non-breaking space was incorrectly added before semicolon in HTML entities.
+	$french_typo_dynamique_characters   = array(
 		'#\s?([?!:;%»])(?!\w|//)#u',
 		'#([«])\s?#u',
-		'/(&#?[a-zA-Z0-9]+)' . $narrow_space . ';/'
+		'/(&#?[a-zA-Z0-9]+)' . $narrow_space . ';/',
 	);
 	$french_typo_dynamique_replacements = array(
 		$narrow_space . '$1',
 		'$1' . $narrow_space,
-		'$1;'
+		'$1;',
 	);
 
 	// Split text into array, preserving HTML tags and shortcodes as separate elements.
 	$textarr = preg_split( '#(<.*>|\[.*\])#Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$stop = count($textarr);
+	$stop    = count( $textarr );
 
 	$text = '';
 
 	// Process each segment of the text.
-	for( $i = 0; $i < $stop; $i++ ) {
-		$curl = $textarr[$i];
+	for ( $i = 0; $i < $stop; $i++ ) {
+		$curl = $textarr[ $i ];
 
 		// Only process text segments (not HTML tags or shortcodes).
-		if ( !empty($curl) && '<' != $curl[0] && '[' != $curl[0] ) {
+		if ( ! empty( $curl ) && '<' !== $curl[0] && '[' !== $curl[0] ) {
 			// Replace special characters if enabled.
 			if ( $special_characters > 0 ) {
 				$curl = str_replace( $french_typo_static_characters, $french_typo_static_replacements, $curl );
 			}
 
 			// Apply non-breaking space rules if enabled.
-			if ( $narrow_space !== null ) {
+			if ( null !== $narrow_space ) {
 				$curl = preg_replace( $french_typo_dynamique_characters, $french_typo_dynamique_replacements, $curl );
 			}
 		}
@@ -203,12 +206,14 @@ function french_typo_admin_init() {
  * @since 1.0.0
  */
 function french_typo_narrow_space_text() {
-	echo '<p>' . wp_kses_post( sprintf(
+	echo '<p>' . wp_kses_post(
+		sprintf(
 		/* translators: %1$s and %2$s are links to Wikipedia articles */
-		__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>.', 'french-typo' ),
-		esc_url( 'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable' ),
-		esc_url( 'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable' )
-	) ) . '</p>';
+			__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>.', 'french-typo' ),
+			esc_url( 'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable' ),
+			esc_url( 'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable' )
+		)
+	) . '</p>';
 }
 
 /**
@@ -263,14 +268,16 @@ function french_typo_narrow_space() {
  * @since 1.0.0
  */
 function french_typo_special_characters_text() {
-	echo '<p>' . wp_kses_post( sprintf(
+	echo '<p>' . wp_kses_post(
+		sprintf(
 		/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
-		__( 'French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>.', 'french-typo' ),
-		esc_html( '(c)' ),
-		esc_html( '(r)' ),
-		esc_html( '©' ),
-		esc_html( '®' )
-	) ) . '</p>';
+			__( 'French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>.', 'french-typo' ),
+			esc_html( '(c)' ),
+			esc_html( '(r)' ),
+			esc_html( '©' ),
+			esc_html( '®' )
+		)
+	) . '</p>';
 }
 
 /**
@@ -316,7 +323,7 @@ function french_typo_options_validate( $input ) {
 	if ( isset( $input['special_characters'] ) ) {
 		$newinput['special_characters'] = absint( $input['special_characters'] );
 	}
-	
+
 	return $newinput;
 }
 
