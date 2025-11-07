@@ -690,7 +690,7 @@ function french_typo_admin_enqueue_scripts( $hook_suffix ) {
 		'french-typo-admin',
 		plugin_dir_url( __FILE__ ) . 'admin.css',
 		array(),
-		'1.0.0'
+		'1.0.1'
 	);
 }
 
