@@ -14,6 +14,7 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: french-typo
  * Domain Path: /languages
+ * Update URI: https://github.com/jaz-on/french-typo
  * GitHub Plugin URI: jaz-on/french-typo
  * GitHub Branch: main
  * Primary Branch: main
