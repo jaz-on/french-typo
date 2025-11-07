@@ -1248,7 +1248,7 @@ function french_typo_display_version_info() {
 
 	$plugin_file = plugin_basename( __FILE__ );
 	$repo        = 'jaz-on/french-typo';
-	
+
 	// Try to get version info from Git Updater's cached data first.
 	$version_info = french_typo_get_git_updater_version_info( $plugin_file, $repo );
 
@@ -1307,7 +1307,7 @@ function french_typo_get_git_updater_version_info( $plugin_file, $repo ) {
 	if ( $repo_data && isset( $repo_data['version'] ) ) {
 		// Git Updater stores version info.
 		$version = $repo_data['version'];
-		
+
 		// Check if it's a release (tag) or commit (branch).
 		if ( preg_match( '/^v?\d+\.\d+\.\d+/', $version ) ) {
 			// Looks like a release version.
@@ -1323,7 +1323,7 @@ function french_typo_get_git_updater_version_info( $plugin_file, $repo ) {
 	$file_meta = get_site_transient( 'ghu_file_meta_' . $transient_key );
 	if ( $file_meta && isset( $file_meta['sha'] ) ) {
 		$commit_date = isset( $file_meta['date'] ) ? date_i18n( get_option( 'date_format' ), strtotime( $file_meta['date'] ) ) : '';
-		
+
 		return array(
 			'type' => 'commit',
 			'hash' => substr( $file_meta['sha'], 0, 7 ),
@@ -1351,7 +1351,7 @@ function french_typo_get_latest_release( $repo ) {
 		return $cache;
 	}
 
-	$api_url = sprintf( 'https://api.github.com/repos/%s/releases/latest', $repo );
+	$api_url  = sprintf( 'https://api.github.com/repos/%s/releases/latest', $repo );
 	$response = wp_remote_get(
 		$api_url,
 		array(
@@ -1400,7 +1400,7 @@ function french_typo_get_latest_commit( $repo ) {
 		return $cache;
 	}
 
-	$api_url = sprintf( 'https://api.github.com/repos/%s/commits/main', $repo );
+	$api_url  = sprintf( 'https://api.github.com/repos/%s/commits/main', $repo );
 	$response = wp_remote_get(
 		$api_url,
 		array(

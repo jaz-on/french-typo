@@ -4,6 +4,8 @@
 
 Extension WordPress qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
 
+> **Note** : Ce plugin est compatible avec Git Updater pour les mises à jour automatiques depuis GitHub.
+
 ## Fonctionnalités
 
 ### Espaces insécables
