@@ -52,51 +52,141 @@
 }
 
 /* ==========================================================================
-   Main Layout
+   Main Layout Container
    ========================================================================== */
 
 .wrap form .french-typo-settings-layout,
 .wrap .french-typo-settings-layout {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-auto-rows: min-content;
-	align-items: start;
 	gap: var(--french-typo-space-md);
 	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
-	width: 100%;
-	box-sizing: border-box;
 }
 
 /* ==========================================================================
-   Sections (typography-rules, application-zones)
+   Zone: Typography Rules (Autonome)
    ========================================================================== */
 
-/* --- Typography Rules --- */
 .french-typo-typography-rules {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
 }
 
+/* --- Cards --- */
 .french-typo-typography-rules .card {
-	height: 100%;
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: var(--french-typo-space-md);
+	margin: 0;
+	box-sizing: border-box;
+	transition: border-color 0.2s ease;
 }
 
-/* --- Application Zones --- */
+.french-typo-typography-rules .card:hover {
+	border-color: #8c8f94;
+}
+
+.french-typo-typography-rules .card > h2.title:first-child {
+	margin-top: 0;
+	margin-bottom: var(--french-typo-space-md);
+	font-size: 1.125rem;
+	line-height: 1.4;
+	font-weight: 600;
+}
+
+/* --- Forms --- */
+.french-typo-typography-rules .card fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.french-typo-typography-rules .card fieldset legend {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.french-typo-typography-rules .card fieldset label {
+	display: block;
+	margin-bottom: var(--french-typo-space-sm);
+	line-height: 1.6;
+}
+
+.french-typo-typography-rules .card fieldset label:last-of-type {
+	margin-bottom: 0;
+}
+
+.french-typo-typography-rules .card fieldset input[type="radio"],
+.french-typo-typography-rules .card fieldset input[type="checkbox"] {
+	margin-right: var(--french-typo-space-sm);
+	margin-top: 0;
+	vertical-align: middle;
+}
+
+.french-typo-typography-rules .card fieldset br {
+	display: none;
+}
+
+.french-typo-typography-rules .card .description {
+	color: #646970;
+	font-size: 13px;
+	line-height: 1.5;
+	margin-top: var(--french-typo-space-md);
+	margin-bottom: 0;
+}
+
+.french-typo-typography-rules .card p:not(.description) {
+	margin-top: 0;
+	margin-bottom: var(--french-typo-space-md);
+	line-height: 1.6;
+}
+
+.french-typo-typography-rules .card p:not(.description):last-child {
+	margin-bottom: 0;
+}
+
+.french-typo-typography-rules .card code {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	padding: 2px 6px;
+	font-size: 13px;
+	font-family: Consolas, Monaco, monospace;
+}
+
+.french-typo-typography-rules .card a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.french-typo-typography-rules .card a:hover {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+   Zone: Application Zones (Autonome)
+   ========================================================================== */
+
 .french-typo-application-zones {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
 }
 
-/* ==========================================================================
-   Cards
-   ========================================================================== */
-
-.wrap form .french-typo-settings-layout .card,
-.wrap .french-typo-settings-layout .card,
-.french-typo-typography-rules .card,
+/* --- Cards --- */
 .french-typo-application-zones .card {
 	display: flex;
 	flex-direction: column;
@@ -105,20 +195,14 @@
 	border-radius: 4px;
 	padding: var(--french-typo-space-md);
 	margin: 0;
-	width: 100%;
 	box-sizing: border-box;
-	align-self: start;
 	transition: border-color 0.2s ease;
 }
 
-.wrap form .french-typo-settings-layout .card:hover,
-.wrap .french-typo-settings-layout .card:hover,
-.french-typo-typography-rules .card:hover,
 .french-typo-application-zones .card:hover {
 	border-color: #8c8f94;
 }
 
-.french-typo-typography-rules .card > h2.title:first-child,
 .french-typo-application-zones .card > h2.title:first-child {
 	margin-top: 0;
 	margin-bottom: var(--french-typo-space-md);
@@ -127,19 +211,13 @@
 	font-weight: 600;
 }
 
-/* ==========================================================================
-   Forms
-   ========================================================================== */
-
-.french-typo-typography-rules .card fieldset,
+/* --- Forms --- */
 .french-typo-application-zones .card fieldset {
 	border: 0;
 	padding: 0;
 	margin: 0;
 }
 
-/* --- Hidden legend for accessibility --- */
-.french-typo-typography-rules .card fieldset legend,
 .french-typo-application-zones .card fieldset legend {
 	position: absolute;
 	width: 1px;
@@ -152,20 +230,16 @@
 	border: 0;
 }
 
-.french-typo-typography-rules .card fieldset label,
 .french-typo-application-zones .card fieldset label {
 	display: block;
 	margin-bottom: var(--french-typo-space-sm);
 	line-height: 1.6;
 }
 
-.french-typo-typography-rules .card fieldset label:last-of-type,
 .french-typo-application-zones .card fieldset label:last-of-type {
 	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card fieldset input[type="radio"],
-.french-typo-typography-rules .card fieldset input[type="checkbox"],
 .french-typo-application-zones .card fieldset input[type="radio"],
 .french-typo-application-zones .card fieldset input[type="checkbox"] {
 	margin-right: var(--french-typo-space-sm);
@@ -173,14 +247,10 @@
 	vertical-align: middle;
 }
 
-/* Remove <br> tags - handled by CSS */
-.french-typo-typography-rules .card fieldset br,
 .french-typo-application-zones .card fieldset br {
 	display: none;
 }
 
-/* --- Description text --- */
-.french-typo-typography-rules .card .description,
 .french-typo-application-zones .card .description {
 	color: #646970;
 	font-size: 13px;
@@ -189,20 +259,16 @@
 	margin-bottom: 0;
 }
 
-.french-typo-typography-rules .card p:not(.description),
 .french-typo-application-zones .card p:not(.description) {
 	margin-top: 0;
 	margin-bottom: var(--french-typo-space-md);
 	line-height: 1.6;
 }
 
-.french-typo-typography-rules .card p:not(.description):last-child,
 .french-typo-application-zones .card p:not(.description):last-child {
 	margin-bottom: 0;
 }
 
-/* --- Code elements --- */
-.french-typo-typography-rules .card code,
 .french-typo-application-zones .card code {
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
@@ -212,14 +278,11 @@
 	font-family: Consolas, Monaco, monospace;
 }
 
-/* --- Links --- */
-.french-typo-typography-rules .card a,
 .french-typo-application-zones .card a {
 	color: #2271b1;
 	text-decoration: none;
 }
 
-.french-typo-typography-rules .card a:hover,
 .french-typo-application-zones .card a:hover {
 	color: #135e96;
 	text-decoration: underline;
@@ -381,13 +444,6 @@
 
 /* --- Mobile (≤782px) --- */
 @media screen and (max-width: 782px) {
-	.wrap form .french-typo-settings-layout,
-	.wrap .french-typo-settings-layout {
-		gap: var(--french-typo-space-md);
-	}
-
-	.wrap form .french-typo-settings-layout .card,
-	.wrap .french-typo-settings-layout .card,
 	.french-typo-typography-rules .card,
 	.french-typo-application-zones .card {
 		padding: var(--french-typo-space-md);
