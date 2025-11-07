@@ -78,7 +78,6 @@
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
 	width: 100%;
-	align-items: stretch;
 }
 
 .french-typo-typography-rules .card {
@@ -110,6 +109,7 @@
 	margin: 0;
 	width: 100%;
 	box-sizing: border-box;
+	align-self: start;
 	transition: border-color 0.2s ease;
 }
 
@@ -357,7 +357,6 @@
 @media screen and (min-width: 1200px) {
 	.french-typo-typography-rules {
 		grid-template-columns: repeat(2, 1fr);
-		align-items: stretch;
 	}
 }
 
