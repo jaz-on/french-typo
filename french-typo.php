@@ -691,12 +691,11 @@ function french_typo_admin_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
-	// Enqueue with high priority to ensure it loads after WordPress admin styles.
 	wp_enqueue_style(
 		'french-typo-admin',
 		plugin_dir_url( __FILE__ ) . 'admin.css',
 		array(),
-		'1.0.2'
+		'1.0.0'
 	);
 }
 
@@ -1235,254 +1234,27 @@ function french_typo_admin_options() {
 }
 
 /**
- * Display version information in footer if Git Updater is active.
+ * Display version information in footer.
  *
- * Shows the latest release version or last commit information.
+ * Shows the installed version from plugin headers.
  *
  * @since 1.0.0
  */
 function french_typo_display_version_info() {
-	$plugin_file = plugin_basename( __FILE__ );
-	$repo        = 'jaz-on/french-typo';
-
-	// Get installed version/commit info.
-	$installed_info = french_typo_get_installed_version_info( $plugin_file, $repo );
-
-	if ( ! $installed_info ) {
-		// Fallback: try to get from plugin version header.
-		$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ) );
-		if ( isset( $plugin_data['Version'] ) && ! empty( $plugin_data['Version'] ) ) {
-			$installed_info = array(
-				'type'    => 'version',
-				'version' => $plugin_data['Version'],
-			);
-		} else {
-			return;
-		}
+	$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ) );
+	if ( ! isset( $plugin_data['Version'] ) || empty( $plugin_data['Version'] ) ) {
+		return;
 	}
-
-	// Get latest available version/commit for comparison.
-	$latest_info = null;
-	if ( class_exists( 'Fragen\Git_Updater\Base' ) ) {
-		$plugin_headers = get_file_data( __FILE__, array( 'Release Asset' => 'Release Asset' ) );
-		$is_release     = isset( $plugin_headers['Release Asset'] ) && 'true' === strtolower( trim( $plugin_headers['Release Asset'] ) );
-
-		if ( $is_release ) {
-			$latest_info = french_typo_get_latest_release( $repo );
-		} else {
-			$latest_info = french_typo_get_latest_commit( $repo );
-		}
-	}
-
-	// Check if update is available.
-	$update_available = false;
-	if ( $latest_info && $installed_info ) {
-		if ( isset( $installed_info['hash'] ) && isset( $latest_info['hash'] ) ) {
-			$update_available = $installed_info['hash'] !== $latest_info['hash'];
-		} elseif ( isset( $installed_info['version'] ) && isset( $latest_info['version'] ) ) {
-			$update_available = version_compare( $installed_info['version'], $latest_info['version'], '<' );
-		}
-	}
-
 	?>
 	<div class="french-typo-version-info">
 		<?php
-		if ( isset( $installed_info['type'] ) && 'release' === $installed_info['type'] ) {
-			printf(
-				/* translators: %1$s is the version number, %2$s is a link to the release */
-				esc_html__( 'Installed version: %1$s', 'french-typo' ),
-				'<a href="' . esc_url( $installed_info['url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $installed_info['version'] ) . '</a>'
-			);
-		} elseif ( isset( $installed_info['hash'] ) ) {
-			printf(
-				/* translators: %1$s is the commit hash (short) with link, %2$s is the commit date */
-				esc_html__( 'Installed commit: %1$s (%2$s)', 'french-typo' ),
-				'<a href="' . esc_url( $installed_info['url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $installed_info['hash'] ) . '</a>',
-				esc_html( $installed_info['date'] )
-			);
-		} elseif ( isset( $installed_info['version'] ) ) {
-			printf(
-				/* translators: %s is the version number */
-				esc_html__( 'Installed version: %s', 'french-typo' ),
-				esc_html( $installed_info['version'] )
-			);
-		}
-
-		if ( $update_available && $latest_info ) {
-			echo ' <span class="french-typo-update-available">';
-			if ( isset( $latest_info['hash'] ) ) {
-				printf(
-					/* translators: %s is the latest commit hash */
-					esc_html__( '— Update available: %s', 'french-typo' ),
-					'<a href="' . esc_url( $latest_info['url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $latest_info['hash'] ) . '</a>'
-				);
-			} elseif ( isset( $latest_info['version'] ) ) {
-				printf(
-					/* translators: %s is the latest version number */
-					esc_html__( '— Update available: %s', 'french-typo' ),
-					'<a href="' . esc_url( $latest_info['url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $latest_info['version'] ) . '</a>'
-				);
-			}
-			echo '</span>';
-		}
+		printf(
+			/* translators: %s is the version number */
+			esc_html__( 'Installed version: %s', 'french-typo' ),
+			esc_html( $plugin_data['Version'] )
+		);
 		?>
 	</div>
 	<?php
 }
 
-/**
- * Get installed version/commit information.
- *
- * @since 1.0.0
- *
- * @param string $plugin_file Plugin basename.
- * @param string $repo        Repository in format 'owner/repo'.
- * @return array|false Version information or false on failure.
- */
-function french_typo_get_installed_version_info( $plugin_file, $repo ) {
-	// If Git Updater is active, try to get installed version from its cache.
-	if ( class_exists( 'Fragen\Git_Updater\Base' ) ) {
-		$transient_key = md5( $plugin_file );
-
-		// Try to get from Git Updater's file meta (this contains the installed commit SHA).
-		$file_meta = get_site_transient( 'ghu_file_meta_' . $transient_key );
-		if ( $file_meta && isset( $file_meta['sha'] ) ) {
-			$commit_date = isset( $file_meta['date'] ) ? date_i18n( get_option( 'date_format' ), strtotime( $file_meta['date'] ) ) : '';
-
-			return array(
-				'type' => 'commit',
-				'hash' => substr( $file_meta['sha'], 0, 7 ),
-				'url'  => sprintf( 'https://github.com/%s/commit/%s', $repo, $file_meta['sha'] ),
-				'date' => $commit_date,
-			);
-		}
-
-		// Try to get from Git Updater's repo data (for release versions).
-		$repo_data = get_site_transient( 'ghu_' . $transient_key );
-		if ( $repo_data && isset( $repo_data['version'] ) ) {
-			$version = $repo_data['version'];
-
-			// Check if it's a release (tag) or commit (branch).
-			if ( preg_match( '/^v?\d+\.\d+\.\d+/', $version ) ) {
-				// Looks like a release version.
-				return array(
-					'type'    => 'release',
-					'version' => $version,
-					'url'     => sprintf( 'https://github.com/%s/releases/tag/%s', $repo, $version ),
-				);
-			}
-		}
-	}
-
-	// Fallback: try to read from plugin file headers.
-	$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ) );
-	if ( isset( $plugin_data['Version'] ) && ! empty( $plugin_data['Version'] ) ) {
-		return array(
-			'type'    => 'version',
-			'version' => $plugin_data['Version'],
-		);
-	}
-
-	return false;
-}
-
-/**
- * Get latest release information from GitHub API.
- *
- * @since 1.0.0
- *
- * @param string $repo Repository in format 'owner/repo'.
- * @return array|false Release information or false on failure.
- */
-function french_typo_get_latest_release( $repo ) {
-	$transient_key = 'french_typo_latest_release';
-	$cache         = get_transient( $transient_key );
-
-	if ( false !== $cache ) {
-		return $cache;
-	}
-
-	$api_url  = sprintf( 'https://api.github.com/repos/%s/releases/latest', $repo );
-	$response = wp_remote_get(
-		$api_url,
-		array(
-			'timeout' => 10,
-			'headers' => array(
-				'Accept' => 'application/vnd.github.v3+json',
-			),
-		)
-	);
-
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return false;
-	}
-
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-	if ( ! isset( $body['tag_name'] ) || ! isset( $body['html_url'] ) ) {
-		return false;
-	}
-
-	$release_info = array(
-		'type'    => 'release',
-		'version' => $body['tag_name'],
-		'url'     => $body['html_url'],
-	);
-
-	// Cache for 1 hour.
-	set_transient( $transient_key, $release_info, HOUR_IN_SECONDS );
-
-	return $release_info;
-}
-
-/**
- * Get latest commit information from GitHub API.
- *
- * @since 1.0.0
- *
- * @param string $repo Repository in format 'owner/repo'.
- * @return array|false Commit information or false on failure.
- */
-function french_typo_get_latest_commit( $repo ) {
-	$transient_key = 'french_typo_latest_commit';
-	$cache         = get_transient( $transient_key );
-
-	if ( false !== $cache ) {
-		return $cache;
-	}
-
-	$api_url  = sprintf( 'https://api.github.com/repos/%s/commits/main', $repo );
-	$response = wp_remote_get(
-		$api_url,
-		array(
-			'timeout' => 10,
-			'headers' => array(
-				'Accept' => 'application/vnd.github.v3+json',
-			),
-		)
-	);
-
-	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return false;
-	}
-
-	$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-	if ( ! isset( $body['sha'] ) || ! isset( $body['html_url'] ) || ! isset( $body['commit']['committer']['date'] ) ) {
-		return false;
-	}
-
-	$commit_date = date_i18n( get_option( 'date_format' ), strtotime( $body['commit']['committer']['date'] ) );
-
-	$commit_info = array(
-		'type' => 'commit',
-		'hash' => substr( $body['sha'], 0, 7 ),
-		'url'  => $body['html_url'],
-		'date' => $commit_date,
-	);
-
-	// Cache for 30 minutes.
-	set_transient( $transient_key, $commit_info, 30 * MINUTE_IN_SECONDS );
-
-	return $commit_info;
-}

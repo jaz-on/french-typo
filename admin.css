@@ -207,21 +207,6 @@
 	text-decoration: underline;
 }
 
-.french-typo-update-available {
-	color: #d63638;
-	font-weight: 600;
-}
-
-.french-typo-update-available a {
-	color: #d63638;
-}
-
-.french-typo-update-available a:hover,
-.french-typo-update-available a:focus {
-	color: #b32d2e;
-	text-decoration: underline;
-}
-
 /* Responsive: single column on smaller screens */
 @media screen and (max-width: 782px) {
 	.wrap form .french-typo-settings-layout,
