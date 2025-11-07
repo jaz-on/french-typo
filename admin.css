@@ -10,6 +10,23 @@
 	--french-typo-space-16: 16px;
 }
 
+/* Intro card - full width */
+.french-typo-intro-card {
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.french-typo-intro-card a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.french-typo-intro-card a:hover,
+.french-typo-intro-card a:focus {
+	color: #135e96;
+	text-decoration: underline;
+}
+
 /* Grid layout for settings cards - 2 columns on desktop, 1 on mobile */
 .french-typo-settings-layout {
 	display: grid;
