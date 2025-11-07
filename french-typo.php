@@ -691,11 +691,12 @@ function french_typo_admin_enqueue_scripts( $hook_suffix ) {
 		return;
 	}
 
+	// Enqueue with high priority to ensure it loads after WordPress admin styles.
 	wp_enqueue_style(
 		'french-typo-admin',
 		plugin_dir_url( __FILE__ ) . 'admin.css',
 		array(),
-		'1.0.1'
+		'1.0.2'
 	);
 }
 
