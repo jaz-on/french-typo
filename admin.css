@@ -16,6 +16,22 @@
 	margin-bottom: 20px;
 }
 
+.french-typo-intro-card > h2.title:first-child {
+	margin-top: 0;
+	margin-bottom: var(--french-typo-space-12);
+	font-size: 1.125rem;
+	line-height: 1.4;
+	font-weight: 600;
+}
+
+.french-typo-intro-footer {
+	font-size: 13px;
+	font-style: italic;
+	color: #646970;
+	margin-top: var(--french-typo-space-12);
+	margin-bottom: 0;
+}
+
 .french-typo-intro-card a {
 	color: #2271b1;
 	text-decoration: none;

@@ -1177,10 +1177,11 @@ function french_typo_admin_options() {
 		<?php settings_errors(); ?>
 		
 		<div class="card french-typo-intro-card">
+			<h2 class="title"><?php esc_html_e( 'Thank you for using this plugin', 'french-typo' ); ?></h2>
 			<p>
-				<?php esc_html_e( 'Thank you for using French Typo! This plugin automatically applies French typography rules to your WordPress content: non-breaking spaces before punctuation marks and special character replacements. Configure the options below according to your needs.', 'french-typo' ); ?>
+				<?php esc_html_e( 'This plugin automatically applies French typography rules to your WordPress content: non-breaking spaces before punctuation marks and special character replacements. Configure the options below according to your needs.', 'french-typo' ); ?>
 			</p>
-			<p>
+			<p class="french-typo-intro-footer">
 				<?php
 				echo wp_kses_post(
 					sprintf(
