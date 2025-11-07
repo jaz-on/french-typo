@@ -110,7 +110,6 @@
 	margin: 0;
 	width: 100%;
 	box-sizing: border-box;
-	align-self: start;
 	transition: border-color 0.2s ease;
 }
 
