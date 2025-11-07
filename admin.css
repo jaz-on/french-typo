@@ -77,7 +77,6 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
-	width: 100%;
 }
 
 .french-typo-typography-rules .card {
@@ -89,7 +88,6 @@
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: var(--french-typo-space-md);
-	width: 100%;
 }
 
 /* ==========================================================================
