@@ -1189,7 +1189,7 @@ function french_typo_admin_options() {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-		<?php settings_errors(); ?>
+		<?php settings_errors( 'french_typo_settings' ); ?>
 		
 		<div class="card french-typo-intro-card">
 			<h2 class="title"><?php esc_html_e( 'Thank you for using this plugin', 'french-typo' ); ?></h2>
