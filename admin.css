@@ -355,6 +355,13 @@
 
 /* --- Desktop large (≥1200px) --- */
 @media screen and (min-width: 1200px) {
+	/* Layout principal : 2 colonnes (typography-rules à gauche, application-zones à droite) */
+	.wrap form .french-typo-settings-layout,
+	.wrap .french-typo-settings-layout {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	/* Typography Rules : 2 colonnes pour ses 2 cards internes */
 	.french-typo-typography-rules {
 		grid-template-columns: repeat(2, 1fr);
 	}
