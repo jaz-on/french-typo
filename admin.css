@@ -1,24 +1,33 @@
 /**
- * French Typo admin CSS — minimal & moderne
+ * French Typo admin CSS — minimal & modern
+ *
+ * Styles for the WordPress admin interface of the French Typo plugin.
+ * Uses native WordPress classes and targeted enhancements.
  *
  * @package French_Typo
  */
 
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+
 :root {
-	--french-typo-space-8: 8px;
-	--french-typo-space-12: 12px;
-	--french-typo-space-16: 16px;
+	--french-typo-space-sm: 8px;   /* Small spacing */
+	--french-typo-space-md: 16px;  /* Medium spacing */
 }
 
-/* Intro card - full width */
+/* ==========================================================================
+   Introduction Card
+   ========================================================================== */
+
 .french-typo-intro-card {
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: var(--french-typo-space-md);
 }
 
 .french-typo-intro-card > h2.title:first-child {
 	margin-top: 0;
-	margin-bottom: var(--french-typo-space-12);
+	margin-bottom: var(--french-typo-space-md);
 	font-size: 1.125rem;
 	line-height: 1.4;
 	font-weight: 600;
@@ -28,7 +37,7 @@
 	font-size: 13px;
 	font-style: italic;
 	color: #646970;
-	margin-top: var(--french-typo-space-12);
+	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
 }
 
@@ -37,50 +46,54 @@
 	text-decoration: none;
 }
 
-.french-typo-intro-card a:hover,
-.french-typo-intro-card a:focus {
+.french-typo-intro-card a:hover {
 	color: #135e96;
 	text-decoration: underline;
 }
 
-/* Main layout - single column with sections */
-.wrap form .french-typo-settings-layout,
-.wrap .french-typo-settings-layout {
+/* ==========================================================================
+   Main Layout
+   ========================================================================== */
+
+.french-typo-settings-layout {
 	display: grid;
 	grid-template-columns: 1fr;
-	grid-auto-rows: min-content;
-	align-items: start;
-	gap: 20px;
-	margin-top: 20px;
+	gap: var(--french-typo-space-md);
+	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
-	margin-left: 0;
-	margin-right: 0;
 	width: 100%;
-	max-width: 100%;
-	box-sizing: border-box;
-	clear: both;
-	float: none;
 }
 
-/* Section: Règles Typographiques - 2 columns on large desktop */
+/* ==========================================================================
+   Sections (typography-rules, application-zones)
+   ========================================================================== */
+
+/* --- Typography Rules --- */
 .french-typo-typography-rules {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: var(--french-typo-space-16);
+	gap: var(--french-typo-space-md);
 	width: 100%;
+	align-items: stretch;
 }
 
-/* Section: Zones d'Application - single column */
+.french-typo-typography-rules .card {
+	height: 100%;
+}
+
+/* --- Application Zones --- */
 .french-typo-application-zones {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: var(--french-typo-space-16);
+	gap: var(--french-typo-space-md);
 	width: 100%;
 }
 
-/* Cards styling - clean and modern with visual enhancements */
-.wrap form .french-typo-settings-layout .card,
-.wrap .french-typo-settings-layout .card,
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.french-typo-settings-layout .card,
 .french-typo-typography-rules .card,
 .french-typo-application-zones .card {
 	display: flex;
@@ -88,44 +101,37 @@
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
-	padding: var(--french-typo-space-16);
+	padding: var(--french-typo-space-md);
 	margin: 0;
-	margin-left: 0;
-	margin-right: 0;
 	width: 100%;
-	max-width: 100%;
-	box-sizing: border-box;
-	height: auto;
-	min-height: 0;
-	align-self: start;
-	float: none;
-	clear: none;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	transition: box-shadow 0.2s ease, transform 0.2s ease;
+	transition: border-color 0.2s ease;
 }
 
-.wrap form .french-typo-settings-layout .card:hover,
-.wrap .french-typo-settings-layout .card:hover,
+.french-typo-settings-layout .card:hover,
 .french-typo-typography-rules .card:hover,
 .french-typo-application-zones .card:hover {
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+	border-color: #8c8f94;
 }
 
 .french-typo-settings-layout .card > h2.title:first-child {
 	margin-top: 0;
-	margin-bottom: var(--french-typo-space-12);
+	margin-bottom: var(--french-typo-space-md);
 	font-size: 1.125rem;
 	line-height: 1.4;
 	font-weight: 600;
 }
 
-/* Form fields styling */
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
 .french-typo-settings-layout .card fieldset {
 	border: 0;
 	padding: 0;
 	margin: 0;
 }
 
+/* --- Hidden legend for accessibility --- */
 .french-typo-settings-layout .card fieldset legend {
 	position: absolute;
 	width: 1px;
@@ -140,7 +146,7 @@
 
 .french-typo-settings-layout .card fieldset label {
 	display: block;
-	margin-bottom: var(--french-typo-space-8);
+	margin-bottom: var(--french-typo-space-sm);
 	line-height: 1.6;
 }
 
@@ -150,40 +156,28 @@
 
 .french-typo-settings-layout .card fieldset input[type="radio"],
 .french-typo-settings-layout .card fieldset input[type="checkbox"] {
-	margin-right: var(--french-typo-space-8);
+	margin-right: var(--french-typo-space-sm);
 	margin-top: 0;
 	vertical-align: middle;
 }
 
-/* Remove <br> spacing - handled by CSS */
+/* Remove <br> tags - handled by CSS */
 .french-typo-settings-layout .card fieldset br {
 	display: none;
 }
 
-/* Checkbox groups with flex layout */
-.french-typo-checkbox-group {
-	display: flex;
-	flex-direction: column;
-	gap: var(--french-typo-space-8);
-	margin-top: var(--french-typo-space-8);
-}
-
-.french-typo-checkbox-group label {
-	margin-bottom: 0;
-}
-
-/* Description text */
+/* --- Description text --- */
 .french-typo-settings-layout .card .description {
 	color: #646970;
 	font-size: 13px;
 	line-height: 1.5;
-	margin-top: var(--french-typo-space-12);
+	margin-top: var(--french-typo-space-md);
 	margin-bottom: 0;
 }
 
 .french-typo-settings-layout .card p:not(.description) {
 	margin-top: 0;
-	margin-bottom: var(--french-typo-space-12);
+	margin-bottom: var(--french-typo-space-md);
 	line-height: 1.6;
 }
 
@@ -191,7 +185,7 @@
 	margin-bottom: 0;
 }
 
-/* Code elements */
+/* --- Code elements --- */
 .french-typo-settings-layout .card code {
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
@@ -201,57 +195,39 @@
 	font-family: Consolas, Monaco, monospace;
 }
 
-/* Links in intro card */
+/* --- Links --- */
 .french-typo-settings-layout .card a {
 	color: #2271b1;
 	text-decoration: none;
 }
 
-.french-typo-settings-layout .card a:hover,
-.french-typo-settings-layout .card a:focus {
+.french-typo-settings-layout .card a:hover {
 	color: #135e96;
 	text-decoration: underline;
 }
 
-/* Version info footer */
-.french-typo-version-info {
-	margin-top: 20px;
-	padding-top: var(--french-typo-space-12);
-	border-top: 1px solid #dcdcde;
-	font-size: 13px;
-	color: #646970;
-	text-align: center;
+/* ==========================================================================
+   Checkbox Groups
+   ========================================================================== */
+
+.french-typo-checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--french-typo-space-sm);
+	margin-top: var(--french-typo-space-sm);
 }
 
-.french-typo-version-info a {
-	color: #2271b1;
-	text-decoration: none;
+.french-typo-checkbox-group label {
+	margin-bottom: 0;
 }
 
-.french-typo-version-info a:hover,
-.french-typo-version-info a:focus {
-	color: #135e96;
-	text-decoration: underline;
-}
+/* ==========================================================================
+   Subgroups
+   ========================================================================== */
 
-/* Responsive: Desktop large - 2 columns for typography rules */
-@media screen and (min-width: 1200px) {
-	.french-typo-typography-rules {
-		grid-template-columns: repeat(2, 1fr);
-	}
-}
-
-/* Responsive: Tablet - single column but compact */
-@media screen and (min-width: 783px) and (max-width: 1199px) {
-	.french-typo-typography-rules {
-		grid-template-columns: 1fr;
-	}
-}
-
-/* Sous-groupes pour les checkboxes avancées */
 .french-typo-checkbox-subgroup {
-	margin-top: var(--french-typo-space-16);
-	padding-top: var(--french-typo-space-16);
+	margin-top: var(--french-typo-space-md);
+	padding-top: var(--french-typo-space-md);
 	border-top: 1px solid #f0f0f1;
 }
 
@@ -266,19 +242,25 @@
 	font-size: 14px;
 	color: #1d2327;
 	margin-top: 0;
-	margin-bottom: var(--french-typo-space-12);
+	margin-bottom: var(--french-typo-space-md);
 	line-height: 1.4;
 }
 
-/* Accordéon pour Advanced options */
+/* ==========================================================================
+   Accordion
+   ========================================================================== */
+
+.french-typo-advanced-details {
+	margin-top: var(--french-typo-space-md);
+}
+
 .french-typo-advanced-toggle {
 	cursor: pointer;
 	user-select: none;
 	display: flex;
 	align-items: center;
-	gap: var(--french-typo-space-8);
-	margin-top: var(--french-typo-space-12);
-	padding: var(--french-typo-space-8) var(--french-typo-space-12);
+	gap: var(--french-typo-space-sm);
+	padding: var(--french-typo-space-sm) var(--french-typo-space-md);
 	background: #f6f7f7;
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
@@ -286,8 +268,24 @@
 	font-weight: 500;
 	color: #1d2327;
 	transition: background-color 0.2s ease, border-color 0.2s ease;
-	width: 100%;
-	text-align: left;
+	list-style: none;
+}
+
+.french-typo-advanced-toggle::-webkit-details-marker {
+	display: none;
+}
+
+.french-typo-advanced-toggle::before {
+	content: "▶";
+	display: inline-block;
+	transition: transform 0.2s ease;
+	font-size: var(--french-typo-space-md);
+	line-height: 1;
+	margin-right: var(--french-typo-space-sm);
+}
+
+.french-typo-advanced-details[open] .french-typo-advanced-toggle::before {
+	transform: rotate(90deg);
 }
 
 .french-typo-advanced-toggle:hover {
@@ -295,44 +293,25 @@
 	border-color: #c3c4c7;
 }
 
-.french-typo-advanced-toggle:focus {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-}
-
-.french-typo-toggle-icon {
-	display: inline-block;
-	transition: transform 0.2s ease;
-	font-size: 12px;
-	line-height: 1;
-}
-
-.french-typo-advanced-toggle[aria-expanded="true"] .french-typo-toggle-icon {
-	transform: rotate(90deg);
-}
-
 .french-typo-toggle-text {
 	flex: 1;
 }
 
 .french-typo-advanced-content {
-	display: none;
-	margin-top: var(--french-typo-space-12);
+	margin-top: var(--french-typo-space-md);
 }
 
-.french-typo-advanced-content[aria-hidden="false"] {
-	display: block;
-}
+/* ==========================================================================
+   Sticky Button
+   ========================================================================== */
 
-/* Bouton Save Changes sticky */
 .french-typo-save-wrapper {
 	position: sticky;
 	bottom: 0;
 	background: #fff;
-	padding: var(--french-typo-space-16) 0;
-	margin-top: 24px;
+	padding: var(--french-typo-space-md) 0;
+	margin-top: var(--french-typo-space-md);
 	border-top: 1px solid #dcdcde;
-	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 	z-index: 10;
 }
 
@@ -340,17 +319,50 @@
 	margin: 0;
 }
 
-/* Responsive: Mobile - reduced spacing */
+/* ==========================================================================
+   Version Info
+   ========================================================================== */
+
+.french-typo-version-info {
+	margin-top: var(--french-typo-space-md);
+	padding-top: var(--french-typo-space-md);
+	border-top: 1px solid #dcdcde;
+	font-size: 13px;
+	color: #646970;
+	text-align: center;
+}
+
+.french-typo-version-info a {
+	color: #2271b1;
+	text-decoration: none;
+}
+
+.french-typo-version-info a:hover {
+	color: #135e96;
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+/* --- Desktop large (≥1200px) --- */
+@media screen and (min-width: 1200px) {
+	.french-typo-typography-rules {
+		grid-template-columns: repeat(2, 1fr);
+		align-items: stretch;
+	}
+}
+
+/* --- Mobile (≤782px) --- */
 @media screen and (max-width: 782px) {
-	.wrap form .french-typo-settings-layout,
-	.wrap .french-typo-settings-layout {
-		gap: var(--french-typo-space-12);
+	.french-typo-settings-layout {
+		gap: var(--french-typo-space-md);
 	}
 
-	.wrap form .french-typo-settings-layout .card,
-	.wrap .french-typo-settings-layout .card,
+	.french-typo-settings-layout .card,
 	.french-typo-typography-rules .card,
 	.french-typo-application-zones .card {
-		padding: var(--french-typo-space-12);
+		padding: var(--french-typo-space-md);
 	}
 }
