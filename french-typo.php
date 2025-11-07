@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Typographie française
+ * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
- * Description: Applique les règles de la typographie française. Fork de l'extension French Typo (par Gilles Marchand), non maintenue.
+ * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®).
  * Version: 1.0.0
  * Requires at least: 6.0
  * Requires PHP: 8.3
@@ -17,20 +17,6 @@
  */
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) or die( 'Silence is golden.' );
-
-/**
- * Load plugin text domain for translations.
- *
- * @since 1.0.0
- */
-function french_typo_load_textdomain() {
-	load_plugin_textdomain(
-		'french-typo',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
-}
-add_action( 'plugins_loaded', 'french_typo_load_textdomain' );
 
 /**
  * Initialize plugin hooks.
@@ -48,6 +34,7 @@ function french_typo_hooks() {
 	if ( is_admin() ) {
 		add_action( 'admin_menu', 'french_typo_admin_menu');
 		add_action( 'admin_init', 'french_typo_admin_init');
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'french_typo_action_links' );
 	}
 }
 add_action( 'init', 'french_typo_hooks' );
@@ -156,6 +143,24 @@ function french_typo_admin_menu() {
 }
 
 /**
+ * Add settings link to plugin action links.
+ *
+ * @since 1.0.0
+ *
+ * @param array $links Existing plugin action links.
+ * @return array Modified plugin action links.
+ */
+function french_typo_action_links( $links ) {
+	$settings_link = sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( admin_url( 'options-general.php?page=french-typo' ) ),
+		esc_html__( 'Settings', 'french-typo' )
+	);
+	array_unshift( $links, $settings_link );
+	return $links;
+}
+
+/**
  * Register plugin settings and fields.
  *
  * @since 1.0.0
@@ -198,12 +203,12 @@ function french_typo_admin_init() {
  * @since 1.0.0
  */
 function french_typo_narrow_space_text() {
-	echo '<p>' . sprintf(
+	echo '<p>' . wp_kses_post( sprintf(
 		/* translators: %1$s and %2$s are links to Wikipedia articles */
 		__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>.', 'french-typo' ),
-		'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable',
-		'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable'
-	) . '</p>';
+		esc_url( 'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable' ),
+		esc_url( 'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable' )
+	) ) . '</p>';
 }
 
 /**
@@ -258,14 +263,14 @@ function french_typo_narrow_space() {
  * @since 1.0.0
  */
 function french_typo_special_characters_text() {
-	echo '<p>' . sprintf(
+	echo '<p>' . wp_kses_post( sprintf(
 		/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
 		__( 'French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>.', 'french-typo' ),
-		'(c)',
-		'(r)',
-		'©',
-		'®'
-	) . '</p>';
+		esc_html( '(c)' ),
+		esc_html( '(r)' ),
+		esc_html( '©' ),
+		esc_html( '®' )
+	) ) . '</p>';
 }
 
 /**

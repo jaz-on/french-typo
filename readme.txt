@@ -1,6 +1,6 @@
 === Typographie française ===
 Contributors: jaz_on, audrasjb
-Tags: typography, french, typographie, francais, space, insécable, orthographe
+Tags: typography, french, typographie, francais, espace
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.3
