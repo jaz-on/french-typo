@@ -1,0 +1,29 @@
+/**
+ * Admin styles for French Typo settings page.
+ *
+ * @package French_Typo
+ */
+
+/* Two-column layout for settings page */
+.french-typo-settings-layout {
+	display: flex;
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.french-typo-settings-layout .french-typo-column {
+	flex: 1;
+	min-width: 0;
+}
+
+.french-typo-settings-layout .french-typo-column .card {
+	margin-bottom: 20px;
+}
+
+/* Responsive: stack columns on smaller screens */
+@media screen and (max-width: 782px) {
+	.french-typo-settings-layout {
+		flex-direction: column;
+	}
+}
+

@@ -130,6 +130,7 @@ function french_typo_hooks() {
 	if ( is_admin() ) {
 		add_action( 'admin_menu', 'french_typo_admin_menu' );
 		add_action( 'admin_init', 'french_typo_admin_init' );
+		add_action( 'admin_enqueue_scripts', 'french_typo_admin_enqueue_scripts' );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'french_typo_action_links' );
 	}
 }
@@ -673,6 +674,27 @@ function french_typo_admin_menu() {
 }
 
 /**
+ * Enqueue admin styles for settings page.
+ *
+ * @since 1.0.0
+ *
+ * @param string $hook_suffix Current admin page hook suffix.
+ */
+function french_typo_admin_enqueue_scripts( $hook_suffix ) {
+	// Only load CSS on the plugin's settings page.
+	if ( 'settings_page_french-typo' !== $hook_suffix ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'french-typo-admin',
+		plugin_dir_url( __FILE__ ) . 'admin.css',
+		array(),
+		'1.0.0'
+	);
+}
+
+/**
  * Add settings link to plugin action links.
  *
  * @since 1.0.0
@@ -1177,38 +1199,32 @@ function french_typo_admin_options() {
 		<form method="post" action="options.php" novalidate="novalidate">
 			<?php settings_fields( 'french_typo_settings' ); ?>
 			
-			<div id="poststuff">
-				<div id="post-body" class="metabox-holder columns-2">
-					<div id="post-body-content">
-						<div class="meta-box-sortables ui-sortable">
-							<div class="card">
-								<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
-								<?php french_typo_narrow_space_text(); ?>
-								<?php french_typo_narrow_space(); ?>
-							</div>
-
-							<div class="card">
-								<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
-								<?php french_typo_special_characters_text(); ?>
-								<?php french_typo_special_characters(); ?>
-							</div>
-						</div>
+			<div class="french-typo-settings-layout">
+				<div class="french-typo-column">
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+						<?php french_typo_narrow_space_text(); ?>
+						<?php french_typo_narrow_space(); ?>
 					</div>
 
-					<div id="postbox-container-1" class="postbox-container">
-						<div class="meta-box-sortables ui-sortable">
-							<div class="card">
-								<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
-								<?php french_typo_content_types_text(); ?>
-								<?php french_typo_content_types(); ?>
-							</div>
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+						<?php french_typo_special_characters_text(); ?>
+						<?php french_typo_special_characters(); ?>
+					</div>
 
-							<div class="card">
-								<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
-								<?php french_typo_advanced_text(); ?>
-								<?php french_typo_advanced(); ?>
-							</div>
-						</div>
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+						<?php french_typo_content_types_text(); ?>
+						<?php french_typo_content_types(); ?>
+					</div>
+				</div>
+
+				<div class="french-typo-column">
+					<div class="card">
+						<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+						<?php french_typo_advanced_text(); ?>
+						<?php french_typo_advanced(); ?>
 					</div>
 				</div>
 			</div>
