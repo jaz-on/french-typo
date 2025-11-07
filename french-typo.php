@@ -1194,32 +1194,28 @@ function french_typo_admin_options() {
 			<?php settings_fields( 'french_typo_settings' ); ?>
 			
 			<div class="french-typo-settings-layout">
-				<div class="french-typo-column">
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
-						<?php french_typo_narrow_space_text(); ?>
-						<?php french_typo_narrow_space(); ?>
-					</div>
-
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
-						<?php french_typo_special_characters_text(); ?>
-						<?php french_typo_special_characters(); ?>
-					</div>
-
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
-						<?php french_typo_content_types_text(); ?>
-						<?php french_typo_content_types(); ?>
-					</div>
+				<div class="card">
+					<h2 class="title"><?php esc_html_e( 'Non-breaking spaces', 'french-typo' ); ?></h2>
+					<?php french_typo_narrow_space_text(); ?>
+					<?php french_typo_narrow_space(); ?>
 				</div>
 
-				<div class="french-typo-column">
-					<div class="card">
-						<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
-						<?php french_typo_advanced_text(); ?>
-						<?php french_typo_advanced(); ?>
-					</div>
+				<div class="card">
+					<h2 class="title"><?php esc_html_e( 'Special characters', 'french-typo' ); ?></h2>
+					<?php french_typo_special_characters_text(); ?>
+					<?php french_typo_special_characters(); ?>
+				</div>
+
+				<div class="card">
+					<h2 class="title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></h2>
+					<?php french_typo_content_types_text(); ?>
+					<?php french_typo_content_types(); ?>
+				</div>
+
+				<div class="card">
+					<h2 class="title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></h2>
+					<?php french_typo_advanced_text(); ?>
+					<?php french_typo_advanced(); ?>
 				</div>
 			</div>
 

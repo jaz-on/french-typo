@@ -10,20 +10,18 @@
 	--french-typo-space-16: 16px;
 }
 
-/* Grid layout for settings cards - responsive auto-fit */
+/* Grid layout for settings cards - 2 columns on desktop, 1 on mobile */
 .french-typo-settings-layout {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	grid-template-columns: repeat(2, 1fr);
 	gap: var(--french-typo-space-16);
 	margin-top: 20px;
 }
 
-.french-typo-settings-layout .french-typo-column {
-	min-width: 0;
-}
-
 /* Cards styling - clean and modern */
-.french-typo-settings-layout .card {
+.french-typo-settings-layout > .card {
+	display: flex;
+	flex-direction: column;
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 4px;
