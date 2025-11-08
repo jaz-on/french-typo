@@ -1,0 +1,93 @@
+name: Create Release ZIP
+
+on:
+  push:
+    tags:
+      - '*'
+  release:
+    types: [created, edited]
+
+jobs:
+  create-zip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get release tag
+        id: get_tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Setup Node.js (for rsync alternative)
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies for zip creation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip rsync
+
+      - name: Create clean distribution directory
+        run: |
+          mkdir -p dist/french-typo
+          
+      - name: Copy files excluding .distignore patterns
+        run: |
+          # Read .distignore and create rsync exclude file
+          grep -v '^#' .distignore | grep -v '^$' | sed 's|^|--exclude=|' > /tmp/excludes.txt
+          echo "--exclude=.git" >> /tmp/excludes.txt
+          echo "--exclude=dist" >> /tmp/excludes.txt
+          
+          # Copy files using rsync with exclusions
+          rsync -av \
+            $(cat /tmp/excludes.txt | tr '\n' ' ') \
+            ./ dist/french-typo/
+
+      - name: Create ZIP file
+        run: |
+          cd dist
+          zip -r ../french-typo-${{ steps.get_tag.outputs.TAG }}.zip french-typo/
+          cd ..
+
+      - name: Verify ZIP contents
+        run: |
+          echo "=== ZIP Contents ==="
+          unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | head -20
+          echo ""
+          echo "=== Checking for excluded files ==="
+          if unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | grep -E "(composer\.json|README\.md|TODO\.md|\.github|assets/|\.distignore)"; then
+            echo "❌ ERROR: Excluded files found in ZIP!"
+            exit 1
+          else
+            echo "✅ ZIP is clean - no excluded files found"
+          fi
+
+      - name: Upload ZIP to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: french-typo-${{ steps.get_tag.outputs.TAG }}.zip
+          tag_name: ${{ steps.get_tag.outputs.TAG }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: false
+
+      - name: Summary
+        run: |
+          echo "## ✅ Release ZIP Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "A clean distribution ZIP has been created and attached to the release." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**File:** \`french-typo-${{ steps.get_tag.outputs.TAG }}.zip\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This ZIP contains only the essential files for WordPress.org submission." >> $GITHUB_STEP_SUMMARY
+
