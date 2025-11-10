@@ -1,0 +1,49 @@
+name: Deploy to WordPress.org (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version/tag to deploy (e.g. v1.0.0)'
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy to WordPress.org
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate inputs and tag
+        run: |
+          TAG="${{ github.event.inputs.version }}"
+          if [ -z "$TAG" ]; then
+            echo "No tag provided"; exit 1;
+          fi
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG not found"; exit 1;
+          fi
+
+      - name: Show summary/instructions
+        run: |
+          echo "## Manual deploy to WordPress.org" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: \`${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- This job is a scaffold. Configure secrets then replace this step with a deploy action." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Required secrets:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`SVN_USERNAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`SVN_PASSWORD\` (or \`SVN_TOKEN\`)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`SLUG\` (plugin slug on WordPress.org, e.g. french-typo)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Recommended action: https://github.com/10up/action-wordpress-plugin-deploy" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Note: The folder \`.wordpress-org\` is used for assets and will be committed to \`assets/\` in the SVN repo by the deploy action." >> $GITHUB_STEP_SUMMARY
+
+

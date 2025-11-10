@@ -1,45 +1,45 @@
-# Files and directories to exclude from WordPress.org distribution
-# This file will be used when deploying to WordPress.org SVN
+# Files and directories to exclude from distribution (SVN trunk/ZIP)
+# Lines starting with # are comments
 
-# Git files
-.git/
+# VCS and CI
+.git
 .gitignore
 .gitattributes
 .gitkeep
 *.gitkeep
+.github
+.svn
 
-# GitHub files
-.github/
-
-# Development files
+# Local/system files
 .DS_Store
 *.swp
 *.swo
 *~
+*.log
 .vscode/
 .idea/
 .cursor/
-*.log
 
-# Documentation (not needed in WordPress.org repo)
-*.md
+# WP.org assets folder should not go in plugin ZIP
+.wordpress-org
+screenshots
 
-# Assets
-assets/
+# Dev docs and meta
+README.md
+CHANGELOG.md
+TODO.md
+.editorconfig
 
-# Translation source files (WordPress.org generates these from GlotPress)
-languages/*.po
-languages/*.pot
-
-# Compiled translation files (generated automatically)
-languages/*.mo
-
-# Node modules and build files (if any)
-node_modules/
+# Build helpers
 package.json
 package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-# Composer and PHP dependencies
+# Source assets not needed in plugin ZIP
+assets
+
+# Composer metadata and dependencies
 composer.json
 composer.lock
 vendor/
@@ -62,7 +62,16 @@ phpunit.xml.dist
 tests/
 test/
 spec/
+bin
+scripts
+dist
 
-# Deployment configuration (not needed in submission zip)
+# Translation source files (WordPress.org generates these from GlotPress)
+languages/*.po
+languages/*.pot
+
+# Compiled translation files (generated automatically)
+languages/*.mo
+
+# This file itself
 .distignore
-

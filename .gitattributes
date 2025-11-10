@@ -1,2 +1,17 @@
+# Exclude development-only files from GitHub source exports
+.github export-ignore
+.gitignore export-ignore
+.distignore export-ignore
+.editorconfig export-ignore
+.DS_Store export-ignore
+tests/ export-ignore
+dist/ export-ignore
+scripts/ export-ignore
+node_modules/ export-ignore
+.wordpress-org/ export-ignore
+screenshots/ export-ignore
+README.md export-ignore
+CHANGELOG.md export-ignore
+TODO.md export-ignore
 # Auto detect text files and perform LF normalization
 * text=auto
