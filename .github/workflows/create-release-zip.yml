@@ -66,29 +66,47 @@ jobs:
             $(cat /tmp/excludes.txt | tr '\n' ' ') \
             ./ dist/french-typo/
 
-      - name: Create ZIP file
+      - name: Create plugin ZIP file (distribution)
         run: |
           cd dist
           zip -r ../french-typo-${{ steps.get_tag.outputs.TAG }}.zip french-typo/
           cd ..
 
-      - name: Verify ZIP contents
+      - name: Create source ZIP file (for WordPress.org review)
         run: |
-          echo "=== ZIP Contents ==="
+          # Créer un ZIP sources avec tous les fichiers du repo (sauf .git, node_modules, etc.)
+          # Ce ZIP est utile pour la review WordPress.org
+          git archive --format=zip --output=french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip HEAD
+
+      - name: Verify plugin ZIP contents
+        run: |
+          echo "=== Plugin ZIP Contents ==="
           unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | head -20
           echo ""
           echo "=== Checking for excluded files ==="
           if unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | grep -E "(composer\.json|README\.md|TODO\.md|\.github|assets/|\.distignore)"; then
-            echo "❌ ERROR: Excluded files found in ZIP!"
+            echo "❌ ERROR: Excluded files found in plugin ZIP!"
             exit 1
           else
-            echo "✅ ZIP is clean - no excluded files found"
+            echo "✅ Plugin ZIP is clean - no excluded files found"
           fi
 
-      - name: Upload ZIP to release
+      - name: Verify source ZIP exists
+        run: |
+          if [ ! -f french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip ]; then
+            echo "❌ ERROR: Source ZIP not created!"
+            exit 1
+          else
+            echo "✅ Source ZIP created: french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip"
+            unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip | head -10
+          fi
+
+      - name: Upload ZIPs to release
         uses: softprops/action-gh-release@v1
         with:
-          files: french-typo-${{ steps.get_tag.outputs.TAG }}.zip
+          files: |
+            french-typo-${{ steps.get_tag.outputs.TAG }}.zip
+            french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip
           tag_name: ${{ steps.get_tag.outputs.TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
           # Respecter le statut draft de la release si elle existe, sinon créer en draft
@@ -97,13 +115,22 @@ jobs:
 
       - name: Summary
         run: |
-          echo "## ✅ Release ZIP Created" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Release ZIPs Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "A clean distribution ZIP has been created and attached to the release." >> $GITHUB_STEP_SUMMARY
+          echo "Two ZIP files have been created and attached to the release:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**File:** \`french-typo-${{ steps.get_tag.outputs.TAG }}.zip\`" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Plugin ZIP:** \`french-typo-${{ steps.get_tag.outputs.TAG }}.zip\`" >> $GITHUB_STEP_SUMMARY
+          echo "   - Clean distribution package (excludes dev files via .distignore)" >> $GITHUB_STEP_SUMMARY
+          echo "   - Ready for WordPress.org submission" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This ZIP contains only the essential files for WordPress.org submission." >> $GITHUB_STEP_SUMMARY
+          echo "2. **Source ZIP:** \`french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip\`" >> $GITHUB_STEP_SUMMARY
+          echo "   - Complete source code archive (git archive)" >> $GITHUB_STEP_SUMMARY
+          echo "   - Useful for WordPress.org review" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "**Release status:** ${{ github.event.release.draft && 'Draft' || 'Published' }}" >> $GITHUB_STEP_SUMMARY
+          fi
 
   deploy-to-wporg:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_to_wporg == 'true' }}
