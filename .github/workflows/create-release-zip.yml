@@ -171,7 +171,7 @@ jobs:
             if [ -f "CHANGELOG.md" ]; then
               echo "ℹ️ Trying CHANGELOG.md"
               # Extract section for version: from '## [TAG_CLEAN]' until next '## [' line
-              CHANGELOG=$(awk '/^## \['"$TAG_CLEAN"'\]/{flag=1;next}/^## \\[/{if(flag) exit}flag' CHANGELOG.md | sed '/^[[:space:]]*$/d')
+              CHANGELOG=$(awk '/^## \['"$TAG_CLEAN"'\]/{flag=1;next}/^## \[/{if(flag) exit}flag' CHANGELOG.md | sed '/^[[:space:]]*$/d')
             fi
 
             # 2) Fallback to readme.txt (WordPress.org format) if empty
