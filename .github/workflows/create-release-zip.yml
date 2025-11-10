@@ -1,16 +1,16 @@
 name: Create Release ZIP
 
 on:
-  # Ne pas créer de release/ZIP sur simple push de tag pour éviter les publications non désirées
+  # Do not create release/ZIP on simple tag push to avoid unintended publications
   release:
     types: [created, edited]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag à builder (ex: 1.0.0 ou v1.0.0)'
+        description: 'Tag to build (e.g. 1.0.0 or v1.0.0)'
         required: false
       deploy_to_wporg:
-        description: 'Déployer sur WordPress.org via 10up/action-wordpress-plugin-deploy ?'
+        description: 'Deploy to WordPress.org via 10up/action-wordpress-plugin-deploy?'
         required: false
         default: 'false'
 
@@ -96,7 +96,7 @@ jobs:
           files: french-typo-${{ steps.get_tag.outputs.TAG }}.zip
           tag_name: ${{ steps.get_tag.outputs.TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Respecter le statut draft de la release si elle existe, sinon créer en draft
+          # Preserve the draft status if the release exists, otherwise create as draft
           draft: ${{ github.event_name == 'release' && github.event.release.draft || 'true' }}
           prerelease: false
 
