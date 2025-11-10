@@ -21,7 +21,6 @@
 .cursor/
 
 # WP.org assets folder should not go in plugin ZIP
-# Note: screenshots/ IS included in ZIP (required for WordPress.org)
 .wordpress-org
 
 # Dev docs and meta
