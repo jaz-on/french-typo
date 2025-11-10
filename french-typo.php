@@ -168,7 +168,7 @@ register_deactivation_hook( __FILE__, 'french_typo_deactivate' );
  */
 function french_typo_get_options() {
 	static $cached_options = null;
-	static $cache_version = 0;
+	static $cache_version  = 0;
 
 	// Get current option version from database to detect changes.
 	$current_version = get_option( 'french_typo_options_version', 0 );
@@ -176,7 +176,7 @@ function french_typo_get_options() {
 	// If version changed or cache is empty, reload options.
 	if ( null === $cached_options || $cache_version !== $current_version ) {
 		$cached_options = get_option( 'french_typo_options', array() );
-		$cache_version = $current_version;
+		$cache_version  = $current_version;
 	}
 
 	return $cached_options;
