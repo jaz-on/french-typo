@@ -63,6 +63,7 @@ jobs:
           fi
           
           ERRORS=0
+          WARNINGS=0
           
           # Required header fields
           REQUIRED_FIELDS=(
@@ -108,17 +109,56 @@ jobs:
             ERRORS=$((ERRORS + 1))
           elif [[ ! "$STABLE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [ "$STABLE_TAG" != "trunk" ]; then
             echo "⚠️  Stable tag format may be invalid: $STABLE_TAG (expected X.X.X or 'trunk')"
+            WARNINGS=$((WARNINGS + 1))
+          fi
+          
+          # NEW: Verify Stable tag matches plugin header Version
+          if [ -f "french-typo.php" ]; then
+            PLUGIN_VER=$(grep -E "^\s*\*\s*Version:" french-typo.php | awk -F': ' '{print $2}' | tr -d ' \t')
+            if [ -n "$PLUGIN_VER" ] && [ -n "$STABLE_TAG" ] && [ "$STABLE_TAG" != "trunk" ]; then
+              if [ "$PLUGIN_VER" != "$STABLE_TAG" ]; then
+                echo "⚠️  Stable tag ($STABLE_TAG) does not match plugin header Version ($PLUGIN_VER)"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+            fi
           fi
           
           # Validate version format in Requires at least and Tested up to
           REQUIRES_WP=$(grep -E '^Requires at least:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
           if [ -n "$REQUIRES_WP" ] && [[ ! "$REQUIRES_WP" =~ ^[0-9]+\.[0-9]+ ]]; then
             echo "⚠️  Requires at least format may be invalid: $REQUIRES_WP"
+            WARNINGS=$((WARNINGS + 1))
           fi
           
           TESTED_UP_TO=$(grep -E '^Tested up to:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
           if [ -n "$TESTED_UP_TO" ] && [[ ! "$TESTED_UP_TO" =~ ^[0-9]+\.[0-9]+ ]]; then
             echo "⚠️  Tested up to format may be invalid: $TESTED_UP_TO"
+            WARNINGS=$((WARNINGS + 1))
+          fi
+          
+          # NEW: Check for empty sections
+          echo "Checking for empty sections..."
+          IN_SECTION=false
+          SECTION_NAME=""
+          SECTION_LINES=0
+          while IFS= read -r line; do
+            if [[ "$line" =~ ^==\ .+\ ==$ ]]; then
+              if [ "$IN_SECTION" = true ] && [ "$SECTION_LINES" -eq 0 ]; then
+                echo "⚠️  Section '$SECTION_NAME' appears to be empty"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+              SECTION_NAME="$line"
+              IN_SECTION=true
+              SECTION_LINES=0
+            elif [ "$IN_SECTION" = true ] && [ -n "$line" ] && [[ ! "$line" =~ ^[[:space:]]*$ ]]; then
+              SECTION_LINES=$((SECTION_LINES + 1))
+            fi
+          done < readme.txt
+          
+          # Check last section
+          if [ "$IN_SECTION" = true ] && [ "$SECTION_LINES" -eq 0 ]; then
+            echo "⚠️  Section '$SECTION_NAME' appears to be empty"
+            WARNINGS=$((WARNINGS + 1))
           fi
           
           # Check changelog format (should have = X.X.X = entries)
@@ -126,11 +166,54 @@ jobs:
             CHANGELOG_ENTRIES=$(grep -E '^= [0-9]+\.[0-9]+\.[0-9]+ =' readme.txt | wc -l | tr -d ' ')
             if [ "$CHANGELOG_ENTRIES" -eq 0 ]; then
               echo "⚠️  Changelog section found but no version entries detected"
+              WARNINGS=$((WARNINGS + 1))
+            else
+              # NEW: Validate changelog entry format
+              echo "Validating changelog entry format..."
+              while IFS= read -r line; do
+                if [[ "$line" =~ ^=\ [0-9]+\.[0-9]+\.[0-9]+\ =$ ]]; then
+                  VERSION=$(echo "$line" | sed 's/^= //;s/ =$//')
+                  if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                    echo "⚠️  Invalid changelog version format: $VERSION"
+                    WARNINGS=$((WARNINGS + 1))
+                  fi
+                fi
+              done < <(grep -E '^= [0-9]+\.[0-9]+\.[0-9]+ =' readme.txt)
+              
+              # NEW: Check for duplicate changelog entries
+              CHANGELOG_VERSIONS=$(grep -E '^= [0-9]+\.[0-9]+\.[0-9]+ =' readme.txt | sed 's/^= //;s/ =$//' | sort)
+              DUPLICATES=$(echo "$CHANGELOG_VERSIONS" | uniq -d)
+              if [ -n "$DUPLICATES" ]; then
+                echo "⚠️  Duplicate changelog entries found: $DUPLICATES"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+              
+              # NEW: Verify changelog entries are in descending order (newest first)
+              CHANGELOG_VERSIONS_ARRAY=($(grep -E '^= [0-9]+\.[0-9]+\.[0-9]+ =' readme.txt | sed 's/^= //;s/ =$//'))
+              if [ ${#CHANGELOG_VERSIONS_ARRAY[@]} -gt 1 ]; then
+                PREV_VERSION=""
+                for VERSION in "${CHANGELOG_VERSIONS_ARRAY[@]}"; do
+                  if [ -n "$PREV_VERSION" ]; then
+                    # Simple version comparison (assumes semantic versioning)
+                    if [[ "$VERSION" > "$PREV_VERSION" ]]; then
+                      echo "⚠️  Changelog versions may not be in descending order: $VERSION appears after $PREV_VERSION"
+                      WARNINGS=$((WARNINGS + 1))
+                    fi
+                  fi
+                  PREV_VERSION="$VERSION"
+                done
+              fi
             fi
           fi
           
           # Check for common formatting issues (warnings only, not errors)
           # This is a basic check - more sophisticated validation can be added if needed
+          
+          # Summary
+          if [ $WARNINGS -gt 0 ]; then
+            echo ""
+            echo "⚠️  Validation completed with $WARNINGS warning(s)"
+          fi
           
           if [ $ERRORS -gt 0 ]; then
             echo ""

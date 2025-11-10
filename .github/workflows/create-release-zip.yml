@@ -194,9 +194,24 @@ jobs:
                   STATS=$(git diff --shortstat "$TAG" 2>/dev/null || echo "")
                 fi
                 
-                if [ -n "$STATS" ]; then
-                  ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
-                  DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+                if [ -n "$STATS" ] && [ "$STATS" != "" ]; then
+                  # Validate STATS format before parsing
+                  # git diff --shortstat format: "X files changed, Y insertions(+), Z deletions(-)"
+                  ADDITIONS="0"
+                  DELETIONS="0"
+                  
+                  if echo "$STATS" | grep -qE "^[0-9]+ files? changed"; then
+                    ADDITIONS_RAW=$(echo "$STATS" | awk '{print $4}' 2>/dev/null || echo "0")
+                    DELETIONS_RAW=$(echo "$STATS" | awk '{print $6}' 2>/dev/null || echo "0")
+                    
+                    # Validate extracted values are numeric
+                    if [[ "$ADDITIONS_RAW" =~ ^[0-9]+$ ]]; then
+                      ADDITIONS="$ADDITIONS_RAW"
+                    fi
+                    if [[ "$DELETIONS_RAW" =~ ^[0-9]+$ ]]; then
+                      DELETIONS="$DELETIONS_RAW"
+                    fi
+                  fi
                   
                   if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
                     echo "" >> RELEASE_NOTES.md
@@ -290,9 +305,24 @@ jobs:
                 STATS=$(git diff --shortstat "$TAG" 2>/dev/null || echo "")
               fi
               
-              if [ -n "$STATS" ]; then
-                ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
-                DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+              if [ -n "$STATS" ] && [ "$STATS" != "" ]; then
+                # Validate STATS format before parsing
+                # git diff --shortstat format: "X files changed, Y insertions(+), Z deletions(-)"
+                ADDITIONS="0"
+                DELETIONS="0"
+                
+                if echo "$STATS" | grep -qE "^[0-9]+ files? changed"; then
+                  ADDITIONS_RAW=$(echo "$STATS" | awk '{print $4}' 2>/dev/null || echo "0")
+                  DELETIONS_RAW=$(echo "$STATS" | awk '{print $6}' 2>/dev/null || echo "0")
+                  
+                  # Validate extracted values are numeric
+                  if [[ "$ADDITIONS_RAW" =~ ^[0-9]+$ ]]; then
+                    ADDITIONS="$ADDITIONS_RAW"
+                  fi
+                  if [[ "$DELETIONS_RAW" =~ ^[0-9]+$ ]]; then
+                    DELETIONS="$DELETIONS_RAW"
+                  fi
+                fi
                 
                 # Only show stats if meaningful
                 if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
@@ -360,16 +390,16 @@ jobs:
           if [ -z "${{ github.event.inputs.tag }}" ]; then
             echo "No tag provided for deploy"; exit 1;
           fi
-          echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Checkout tag
         uses: actions/checkout@v5
         with:
-          ref: ${{ steps.tag.outputs.TAG }}
+          ref: ${{ steps.tag.outputs.tag }}
 
       - name: Verify version consistency
         run: |
-          TAG="${{ steps.tag.outputs.TAG }}"
+          TAG="${{ steps.tag.outputs.tag }}"
           TAG_CLEAN="${TAG#v}"
           
           # Verify Stable tag in readme.txt
@@ -397,7 +427,7 @@ jobs:
         run: |
           echo "## Manual deploy to WordPress.org - Guard Checks Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Tag: \`${{ steps.tag.outputs.TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: \`${{ steps.tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- Stable tag matches readme.txt ✅" >> $GITHUB_STEP_SUMMARY
           echo "- Plugin header Version matches tag ✅" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -413,7 +443,7 @@ jobs:
       #     slug: ${{ secrets.SLUG }}
       #     # Optional: assets-dir defaults to .wordpress-org
       #     # assets_dir: .wordpress-org
-      #     # version: ${{ steps.tag.outputs.TAG }}
+      #     # version: ${{ steps.tag.outputs.tag }}
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
