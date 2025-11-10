@@ -44,6 +44,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Recommended action: https://github.com/10up/action-wordpress-plugin-deploy" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Note: The folder \`.wordpress-org\` is used for assets and will be committed to \`assets/\` in the SVN repo by the deploy action." >> $GITHUB_STEP_SUMMARY
+          echo "### Assets Structure" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The folder \`.wordpress-org/\` contains WordPress.org assets:" >> $GITHUB_STEP_SUMMARY
+          echo "- Plugin icons: \`icon-128x128.png\`, \`icon-256x256.png\`, \`icon.svg\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Screenshots: \`screenshot-1.png\` (and more if needed)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "These will be automatically copied to \`assets/\` at SVN root level by the deploy action." >> $GITHUB_STEP_SUMMARY
+          echo "See: https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/" >> $GITHUB_STEP_SUMMARY
 
 
