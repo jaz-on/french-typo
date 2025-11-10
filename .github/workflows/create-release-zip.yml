@@ -13,6 +13,10 @@ on:
         description: 'Deploy to WordPress.org via 10up/action-wordpress-plugin-deploy?'
         required: false
         default: 'false'
+      keep_draft:
+        description: 'Keep release as draft (true) or publish (false)'
+        required: false
+        default: 'true'
 
 jobs:
   create-zip:
@@ -334,7 +338,7 @@ jobs:
         with:
           files: french-typo-${{ steps.tag.outputs.tag }}.zip
           tag_name: ${{ steps.tag.outputs.tag }}
-          draft: ${{ github.event_name == 'release' && github.event.release.draft || false }}
+          draft: ${{ github.event_name == 'release' && github.event.release.draft || (github.event_name == 'workflow_dispatch' && github.event.inputs.keep_draft == 'true') || false }}
           prerelease: false
           body_path: RELEASE_NOTES.md
 
