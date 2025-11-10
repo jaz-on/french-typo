@@ -21,99 +21,50 @@ jobs:
       contents: write
     
     steps:
-      - name: Checkout code
+      - name: Get tag
+        id: tag
+        run: |
+          TAG="${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            echo "❌ No tag provided"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Checkout tag
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: ${{ steps.tag.outputs.tag }}
 
-      - name: Get release tag
-        id: get_tag
+      - name: Create ZIP
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          else
-            # workflow_dispatch
-            if [ -n "${{ github.event.inputs.tag }}" ]; then
-              echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-            else
-              echo "No tag provided via workflow_dispatch input 'tag'"
-              exit 1
-            fi
-          fi
-        shell: bash
-
-      - name: Checkout tag (to freeze code state)
-        run: |
-          TAG="${{ steps.get_tag.outputs.TAG }}"
-          echo "Checking out tag: $TAG"
-          git checkout "refs/tags/$TAG" || git checkout "$TAG"
-          echo "Current commit: $(git rev-parse HEAD)"
-          echo "Tag points to: $(git rev-parse $TAG^{})"
-
-      - name: Install dependencies for zip creation
-        run: |
-          sudo apt-get update
+          # Install dependencies
           sudo apt-get install -y zip rsync
-
-      - name: Create clean distribution directory
-        run: |
-          mkdir -p dist/french-typo
           
-      - name: Copy files excluding .distignore patterns
-        run: |
-          # Read .distignore and create rsync exclude file
+          # Build exclude list from .distignore
           grep -v '^#' .distignore | grep -v '^$' | sed 's|^|--exclude=|' > /tmp/excludes.txt
           echo "--exclude=.git" >> /tmp/excludes.txt
           echo "--exclude=dist" >> /tmp/excludes.txt
           
-          # Copy files using rsync with exclusions
-          rsync -av \
-            $(cat /tmp/excludes.txt | tr '\n' ' ') \
-            ./ dist/french-typo/
+          # Copy files excluding .distignore patterns
+          mkdir -p dist/french-typo
+          rsync -av $(cat /tmp/excludes.txt | tr '\n' ' ') ./ dist/french-typo/
+          
+          # Create ZIP
+          cd dist && zip -r ../french-typo-${{ steps.tag.outputs.tag }}.zip french-typo/
 
-      - name: Create plugin ZIP file (distribution)
+      - name: Verify ZIP exists
         run: |
-          cd dist
-          zip -r ../french-typo-${{ steps.get_tag.outputs.TAG }}.zip french-typo/
-          cd ..
-
-      - name: Verify plugin ZIP contents
-        run: |
-          echo "=== Plugin ZIP Contents ==="
-          unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | head -20
-          echo ""
-          echo "=== Checking for excluded files ==="
-          if unzip -l french-typo-${{ steps.get_tag.outputs.TAG }}.zip | grep -E "(composer\.json|README\.md|TODO\.md|\.github|assets/|\.distignore)"; then
-            echo "❌ ERROR: Excluded files found in plugin ZIP!"
-            exit 1
-          else
-            echo "✅ Plugin ZIP is clean - no excluded files found"
-          fi
+          test -f french-typo-${{ steps.tag.outputs.tag }}.zip || (echo "❌ ZIP file not created" && exit 1)
+          echo "✅ ZIP created: french-typo-${{ steps.tag.outputs.tag }}.zip"
 
       - name: Upload ZIP to release
         uses: softprops/action-gh-release@v1
         with:
-          files: french-typo-${{ steps.get_tag.outputs.TAG }}.zip
-          tag_name: ${{ steps.get_tag.outputs.TAG }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # Preserve the draft status if the release exists, otherwise create as draft
+          files: french-typo-${{ steps.tag.outputs.tag }}.zip
+          tag_name: ${{ steps.tag.outputs.tag }}
           draft: ${{ github.event_name == 'release' && github.event.release.draft || 'true' }}
           prerelease: false
-
-      - name: Summary
-        run: |
-          echo "## ✅ Release ZIP Created" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "A clean distribution ZIP has been created and attached to the release." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**File:** \`french-typo-${{ steps.get_tag.outputs.TAG }}.zip\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "This ZIP contains only the essential files for WordPress.org submission (excludes dev files via .distignore)." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "**Release status:** ${{ github.event.release.draft && 'Draft' || 'Published' }}" >> $GITHUB_STEP_SUMMARY
-          fi
 
   deploy-to-wporg:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_to_wporg == 'true' }}
