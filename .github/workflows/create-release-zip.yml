@@ -91,7 +91,8 @@ jobs:
           files: french-typo-${{ steps.get_tag.outputs.TAG }}.zip
           tag_name: ${{ steps.get_tag.outputs.TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          draft: false
+          # Respecter le statut draft de la release si elle existe, sinon créer en draft
+          draft: ${{ github.event_name == 'release' && github.event.release.draft || 'true' }}
           prerelease: false
 
       - name: Summary
