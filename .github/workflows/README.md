@@ -1,6 +1,36 @@
 # GitHub Actions Workflows
 
-This repository includes three GitHub Actions workflows for continuous integration, release management, and deployment.
+This repository includes four GitHub Actions workflows for continuous integration, release management, and deployment.
+
+## Release Drafter
+
+The Release Drafter workflow automatically generates release notes from merged pull requests.
+
+### Triggers
+
+- Push to `main` branch
+- Pull requests opened, updated, or closed on `main`
+
+### How it works
+
+1. Monitors pull requests merged into `main`
+2. Automatically updates a draft release with categorized changes
+3. Groups changes by labels:
+   - `feature` / `enhancement` → 🚀 Features
+   - `bug` / `fix` → 🐛 Bug Fixes
+   - `breaking` → ⚠️ Breaking Changes
+   - `documentation` / `docs` → 📚 Documentation
+   - `maintenance` / `chore` / `refactor` → 🔧 Maintenance
+4. Includes contributors list automatically
+
+### Usage
+
+1. Label your pull requests with appropriate labels (`feature`, `bug`, `fix`, etc.)
+2. Merge PRs into `main`
+3. Release Drafter automatically updates the draft release
+4. When ready, publish the release (or let the Create Release ZIP workflow handle it)
+
+**Note:** For the 1.0.0 release (commits directly on `main`), Release Drafter won't generate notes. The workflow will fall back to reading from `readme.txt`.
 
 ## CI
 
@@ -54,11 +84,13 @@ The workflow runs when:
    - Composer metadata and `vendor/`
    - The `.github/` directory and other CI/config files
 4. **Verification:** Verifies the ZIP does not contain excluded files
-5. **Release notes:** Generates release notes from `readme.txt` changelog, including:
-   - Changelog entries for the version
-   - Contributors list
-   - Statistics (commits, files changed, additions/deletions)
-   - Comparison link to previous release
+5. **Release notes:** Generates release notes using one of two methods:
+   - **If Release Drafter notes exist:** Uses the automatically generated notes from merged PRs
+   - **Fallback (1.0.0 or manual dispatch):** Extracts changelog from `readme.txt`, including:
+     - Changelog entries for the version
+     - Contributors list (from Git commits)
+     - Statistics (commits, files changed, additions/deletions)
+     - Comparison link to previous release
 6. **Upload:** Uploads the ZIP as a release asset and updates release notes
 
 ### Expected ZIP contents (key items)

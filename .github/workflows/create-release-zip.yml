@@ -132,93 +132,101 @@ jobs:
           TAG_CLEAN="${TAG#v}"
           RELEASE_DATE=$(date -u +"%Y-%m-%d")
           
-          # Initialize release notes file
-          cat > RELEASE_NOTES.md << EOF
+          # Check if Release Drafter has already generated notes (from release body)
+          if [ "${{ github.event_name }}" = "release" ] && [ -n "${{ github.event.release.body }}" ]; then
+            echo "✅ Using Release Drafter notes from release body"
+            echo "${{ github.event.release.body }}" > RELEASE_NOTES.md
+          else
+            echo "📝 Generating release notes from readme.txt (fallback)"
+            
+            # Initialize release notes file
+            cat > RELEASE_NOTES.md << EOF
           # Release $TAG_CLEAN
           
           **Release date:** $RELEASE_DATE
           
           EOF
           
-          # Extract changelog from readme.txt
-          CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
-            BEGIN { inlog=0; found=0 }
-            /^\=\= Changelog \=\=/ { inmain=1; next }
-            inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
-            inlog && $0 ~ "^= " { exit }
-            inlog && found { print }
-          ' readme.txt | sed '/^[[:space:]]*$/d')
-          
-          if [ -n "$CHANGELOG" ]; then
-            echo "## What's Changed" >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "$CHANGELOG" >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-          fi
-          
-          # Get previous tag for comparison
-          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
-          
-          if [ -n "$PREV_TAG" ]; then
-            COMPARE_RANGE="$PREV_TAG..$TAG"
+            # Extract changelog from readme.txt
+            CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
+              BEGIN { inlog=0; found=0 }
+              /^\=\= Changelog \=\=/ { inmain=1; next }
+              inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
+              inlog && $0 ~ "^= " { exit }
+              inlog && found { print }
+            ' readme.txt | sed '/^[[:space:]]*$/d')
             
-            # Get contributors (unique authors)
-            CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
-            
-            if [ -n "$CONTRIBUTORS" ]; then
-              CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
-              if [ "$CONTRIB_COUNT" -gt 0 ]; then
-                echo "## Contributors" >> RELEASE_NOTES.md
-                echo "" >> RELEASE_NOTES.md
-                # Use sed to format contributors list
-                echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
-                echo "" >> RELEASE_NOTES.md
-              fi
+            if [ -n "$CHANGELOG" ]; then
+              echo "## What's Changed" >> RELEASE_NOTES.md
+              echo "" >> RELEASE_NOTES.md
+              echo "$CHANGELOG" >> RELEASE_NOTES.md
+              echo "" >> RELEASE_NOTES.md
             fi
             
-            # Get statistics
-            COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
+            # Get previous tag for comparison
+            PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
             
-            if [ "$COMMIT_COUNT" -gt 0 ]; then
-              FILES_CHANGED=$(git diff --name-only "$COMPARE_RANGE" 2>/dev/null | wc -l | tr -d ' ')
-              STATS=$(git diff --shortstat "$COMPARE_RANGE" 2>/dev/null || echo "")
+            if [ -n "$PREV_TAG" ]; then
+              COMPARE_RANGE="$PREV_TAG..$TAG"
               
-              if [ -n "$STATS" ]; then
-                ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
-                DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
-                
-                # Only show stats if meaningful
-                if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
-                  echo "## Statistics" >> RELEASE_NOTES.md
+              # Get contributors (unique authors)
+              CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
+              
+              if [ -n "$CONTRIBUTORS" ]; then
+                CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
+                if [ "$CONTRIB_COUNT" -gt 0 ]; then
+                  echo "## Contributors" >> RELEASE_NOTES.md
                   echo "" >> RELEASE_NOTES.md
-                  echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
-                  
-                  if [ "$FILES_CHANGED" -gt 0 ]; then
-                    echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
-                  fi
-                  
-                  if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
-                    echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
-                  fi
-                  
-                  if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
-                    echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
-                  fi
-                  
+                  # Use sed to format contributors list
+                  echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
                   echo "" >> RELEASE_NOTES.md
                 fi
               fi
+              
+              # Get statistics
+              COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
+              
+              if [ "$COMMIT_COUNT" -gt 0 ]; then
+                FILES_CHANGED=$(git diff --name-only "$COMPARE_RANGE" 2>/dev/null | wc -l | tr -d ' ')
+                STATS=$(git diff --shortstat "$COMPARE_RANGE" 2>/dev/null || echo "")
+                
+                if [ -n "$STATS" ]; then
+                  ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
+                  DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+                  
+                  # Only show stats if meaningful
+                  if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
+                    echo "## Statistics" >> RELEASE_NOTES.md
+                    echo "" >> RELEASE_NOTES.md
+                    echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
+                    
+                    if [ "$FILES_CHANGED" -gt 0 ]; then
+                      echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
+                    fi
+                    
+                    if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
+                      echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
+                    fi
+                    
+                    if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
+                      echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
+                    fi
+                    
+                    echo "" >> RELEASE_NOTES.md
+                  fi
+                fi
+              fi
+              
+              # Add comparison link
+              echo "## Full Changelog" >> RELEASE_NOTES.md
+              echo "" >> RELEASE_NOTES.md
+              echo "[$PREV_TAG...$TAG](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG)" >> RELEASE_NOTES.md
+            else
+              # First release - no previous tag
+              echo "## Full Changelog" >> RELEASE_NOTES.md
+              echo "" >> RELEASE_NOTES.md
+              echo "[View all commits](https://github.com/${{ github.repository }}/commits/$TAG)" >> RELEASE_NOTES.md
             fi
-            
-            # Add comparison link
-            echo "## Full Changelog" >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "[$PREV_TAG...$TAG](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG)" >> RELEASE_NOTES.md
-          else
-            # First release - no previous tag
-            echo "## Full Changelog" >> RELEASE_NOTES.md
-            echo "" >> RELEASE_NOTES.md
-            echo "[View all commits](https://github.com/${{ github.repository }}/commits/$TAG)" >> RELEASE_NOTES.md
           fi
           
           # Display generated notes
