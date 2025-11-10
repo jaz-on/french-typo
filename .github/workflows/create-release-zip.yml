@@ -153,10 +153,85 @@ jobs:
           RELEASE_DATE=$(date -u +"%Y-%m-%d")
           
           # Check if Release Drafter has already generated notes (from release body)
+          # If Release Drafter notes exist, we'll enhance them with missing contributors/stats
+          HAS_RELEASE_DRAFTER_NOTES=false
           if [ "${{ github.event_name }}" = "release" ] && [ -n "${{ github.event.release.body }}" ]; then
-            echo "✅ Using Release Drafter notes from release body"
+            echo "✅ Release Drafter notes found, will enhance if needed"
             echo "${{ github.event.release.body }}" > RELEASE_NOTES.md
+            HAS_RELEASE_DRAFTER_NOTES=true
+          fi
+          
+          # Get previous tag for comparison (needed for statistics)
+          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            COMPARE_RANGE="$PREV_TAG..$TAG"
           else
+            # First release - compare from the beginning of the repo
+            COMPARE_RANGE="$TAG"
+          fi
+          
+          if [ "$HAS_RELEASE_DRAFTER_NOTES" = "true" ]; then
+            # Release Drafter already handles contributors automatically via $CONTRIBUTORS
+            # (lists PR authors with @username format)
+            # We only enhance with statistics and comparison link if missing
+            
+            # Add statistics if missing (Release Drafter doesn't always include them)
+            if ! grep -q "^## Statistics" RELEASE_NOTES.md; then
+              echo "📝 Adding Statistics section to Release Drafter notes"
+              COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
+              
+              if [ "$COMMIT_COUNT" -gt 0 ]; then
+                if [ -n "$PREV_TAG" ]; then
+                  FILES_CHANGED=$(git diff --name-only "$COMPARE_RANGE" 2>/dev/null | wc -l | tr -d ' ')
+                  STATS=$(git diff --shortstat "$COMPARE_RANGE" 2>/dev/null || echo "")
+                else
+                  FILES_CHANGED=$(git ls-tree -r --name-only "$TAG" 2>/dev/null | wc -l | tr -d ' ')
+                  STATS=$(git diff --shortstat "$TAG" 2>/dev/null || echo "")
+                fi
+                
+                if [ -n "$STATS" ]; then
+                  ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
+                  DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+                  
+                  if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
+                    echo "" >> RELEASE_NOTES.md
+                    echo "## Statistics" >> RELEASE_NOTES.md
+                    echo "" >> RELEASE_NOTES.md
+                    echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
+                    
+                    if [ "$FILES_CHANGED" -gt 0 ]; then
+                      echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
+                    fi
+                    
+                    if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
+                      echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
+                    fi
+                    
+                    if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
+                      echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
+                    fi
+                    
+                    echo "" >> RELEASE_NOTES.md
+                  fi
+                fi
+              fi
+            fi
+            
+            # Add comparison link if missing
+            if ! grep -q "^## Full Changelog" RELEASE_NOTES.md; then
+              echo "📝 Adding Full Changelog link"
+              echo "" >> RELEASE_NOTES.md
+              echo "## Full Changelog" >> RELEASE_NOTES.md
+              echo "" >> RELEASE_NOTES.md
+              if [ -n "$PREV_TAG" ]; then
+                echo "[$PREV_TAG...$TAG](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG)" >> RELEASE_NOTES.md
+              else
+                echo "[View all commits](https://github.com/${{ github.repository }}/commits/$TAG)" >> RELEASE_NOTES.md
+              fi
+            fi
+          else
+            # Generate full release notes from scratch
             echo "📝 Generating release notes"
             
             # Initialize release notes file
@@ -194,29 +269,9 @@ jobs:
               echo "ℹ️ No changelog content found for version $TAG_CLEAN"
             fi
             
-            # Get previous tag for comparison
-            PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
-            
-            if [ -n "$PREV_TAG" ]; then
-              COMPARE_RANGE="$PREV_TAG..$TAG"
-            else
-              # First release - compare from the beginning of the repo
-              COMPARE_RANGE="$TAG"
-            fi
-            
-            # Get contributors (unique authors) - works for both first release and subsequent releases
-            CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
-            
-            if [ -n "$CONTRIBUTORS" ]; then
-              CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
-              if [ "$CONTRIB_COUNT" -gt 0 ]; then
-                echo "## Contributors" >> RELEASE_NOTES.md
-                echo "" >> RELEASE_NOTES.md
-                # Use sed to format contributors list
-                echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
-                echo "" >> RELEASE_NOTES.md
-              fi
-            fi
+            # Note: Contributors are handled by Release Drafter when PRs exist
+            # For releases without PRs (like 1.0.0), we don't list contributors
+            # to avoid inconsistency between Git author names and GitHub usernames
             
             # Get statistics
             COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
@@ -279,7 +334,7 @@ jobs:
         with:
           files: french-typo-${{ steps.tag.outputs.tag }}.zip
           tag_name: ${{ steps.tag.outputs.tag }}
-          draft: ${{ github.event_name == 'release' && github.event.release.draft || 'true' }}
+          draft: ${{ github.event_name == 'release' && github.event.release.draft || false }}
           prerelease: false
           body_path: RELEASE_NOTES.md
 
