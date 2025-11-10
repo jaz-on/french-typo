@@ -59,7 +59,7 @@ These files will use the [10up WordPress Plugin Deploy Action](https://github.co
 - [ ] Add tests to verify proper functionality
 - [ ] Document edge cases
 
-**Example:** `C'est l'été.` → `C'est l'été.`
+**Example:** `It's summer.` → `It’s summer.`
 
 #### 3. French Quotation Marks (High Priority)
 **Impact:** Medium | **Complexity:** Medium (handle nested cases)
@@ -248,7 +248,7 @@ These files will use the [10up WordPress Plugin Deploy Action](https://github.co
 - [ ] Consider performance impact
 - [ ] Determine if this feature is within plugin scope
 
-**Note:** This rule is complex because it requires distinguishing capital letters that should be accented (e.g., "École", "À l'heure") from those that should not (foreign proper names, acronyms, etc.). May require a dictionary or advanced contextual analysis.
+**Note:** This rule is complex because it requires distinguishing capital letters that should be accented (e.g., "São Paulo", "El Niño") from those that should not (foreign proper names, acronyms, etc.). May require a dictionary or advanced contextual analysis.
 
 ---
 

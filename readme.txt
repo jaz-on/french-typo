@@ -30,7 +30,7 @@ French Typo is a WordPress plugin that automatically applies French typography r
 
 1. Upload the plugin files to the `/wp-content/plugins/french-typo` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Configure the plugin settings in `Settings > Réglages typographiques` (`Settings > French Typo`).
+3. Configure the plugin settings in `Settings > French Typo`.
 
 == Frequently Asked Questions ==
 
@@ -125,8 +125,3 @@ This plugin is also inspired by other projects:
 * Accessibility: improved color contrast (WCAG 2.1 AA compliance)
 * Security: proper data sanitization and validation throughout
 * WordPress Coding Standards: full compliance with WordPress-Extra standards
-
-== Upgrade Notice ==
-
-= 1.0.0 =
-Initial release. This is a complete rewrite of the original French Typo plugin.

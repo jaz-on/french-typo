@@ -1,11 +1,18 @@
 name: Create Release ZIP
 
 on:
-  push:
-    tags:
-      - '*'
+  # Ne pas créer de release/ZIP sur simple push de tag pour éviter les publications non désirées
   release:
     types: [created, edited]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag à builder (ex: 1.0.0 ou v1.0.0)'
+        required: false
+      deploy_to_wporg:
+        description: 'Déployer sur WordPress.org via 10up/action-wordpress-plugin-deploy ?'
+        required: false
+        default: 'false'
 
 jobs:
   create-zip:
@@ -25,7 +32,13 @@ jobs:
           if [ "${{ github.event_name }}" = "release" ]; then
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
           else
-            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            # workflow_dispatch
+            if [ -n "${{ github.event.inputs.tag }}" ]; then
+              echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+            else
+              echo "No tag provided via workflow_dispatch input 'tag'"
+              exit 1
+            fi
           fi
         shell: bash
 
@@ -90,4 +103,58 @@ jobs:
           echo "**File:** \`french-typo-${{ steps.get_tag.outputs.TAG }}.zip\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "This ZIP contains only the essential files for WordPress.org submission." >> $GITHUB_STEP_SUMMARY
+
+  deploy-to-wporg:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_to_wporg == 'true' }}
+    needs: create-zip
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag (from dispatch input)
+        id: tag
+        run: |
+          if [ -z "${{ github.event.inputs.tag }}" ]; then
+            echo "No tag provided for deploy"; exit 1;
+          fi
+          echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+
+      - name: Verify Stable tag matches readme.txt
+        run: |
+          STABLE=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          TAG="${{ steps.tag.outputs.TAG }}"
+          TAG="${TAG#v}"
+          echo "Stable tag in readme.txt: $STABLE"
+          echo "Tag to deploy: $TAG"
+          if [ "$STABLE" != "$TAG" ]; then
+            echo "Stable tag ($STABLE) does not match tag to deploy ($TAG)"; exit 1;
+          fi
+
+      - name: Summary - Deploy guard info
+        run: |
+          echo "## Manual deploy to WordPress.org - Guard Checks Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: \`${{ steps.tag.outputs.TAG }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Stable tag matches readme.txt ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Next step: Configure and enable 10up/action-wordpress-plugin-deploy when SVN is ready." >> $GITHUB_STEP_SUMMARY
+          echo "Docs: https://github.com/10up/action-wordpress-plugin-deploy" >> $GITHUB_STEP_SUMMARY
+
+      # Placeholder. Uncomment when SVN and secrets are ready.
+      # - name: Deploy to WordPress.org
+      #   uses: 10up/action-wordpress-plugin-deploy@stable
+      #   with:
+      #     svn_username: ${{ secrets.SVN_USERNAME }}
+      #     svn_password: ${{ secrets.SVN_PASSWORD }}
+      #     slug: ${{ secrets.SLUG }}
+      #     # Optional: assets-dir defaults to .wordpress-org
+      #     # assets_dir: .wordpress-org
+      #     # version: ${{ steps.tag.outputs.TAG }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
