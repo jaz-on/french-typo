@@ -32,7 +32,7 @@ jobs:
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.tag.outputs.tag }}
           fetch-depth: 0
@@ -54,6 +54,26 @@ jobs:
           fi
           
           echo "✅ Version consistency verified"
+
+      - name: Update Stable tag in readme.txt for ZIP
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          TAG_CLEAN="${TAG#v}"
+          
+          # Update Stable tag in readme.txt (in-place edit for ZIP only, not committed to repo)
+          # This ensures the ZIP always has the correct version, even if the tag was created before updating readme.txt
+          sed -i "s/^Stable tag:.*/Stable tag: $TAG_CLEAN/" readme.txt
+          
+          # Verify the update
+          STABLE_TAG=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          echo "Updated Stable tag in readme.txt: $STABLE_TAG"
+          
+          if [ "$STABLE_TAG" != "$TAG_CLEAN" ]; then
+            echo "❌ Failed to update Stable tag in readme.txt"
+            exit 1
+          fi
+          
+          echo "✅ Stable tag updated in readme.txt for ZIP distribution"
 
       - name: Create ZIP
         run: |
@@ -119,7 +139,7 @@ jobs:
           echo "✅ ZIP verification passed - no excluded files found"
 
       - name: Upload ZIP as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: french-typo-${{ steps.tag.outputs.tag }}.zip
           path: french-typo-${{ steps.tag.outputs.tag }}.zip
@@ -263,7 +283,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -276,7 +296,7 @@ jobs:
           echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Checkout tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ steps.tag.outputs.TAG }}
 

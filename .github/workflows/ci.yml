@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -43,6 +43,100 @@ jobs:
       - name: Run PHPCS
         run: |
           echo "Running WordPress Coding Standards check..."
-          vendor/bin/phpcs --standard=WordPress-Extra --report=full --extensions=php .
+          php -d memory_limit=512M vendor/bin/phpcs --standard=WordPress-Extra --report=full --extensions=php --ignore=vendor/ .
           echo "✅ PHPCS check passed"
+
+  validate-readme:
+    name: Validate readme.txt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Validate readme.txt format
+        run: |
+          echo "Validating readme.txt format..."
+          
+          if [ ! -f "readme.txt" ]; then
+            echo "❌ readme.txt file not found"
+            exit 1
+          fi
+          
+          ERRORS=0
+          
+          # Required header fields
+          REQUIRED_FIELDS=(
+            "===.*==="
+            "Contributors:"
+            "Tags:"
+            "Requires at least:"
+            "Tested up to:"
+            "Requires PHP:"
+            "Stable tag:"
+            "License:"
+            "License URI:"
+          )
+          
+          echo "Checking required header fields..."
+          for field in "${REQUIRED_FIELDS[@]}"; do
+            if ! grep -qE "^${field}" readme.txt; then
+              echo "❌ Missing required field: ${field}"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          
+          # Check for required sections
+          REQUIRED_SECTIONS=(
+            "== Description =="
+            "== Installation =="
+            "== Frequently Asked Questions =="
+            "== Changelog =="
+          )
+          
+          echo "Checking required sections..."
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if ! grep -qF "${section}" readme.txt; then
+              echo "❌ Missing required section: ${section}"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          
+          # Validate Stable tag format (should be X.X.X or trunk)
+          STABLE_TAG=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          if [ -z "$STABLE_TAG" ]; then
+            echo "❌ Stable tag is empty"
+            ERRORS=$((ERRORS + 1))
+          elif [[ ! "$STABLE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [ "$STABLE_TAG" != "trunk" ]; then
+            echo "⚠️  Stable tag format may be invalid: $STABLE_TAG (expected X.X.X or 'trunk')"
+          fi
+          
+          # Validate version format in Requires at least and Tested up to
+          REQUIRES_WP=$(grep -E '^Requires at least:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          if [ -n "$REQUIRES_WP" ] && [[ ! "$REQUIRES_WP" =~ ^[0-9]+\.[0-9]+ ]]; then
+            echo "⚠️  Requires at least format may be invalid: $REQUIRES_WP"
+          fi
+          
+          TESTED_UP_TO=$(grep -E '^Tested up to:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          if [ -n "$TESTED_UP_TO" ] && [[ ! "$TESTED_UP_TO" =~ ^[0-9]+\.[0-9]+ ]]; then
+            echo "⚠️  Tested up to format may be invalid: $TESTED_UP_TO"
+          fi
+          
+          # Check changelog format (should have = X.X.X = entries)
+          if grep -q "== Changelog ==" readme.txt; then
+            CHANGELOG_ENTRIES=$(grep -E '^= [0-9]+\.[0-9]+\.[0-9]+ =' readme.txt | wc -l | tr -d ' ')
+            if [ "$CHANGELOG_ENTRIES" -eq 0 ]; then
+              echo "⚠️  Changelog section found but no version entries detected"
+            fi
+          fi
+          
+          # Check for common formatting issues (warnings only, not errors)
+          # This is a basic check - more sophisticated validation can be added if needed
+          
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "❌ Validation failed with $ERRORS error(s)"
+            exit 1
+          fi
+          
+          echo "✅ readme.txt validation passed"
 

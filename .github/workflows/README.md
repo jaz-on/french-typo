@@ -53,8 +53,18 @@ The CI workflow runs automated checks on every push to `main` and on pull reques
 
 - Runs PHPCS with `WordPress-Extra` standard
 - Validates code against WordPress coding standards
+- Excludes `vendor/` directory from analysis (dependencies are not checked)
+- Uses PHP 8.3 with 512MB memory limit
 - Requires Composer dependencies to be installed
-- Uses PHP 8.3
+
+#### Validate readme.txt
+
+- Validates the WordPress.org `readme.txt` format
+- Checks for required header fields (Plugin Name, Contributors, Tags, Requires at least, Tested up to, Requires PHP, Stable tag, License, License URI)
+- Verifies required sections (Description, Installation, FAQ, Changelog)
+- Validates version format for Stable tag, Requires at least, and Tested up to
+- Checks changelog format and entries
+- Fails if critical errors are found (warnings don't fail the build)
 
 ### Usage
 
@@ -77,22 +87,26 @@ The workflow runs when:
 
 1. **Version verification:** Checks that the plugin header `Version` matches the release tag
 2. **Checkout:** Checks out the code at the provided release tag
-3. **Build ZIP:** Creates a clean ZIP using `.distignore` to exclude:
+3. **Auto-sync Stable tag:** Automatically updates the `Stable tag:` in `readme.txt` to match the release tag (ZIP only, not committed to repo)
+   - This ensures the ZIP always has the correct version, even if the tag was created before updating `readme.txt`
+4. **Build ZIP:** Creates a clean ZIP using `.distignore` to exclude:
    - Git files (`.git/`, `.gitignore`, etc.)
    - Development docs (`README.md`, `TODO.md`, changelogs, etc.)
    - Build/test directories and scripts
    - Composer metadata and `vendor/`
    - The `.github/` directory and other CI/config files
-4. **Verification:** Verifies the ZIP does not contain excluded files
-5. **Release notes:** Generates release notes with the following priority:
+5. **Verification:** Verifies the ZIP does not contain excluded files (composer files, dev docs, `.github/`, etc.)
+6. **Upload artifact:** Uploads the ZIP as a GitHub Actions artifact (30 days retention) for debugging/download
+7. **Generate release notes:** Automatically generates comprehensive release notes with the following priority:
    - **If Release Drafter notes exist:** Uses the automatically generated notes from merged PRs
    - **CHANGELOG.md (preferred):** Parses the Keep a Changelog section for the targeted version
-   - **Fallback (1.0.0 or manual dispatch):** Extracts changelog from `readme.txt`, including:
-     - Changelog entries for the version
-     - Contributors list (from Git commits)
-     - Statistics (commits, files changed, additions/deletions)
+   - **Fallback (readme.txt):** Extracts changelog from `readme.txt` for the version
+   - **Additional content (if previous tag exists):**
+     - Contributors list (unique authors from Git commits between tags)
+     - Statistics (commits count, files changed, lines added/deleted)
      - Comparison link to previous release
-6. **Upload:** Uploads the ZIP as a release asset and updates release notes
+   - **Sections are only included if they have content** (no empty sections)
+8. **Upload release:** Uploads the ZIP as a release asset and updates release notes
 
 ### Expected ZIP contents (key items)
 
@@ -117,7 +131,10 @@ Alternatively, run it manually (`workflow_dispatch`) and provide the `tag` input
 ### Optional WordPress.org deployment
 
 When manually dispatching, you can set `deploy_to_wporg` to `true` to trigger the deployment job. This job:
-- Verifies version consistency between tag, plugin header, and `readme.txt` stable tag
+- Checks out the specified tag
+- Verifies version consistency:
+  - `Stable tag` in `readme.txt` must match the release tag
+  - Plugin header `Version` must match the release tag
 - Prepares for deployment (currently scaffolded, requires configuration)
 
 **Note:** The actual deployment step is commented out and requires:
@@ -128,9 +145,11 @@ When manually dispatching, you can set `deploy_to_wporg` to `true` to trigger th
 ### Verification
 
 The workflow performs multiple checks:
-- Plugin header version matches the tag
+- Plugin header `Version` matches the release tag
+- `Stable tag` in `readme.txt` is automatically updated to match the tag (for ZIP only)
 - ZIP does not contain excluded files (composer files, dev docs, `.github/`, etc.)
-- If deployment is requested, stable tag in `readme.txt` must match the release tag
+- ZIP verification ensures no development files are included
+- If deployment is requested, both `Stable tag` in `readme.txt` and plugin header `Version` must match the release tag
 
 If any check fails, the job fails with a clear error message.
 
