@@ -35,6 +35,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.tag.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify version consistency
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          TAG_CLEAN="${TAG#v}"
+          
+          # Extract version from plugin header
+          PLUGIN_VER=$(grep -E "^\s*\*\s*Version:" french-typo.php | awk -F': ' '{print $2}' | tr -d ' \t')
+          
+          echo "Plugin header Version: $PLUGIN_VER"
+          echo "Tag to build: $TAG_CLEAN"
+          
+          if [ "$PLUGIN_VER" != "$TAG_CLEAN" ]; then
+            echo "❌ Plugin header Version ($PLUGIN_VER) does not match tag ($TAG_CLEAN)"
+            exit 1
+          fi
+          
+          echo "✅ Version consistency verified"
 
       - name: Create ZIP
         run: |
@@ -53,18 +72,168 @@ jobs:
           # Create ZIP
           cd dist && zip -r ../french-typo-${{ steps.tag.outputs.tag }}.zip french-typo/
 
-      - name: Verify ZIP exists
+      - name: Verify ZIP exists and contents
         run: |
-          test -f french-typo-${{ steps.tag.outputs.tag }}.zip || (echo "❌ ZIP file not created" && exit 1)
-          echo "✅ ZIP created: french-typo-${{ steps.tag.outputs.tag }}.zip"
+          ZIP_FILE="french-typo-${{ steps.tag.outputs.tag }}.zip"
+          
+          # Check if ZIP exists
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "❌ ZIP file not created"
+            exit 1
+          fi
+          
+          echo "✅ ZIP created: $ZIP_FILE"
+          echo ""
+          echo "=== ZIP Contents (first 20 entries) ==="
+          unzip -l "$ZIP_FILE" | head -20
+          echo ""
+          
+          # Verify excluded files are not present
+          echo "=== Checking for excluded files ==="
+          EXCLUDED_FILES=(
+            "composer.json"
+            "composer.lock"
+            "README.md"
+            "TODO.md"
+            "CHANGELOG.md"
+            ".github"
+            ".distignore"
+            "vendor"
+            "assets"
+          )
+          
+          FOUND_EXCLUDED=false
+          for file in "${EXCLUDED_FILES[@]}"; do
+            if unzip -l "$ZIP_FILE" | grep -q "$file"; then
+              echo "❌ ERROR: Excluded file/directory found in ZIP: $file"
+              FOUND_EXCLUDED=true
+            fi
+          done
+          
+          if [ "$FOUND_EXCLUDED" = true ]; then
+            echo ""
+            echo "❌ ZIP contains excluded files. Build failed."
+            exit 1
+          fi
+          
+          echo "✅ ZIP verification passed - no excluded files found"
+
+      - name: Upload ZIP as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: french-typo-${{ steps.tag.outputs.tag }}.zip
+          path: french-typo-${{ steps.tag.outputs.tag }}.zip
+          retention-days: 30
+
+      - name: Generate release notes
+        id: relnotes
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          TAG_CLEAN="${TAG#v}"
+          RELEASE_DATE=$(date -u +"%Y-%m-%d")
+          
+          # Initialize release notes file
+          cat > RELEASE_NOTES.md << EOF
+          # Release $TAG_CLEAN
+          
+          **Release date:** $RELEASE_DATE
+          
+          EOF
+          
+          # Extract changelog from readme.txt
+          CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
+            BEGIN { inlog=0; found=0 }
+            /^\=\= Changelog \=\=/ { inmain=1; next }
+            inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
+            inlog && $0 ~ "^= " { exit }
+            inlog && found { print }
+          ' readme.txt | sed '/^[[:space:]]*$/d')
+          
+          if [ -n "$CHANGELOG" ]; then
+            echo "## What's Changed" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "$CHANGELOG" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+          fi
+          
+          # Get previous tag for comparison
+          PREV_TAG=$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            COMPARE_RANGE="$PREV_TAG..$TAG"
+            
+            # Get contributors (unique authors)
+            CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
+            
+            if [ -n "$CONTRIBUTORS" ]; then
+              CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
+              if [ "$CONTRIB_COUNT" -gt 0 ]; then
+                echo "## Contributors" >> RELEASE_NOTES.md
+                echo "" >> RELEASE_NOTES.md
+                # Use sed to format contributors list
+                echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
+                echo "" >> RELEASE_NOTES.md
+              fi
+            fi
+            
+            # Get statistics
+            COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
+            
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+              FILES_CHANGED=$(git diff --name-only "$COMPARE_RANGE" 2>/dev/null | wc -l | tr -d ' ')
+              STATS=$(git diff --shortstat "$COMPARE_RANGE" 2>/dev/null || echo "")
+              
+              if [ -n "$STATS" ]; then
+                ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
+                DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+                
+                # Only show stats if meaningful
+                if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
+                  echo "## Statistics" >> RELEASE_NOTES.md
+                  echo "" >> RELEASE_NOTES.md
+                  echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
+                  
+                  if [ "$FILES_CHANGED" -gt 0 ]; then
+                    echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
+                  fi
+                  
+                  if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
+                    echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
+                  fi
+                  
+                  if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
+                    echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
+                  fi
+                  
+                  echo "" >> RELEASE_NOTES.md
+                fi
+              fi
+            fi
+            
+            # Add comparison link
+            echo "## Full Changelog" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "[$PREV_TAG...$TAG](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG)" >> RELEASE_NOTES.md
+          else
+            # First release - no previous tag
+            echo "## Full Changelog" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            echo "[View all commits](https://github.com/${{ github.repository }}/commits/$TAG)" >> RELEASE_NOTES.md
+          fi
+          
+          # Display generated notes
+          echo "=== Generated Release Notes ==="
+          cat RELEASE_NOTES.md
+          echo "=============================="
 
       - name: Upload ZIP to release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: french-typo-${{ steps.tag.outputs.tag }}.zip
           tag_name: ${{ steps.tag.outputs.tag }}
           draft: ${{ github.event_name == 'release' && github.event.release.draft || 'true' }}
           prerelease: false
+          body_path: RELEASE_NOTES.md
 
   deploy-to-wporg:
     if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_to_wporg == 'true' }}
@@ -86,16 +255,36 @@ jobs:
           fi
           echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
 
-      - name: Verify Stable tag matches readme.txt
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.TAG }}
+
+      - name: Verify version consistency
         run: |
-          STABLE=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
           TAG="${{ steps.tag.outputs.TAG }}"
-          TAG="${TAG#v}"
+          TAG_CLEAN="${TAG#v}"
+          
+          # Verify Stable tag in readme.txt
+          STABLE=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
           echo "Stable tag in readme.txt: $STABLE"
-          echo "Tag to deploy: $TAG"
-          if [ "$STABLE" != "$TAG" ]; then
-            echo "Stable tag ($STABLE) does not match tag to deploy ($TAG)"; exit 1;
+          echo "Tag to deploy: $TAG_CLEAN"
+          
+          if [ "$STABLE" != "$TAG_CLEAN" ]; then
+            echo "❌ Stable tag ($STABLE) does not match tag to deploy ($TAG_CLEAN)"
+            exit 1
           fi
+          
+          # Verify plugin header Version
+          PLUGIN_VER=$(grep -E "^\s*\*\s*Version:" french-typo.php | awk -F': ' '{print $2}' | tr -d ' \t')
+          echo "Plugin header Version: $PLUGIN_VER"
+          
+          if [ "$PLUGIN_VER" != "$TAG_CLEAN" ]; then
+            echo "❌ Plugin header Version ($PLUGIN_VER) does not match tag ($TAG_CLEAN)"
+            exit 1
+          fi
+          
+          echo "✅ Version consistency verified (readme.txt and plugin header)"
 
       - name: Summary - Deploy guard info
         run: |
@@ -103,6 +292,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- Tag: \`${{ steps.tag.outputs.TAG }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- Stable tag matches readme.txt ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Plugin header Version matches tag ✅" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Next step: Configure and enable 10up/action-wordpress-plugin-deploy when SVN is ready." >> $GITHUB_STEP_SUMMARY
           echo "Docs: https://github.com/10up/action-wordpress-plugin-deploy" >> $GITHUB_STEP_SUMMARY
