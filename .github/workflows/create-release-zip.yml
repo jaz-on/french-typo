@@ -42,6 +42,14 @@ jobs:
           fi
         shell: bash
 
+      - name: Checkout tag (to freeze code state)
+        run: |
+          TAG="${{ steps.get_tag.outputs.TAG }}"
+          echo "Checking out tag: $TAG"
+          git checkout "refs/tags/$TAG" || git checkout "$TAG"
+          echo "Current commit: $(git rev-parse HEAD)"
+          echo "Tag points to: $(git rev-parse $TAG^{})"
+
       - name: Setup Node.js (for rsync alternative)
         uses: actions/setup-node@v4
 
@@ -74,9 +82,10 @@ jobs:
 
       - name: Create source ZIP file (for WordPress.org review)
         run: |
-          # Créer un ZIP sources avec tous les fichiers du repo (sauf .git, node_modules, etc.)
+          # Créer un ZIP sources avec tous les fichiers du repo au commit du tag
           # Ce ZIP est utile pour la review WordPress.org
-          git archive --format=zip --output=french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip HEAD
+          TAG="${{ steps.get_tag.outputs.TAG }}"
+          git archive --format=zip --output=french-typo-${{ steps.get_tag.outputs.TAG }}-source.zip "$TAG"
 
       - name: Verify plugin ZIP contents
         run: |
