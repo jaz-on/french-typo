@@ -160,9 +160,8 @@ jobs:
             echo "📝 Generating release notes"
             
             # Initialize release notes file
+            # Note: We don't include the title here as it's already in the release name
             cat > RELEASE_NOTES.md << EOF
-          # Release $TAG_CLEAN
-          
           **Release date:** $RELEASE_DATE
           
           EOF
@@ -200,63 +199,72 @@ jobs:
             
             if [ -n "$PREV_TAG" ]; then
               COMPARE_RANGE="$PREV_TAG..$TAG"
-              
-              # Get contributors (unique authors)
-              CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
-              
-              if [ -n "$CONTRIBUTORS" ]; then
-                CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
-                if [ "$CONTRIB_COUNT" -gt 0 ]; then
-                  echo "## Contributors" >> RELEASE_NOTES.md
-                  echo "" >> RELEASE_NOTES.md
-                  # Use sed to format contributors list
-                  echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
-                  echo "" >> RELEASE_NOTES.md
-                fi
+            else
+              # First release - compare from the beginning of the repo
+              COMPARE_RANGE="$TAG"
+            fi
+            
+            # Get contributors (unique authors) - works for both first release and subsequent releases
+            CONTRIBUTORS=$(git log --format='%an' "$COMPARE_RANGE" 2>/dev/null | sort -u | grep -v '^$' | head -20 || echo "")
+            
+            if [ -n "$CONTRIBUTORS" ]; then
+              CONTRIB_COUNT=$(echo "$CONTRIBUTORS" | wc -l | tr -d ' ')
+              if [ "$CONTRIB_COUNT" -gt 0 ]; then
+                echo "## Contributors" >> RELEASE_NOTES.md
+                echo "" >> RELEASE_NOTES.md
+                # Use sed to format contributors list
+                echo "$CONTRIBUTORS" | sed 's/^/- /' >> RELEASE_NOTES.md
+                echo "" >> RELEASE_NOTES.md
               fi
-              
-              # Get statistics
-              COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
-              
-              if [ "$COMMIT_COUNT" -gt 0 ]; then
+            fi
+            
+            # Get statistics
+            COMMIT_COUNT=$(git rev-list --count "$COMPARE_RANGE" 2>/dev/null || echo "0")
+            
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+              if [ -n "$PREV_TAG" ]; then
                 FILES_CHANGED=$(git diff --name-only "$COMPARE_RANGE" 2>/dev/null | wc -l | tr -d ' ')
                 STATS=$(git diff --shortstat "$COMPARE_RANGE" 2>/dev/null || echo "")
-                
-                if [ -n "$STATS" ]; then
-                  ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
-                  DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
-                  
-                  # Only show stats if meaningful
-                  if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
-                    echo "## Statistics" >> RELEASE_NOTES.md
-                    echo "" >> RELEASE_NOTES.md
-                    echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
-                    
-                    if [ "$FILES_CHANGED" -gt 0 ]; then
-                      echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
-                    fi
-                    
-                    if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
-                      echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
-                    fi
-                    
-                    if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
-                      echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
-                    fi
-                    
-                    echo "" >> RELEASE_NOTES.md
-                  fi
-                fi
+              else
+                # First release - get stats from the beginning
+                FILES_CHANGED=$(git ls-tree -r --name-only "$TAG" 2>/dev/null | wc -l | tr -d ' ')
+                STATS=$(git diff --shortstat "$TAG" 2>/dev/null || echo "")
               fi
               
-              # Add comparison link
-              echo "## Full Changelog" >> RELEASE_NOTES.md
-              echo "" >> RELEASE_NOTES.md
+              if [ -n "$STATS" ]; then
+                ADDITIONS=$(echo "$STATS" | awk '{print $4}' || echo "0")
+                DELETIONS=$(echo "$STATS" | awk '{print $6}' || echo "0")
+                
+                # Only show stats if meaningful
+                if [ "$COMMIT_COUNT" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
+                  echo "## Statistics" >> RELEASE_NOTES.md
+                  echo "" >> RELEASE_NOTES.md
+                  echo "- **Commits:** $COMMIT_COUNT" >> RELEASE_NOTES.md
+                  
+                  if [ "$FILES_CHANGED" -gt 0 ]; then
+                    echo "- **Files changed:** $FILES_CHANGED" >> RELEASE_NOTES.md
+                  fi
+                  
+                  if [ -n "$ADDITIONS" ] && [ "$ADDITIONS" != "0" ]; then
+                    echo "- **Additions:** +$ADDITIONS lines" >> RELEASE_NOTES.md
+                  fi
+                  
+                  if [ -n "$DELETIONS" ] && [ "$DELETIONS" != "0" ]; then
+                    echo "- **Deletions:** -$DELETIONS lines" >> RELEASE_NOTES.md
+                  fi
+                  
+                  echo "" >> RELEASE_NOTES.md
+                fi
+              fi
+            fi
+            
+            # Add comparison link
+            echo "## Full Changelog" >> RELEASE_NOTES.md
+            echo "" >> RELEASE_NOTES.md
+            if [ -n "$PREV_TAG" ]; then
               echo "[$PREV_TAG...$TAG](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$TAG)" >> RELEASE_NOTES.md
             else
-              # First release - no previous tag
-              echo "## Full Changelog" >> RELEASE_NOTES.md
-              echo "" >> RELEASE_NOTES.md
+              # First release - link to all commits
               echo "[View all commits](https://github.com/${{ github.repository }}/commits/$TAG)" >> RELEASE_NOTES.md
             fi
           fi
