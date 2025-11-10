@@ -2,16 +2,22 @@ name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
 categories:
-  - title: '🚀 Features'
+  - title: '### Added'
     labels: ['feature', 'enhancement']
-  - title: '🐛 Bug Fixes'
+  - title: '### Changed'
+    labels: ['breaking', 'change']
+  - title: '### Fixed'
     labels: ['bug', 'fix']
-  - title: '⚠️ Breaking Changes'
-    labels: ['breaking']
-  - title: '📚 Documentation'
+  - title: '### Security'
+    labels: ['security']
+  - title: '### Performance'
+    labels: ['performance']
+  - title: '### Accessibility'
+    labels: ['accessibility', 'a11y']
+  - title: '### Code Quality'
+    labels: ['maintenance', 'chore', 'refactor', 'code-quality']
+  - title: '### Documentation'
     labels: ['documentation', 'docs']
-  - title: '🔧 Maintenance'
-    labels: ['maintenance', 'chore', 'refactor']
 template: |
   ## What's Changed
   

@@ -118,6 +118,10 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 
 Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions (en anglais, conformément au standard « Keep a Changelog »).
 
+## Documentation pour développeurs
+
+Pour la documentation technique détaillée, voir le dossier [`docs/`](docs/README.md).
+
 ---
 
 <a name="english"></a>

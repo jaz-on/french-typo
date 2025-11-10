@@ -1,0 +1,124 @@
+name: Sync Docs to Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/sync-docs-to-wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone wiki repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -d "wiki" ]; then
+            rm -rf wiki
+          fi
+          # Clone wiki using token for authentication
+          git clone https://${{ github.actor }}:$GITHUB_TOKEN@github.com/${{ github.repository }}.wiki.git wiki || {
+            echo "⚠️ Wiki repository not found or not accessible."
+            echo "This is normal if the wiki hasn't been initialized yet."
+            echo "Creating initial structure..."
+            mkdir -p wiki
+            cd wiki
+            git init
+            git remote add origin https://${{ github.actor }}:$GITHUB_TOKEN@github.com/${{ github.repository }}.wiki.git
+            cd ..
+          }
+          
+          # Detect default branch (master or main)
+          cd wiki
+          DEFAULT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "master")
+          if [ -z "$DEFAULT_BRANCH" ] || ! git show-ref --verify --quiet refs/heads/$DEFAULT_BRANCH; then
+            DEFAULT_BRANCH="master"
+            git checkout -b master 2>/dev/null || git checkout -b main 2>/dev/null || true
+          fi
+          echo "DEFAULT_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
+          cd ..
+
+      - name: Copy documentation files
+        run: |
+          # Copy all markdown files from docs/ to wiki root
+          # Exclude README.md from docs/ as it's documentation about the docs structure
+          find docs -name "*.md" -not -name "README.md" -exec cp {} wiki/ \;
+          
+          # Create Home.md from docs/README.md if it doesn't exist
+          if [ ! -f "wiki/Home.md" ]; then
+            cp docs/README.md wiki/Home.md
+            # Update links in Home.md to work in wiki context
+            sed -i 's|(\([^)]*\.md\))|(\1)|g' wiki/Home.md
+          fi
+          
+          # List copied files
+          echo "Files copied to wiki:"
+          ls -la wiki/*.md || echo "No markdown files found"
+
+      - name: Commit and push to wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd wiki
+          
+          # Check if wiki was cloned successfully
+          if [ ! -d ".git" ]; then
+            echo "⚠️ Wiki repository not initialized. Skipping sync."
+            echo ""
+            echo "To enable wiki sync:"
+            echo "1. Go to repository Settings > Features"
+            echo "2. Enable 'Wikis'"
+            echo "3. Create at least one wiki page manually to initialize the wiki repository"
+            exit 0
+          fi
+          
+          # Ensure we're on the correct branch
+          git checkout $DEFAULT_BRANCH 2>/dev/null || git checkout -b $DEFAULT_BRANCH
+          
+          # Check if there are changes
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "✅ No changes to commit. Wiki is up to date."
+            exit 0
+          fi
+          
+          git add -A
+          git commit -m "Sync documentation from main branch
+
+          Auto-synced from docs/ directory
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}"
+          
+          # Push to wiki using token
+          git push https://${{ github.actor }}:$GITHUB_TOKEN@github.com/${{ github.repository }}.wiki.git $DEFAULT_BRANCH || {
+            echo "❌ Failed to push to wiki. This might be because:"
+            echo "1. Wiki is not enabled for this repository"
+            echo "2. Insufficient permissions (GITHUB_TOKEN might not have wiki write access)"
+            echo "3. Wiki repository branch mismatch"
+            echo ""
+            echo "To enable wiki sync:"
+            echo "1. Go to repository Settings > Features"
+            echo "2. Enable 'Wikis'"
+            echo "3. Create at least one wiki page manually to initialize the wiki repository"
+            echo "4. Ensure GITHUB_TOKEN has write access to wiki (usually automatic)"
+            exit 1
+          }
+          
+          echo "✅ Documentation synced to wiki successfully on branch: $DEFAULT_BRANCH"
+
