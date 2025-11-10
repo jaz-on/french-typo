@@ -111,14 +111,16 @@ This plugin is also inspired by other projects:
 * Custom Fields support (ACF, Meta Box)
 * Taxonomies support (categories, tags, custom taxonomies)
 * Archives support (all types)
-* Comments support
+* Excerpts support
+* Comments support (text and author names)
 * Widgets and menus support
-* RSS feeds support
-* REST API support
+* RSS feeds support (titles, content, excerpts, comments)
+* REST API support (posts, pages, attachments)
 * User profiles support
 * Breadcrumbs support (Yoast SEO, Rank Math, SEOPress)
 * SEO meta descriptions support (Yoast SEO, Rank Math, SEOPress)
 * Social tags support (Open Graph, Twitter Cards)
+* Developer API: filter hook `french_typo_process_text` for custom content processing
 * Performance optimizations: static cache for plugin options to reduce database queries
 * Code quality: optimized regex patterns and early returns for better performance
 * Admin interface: modern CSS with custom properties and simplified interactions

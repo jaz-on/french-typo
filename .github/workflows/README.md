@@ -30,7 +30,7 @@ The Release Drafter workflow automatically generates release notes from merged p
 3. Release Drafter automatically updates the draft release
 4. When ready, publish the release (or let the Create Release ZIP workflow handle it)
 
-**Note:** For the 1.0.0 release (commits directly on `main`), Release Drafter won't generate notes. The workflow will fall back to reading from `readme.txt`.
+**Note:** For the 1.0.0 release (commits directly on `main`), Release Drafter won't generate notes. The Create Release ZIP workflow will first try `CHANGELOG.md` (Keep a Changelog), and fall back to `readme.txt` if needed.
 
 ## CI
 
@@ -84,8 +84,9 @@ The workflow runs when:
    - Composer metadata and `vendor/`
    - The `.github/` directory and other CI/config files
 4. **Verification:** Verifies the ZIP does not contain excluded files
-5. **Release notes:** Generates release notes using one of two methods:
+5. **Release notes:** Generates release notes with the following priority:
    - **If Release Drafter notes exist:** Uses the automatically generated notes from merged PRs
+   - **CHANGELOG.md (preferred):** Parses the Keep a Changelog section for the targeted version
    - **Fallback (1.0.0 or manual dispatch):** Extracts changelog from `readme.txt`, including:
      - Changelog entries for the version
      - Contributors list (from Git commits)

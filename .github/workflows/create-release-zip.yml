@@ -137,7 +137,7 @@ jobs:
             echo "✅ Using Release Drafter notes from release body"
             echo "${{ github.event.release.body }}" > RELEASE_NOTES.md
           else
-            echo "📝 Generating release notes from readme.txt (fallback)"
+            echo "📝 Generating release notes"
             
             # Initialize release notes file
             cat > RELEASE_NOTES.md << EOF
@@ -146,21 +146,33 @@ jobs:
           **Release date:** $RELEASE_DATE
           
           EOF
-          
-            # Extract changelog from readme.txt
-            CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
-              BEGIN { inlog=0; found=0 }
-              /^\=\= Changelog \=\=/ { inmain=1; next }
-              inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
-              inlog && $0 ~ "^= " { exit }
-              inlog && found { print }
-            ' readme.txt | sed '/^[[:space:]]*$/d')
-            
+
+            # 1) Try CHANGELOG.md (Keep a Changelog format)
+            if [ -f "CHANGELOG.md" ]; then
+              echo "ℹ️ Trying CHANGELOG.md"
+              # Extract section for version: from '## [TAG_CLEAN]' until next '## [' line
+              CHANGELOG=$(awk '/^## \['"$TAG_CLEAN"'\]/{flag=1;next}/^## \\[/{if(flag) exit}flag' CHANGELOG.md | sed '/^[[:space:]]*$/d')
+            fi
+
+            # 2) Fallback to readme.txt (WordPress.org format) if empty
+            if [ -z "$CHANGELOG" ] && [ -f "readme.txt" ]; then
+              echo "ℹ️ Falling back to readme.txt"
+              CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
+                BEGIN { inlog=0; found=0 }
+                /^\=\= Changelog \=\=/ { inmain=1; next }
+                inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
+                inlog && $0 ~ "^= " { exit }
+                inlog && found { print }
+              ' readme.txt | sed '/^[[:space:]]*$/d')
+            fi
+
             if [ -n "$CHANGELOG" ]; then
               echo "## What's Changed" >> RELEASE_NOTES.md
               echo "" >> RELEASE_NOTES.md
               echo "$CHANGELOG" >> RELEASE_NOTES.md
               echo "" >> RELEASE_NOTES.md
+            else
+              echo "ℹ️ No changelog content found for version $TAG_CLEAN"
             fi
             
             # Get previous tag for comparison

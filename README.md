@@ -116,30 +116,7 @@ Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/g
 
 ## Changelog
 
-### 1.0.0
-* Version initiale
-* Refonte complète depuis le plugin French Typo original
-* Support des espaces insécables (normaux et fins)
-* Support du remplacement de caractères spéciaux
-* Page de réglages configurable avec options granulaires
-* Support complet des Custom Post Types
-* Support des Custom Fields (ACF, Meta Box)
-* Support des taxonomies (catégories, tags, custom taxonomies)
-* Support des archives (tous types)
-* Support des commentaires
-* Support des widgets et menus
-* Support des flux RSS
-* Support de l'API REST
-* Support des profils utilisateurs
-* Support des breadcrumbs (Yoast SEO, Rank Math, SEOPress)
-* Support des meta descriptions SEO (Yoast SEO, Rank Math, SEOPress)
-* Support des tags sociaux (Open Graph, Twitter Cards)
-* Optimisations de performance : cache statique des options pour réduire les requêtes base de données
-* Qualité du code : patterns regex optimisés et retours anticipés pour de meilleures performances
-* Interface admin : CSS moderne avec propriétés personnalisées et interactions simplifiées
-* Accessibilité : amélioration du contraste des couleurs (conformité WCAG 2.1 AA)
-* Sécurité : sanitization et validation appropriées des données
-* Standards WordPress : conformité complète avec les standards WordPress-Extra
+Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions (en anglais, conformément au standard « Keep a Changelog »).
 
 ---
 
@@ -258,27 +235,4 @@ This plugin is licensed under [GPLv2 or later](https://www.gnu.org/licenses/gpl-
 
 ### Changelog
 
-#### 1.0.0
-* Initial release
-* Complete rewrite from the original French Typo plugin
-* Support for non-breaking spaces (regular and thin)
-* Support for special character replacements
-* Configurable settings page with granular options
-* Full Custom Post Types support
-* Custom Fields support (ACF, Meta Box)
-* Taxonomies support (categories, tags, custom taxonomies)
-* Archives support (all types)
-* Comments support
-* Widgets and menus support
-* RSS feeds support
-* REST API support
-* User profiles support
-* Breadcrumbs support (Yoast SEO, Rank Math, SEOPress)
-* SEO meta descriptions support (Yoast SEO, Rank Math, SEOPress)
-* Social tags support (Open Graph, Twitter Cards)
-* Performance optimizations: static cache for plugin options to reduce database queries
-* Code quality: optimized regex patterns and early returns for better performance
-* Admin interface: modern CSS with custom properties and simplified interactions
-* Accessibility: improved color contrast (WCAG 2.1 AA compliance)
-* Security: proper data sanitization and validation throughout
-* WordPress Coding Standards: full compliance with WordPress-Extra standards
+See [CHANGELOG.md](CHANGELOG.md) for the complete version history.
