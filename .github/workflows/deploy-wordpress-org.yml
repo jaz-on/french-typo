@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version/tag to deploy (e.g. v1.0.0)'
+        description: 'Version/tag to deploy (e.g. 1.0.0 or v1.0.0)'
         required: true
 
 jobs:
@@ -15,42 +15,84 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Validate inputs and tag
+      - name: Resolve tag from input
+        id: tag
         run: |
           TAG="${{ github.event.inputs.version }}"
           if [ -z "$TAG" ]; then
-            echo "No tag provided"; exit 1;
+            echo "❌ No tag provided"
+            exit 1
           fi
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG not found"; exit 1;
-          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
 
-      - name: Show summary/instructions
+      - name: Validate tag exists
         run: |
-          echo "## Manual deploy to WordPress.org" >> $GITHUB_STEP_SUMMARY
+          TAG="${{ steps.tag.outputs.tag }}"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "❌ Tag $TAG not found in repository"
+            exit 1
+          fi
+          echo "✅ Tag $TAG found"
+
+      - name: Checkout tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify version consistency
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          TAG_CLEAN="${TAG#v}"
+          
+          # Verify Stable tag in readme.txt
+          STABLE=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
+          echo "Stable tag in readme.txt: $STABLE"
+          echo "Tag to deploy: $TAG_CLEAN"
+          
+          if [ "$STABLE" != "$TAG_CLEAN" ]; then
+            echo "❌ Stable tag ($STABLE) does not match tag to deploy ($TAG_CLEAN)"
+            exit 1
+          fi
+          
+          # Verify plugin header Version
+          PLUGIN_VER=$(grep -E "^\s*\*\s*Version:" french-typo.php | awk -F': ' '{print $2}' | tr -d ' \t')
+          echo "Plugin header Version: $PLUGIN_VER"
+          
+          if [ "$PLUGIN_VER" != "$TAG_CLEAN" ]; then
+            echo "❌ Plugin header Version ($PLUGIN_VER) does not match tag ($TAG_CLEAN)"
+            exit 1
+          fi
+          
+          echo "✅ Version consistency verified (readme.txt and plugin header)"
+
+      - name: Deploy to WordPress.org
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        with:
+          svn_username: ${{ secrets.SVN_USERNAME }}
+          svn_password: ${{ secrets.SVN_PASSWORD }}
+          slug: ${{ secrets.SLUG }}
+          # Optional: assets-dir defaults to .wordpress-org
+          # assets_dir: .wordpress-org
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deployment summary
+        run: |
+          echo "## ✅ Deployment to WordPress.org completed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Tag: \`${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- This job is a scaffold. Configure secrets then replace this step with a deploy action." >> $GITHUB_STEP_SUMMARY
+          echo "- Tag deployed: \`${{ steps.tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Stable tag: Verified ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Plugin header Version: Verified ✅" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Required secrets:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`SVN_USERNAME\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`SVN_PASSWORD\` (or \`SVN_TOKEN\`)" >> $GITHUB_STEP_SUMMARY
-          echo "- \`SLUG\` (plugin slug on WordPress.org, e.g. french-typo)" >> $GITHUB_STEP_SUMMARY
+          echo "### Next steps" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Recommended action: https://github.com/10up/action-wordpress-plugin-deploy" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Assets Structure" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "The folder \`.wordpress-org/\` contains WordPress.org assets:" >> $GITHUB_STEP_SUMMARY
-          echo "- Plugin icons: \`icon-128x128.png\`, \`icon-256x256.png\`, \`icon.svg\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Screenshots: \`screenshot-1.png\` (and more if needed)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "These will be automatically copied to \`assets/\` at SVN root level by the deploy action." >> $GITHUB_STEP_SUMMARY
-          echo "See: https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/" >> $GITHUB_STEP_SUMMARY
+          echo "- Check SVN repository: https://plugins.svn.wordpress.org/french-typo" >> $GITHUB_STEP_SUMMARY
+          echo "- Plugin page: https://wordpress.org/plugins/french-typo/ (may take up to 72h to update)" >> $GITHUB_STEP_SUMMARY
 
 
