@@ -46,9 +46,11 @@ jobs:
           fetch-depth: 0
 
       - name: Verify version consistency
+        id: version
         run: |
           TAG="${{ steps.tag.outputs.tag }}"
           TAG_CLEAN="${TAG#v}"
+          echo "tag_clean=${TAG_CLEAN}" >> $GITHUB_OUTPUT
           
           # Verify Stable tag in readme.txt
           STABLE=$(grep -E '^Stable tag:' readme.txt | awk -F': ' '{print $2}' | tr -d ' \t')
@@ -77,6 +79,7 @@ jobs:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
           SLUG: french-typo
+          VERSION: ${{ steps.version.outputs.tag_clean }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deployment summary
