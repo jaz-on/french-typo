@@ -73,13 +73,10 @@ jobs:
 
       - name: Deploy to WordPress.org
         uses: 10up/action-wordpress-plugin-deploy@stable
-        with:
-          svn_username: ${{ secrets.SVN_USERNAME }}
-          svn_password: ${{ secrets.SVN_PASSWORD }}
-          slug: ${{ secrets.SLUG }}
-          # Optional: assets-dir defaults to .wordpress-org
-          # assets_dir: .wordpress-org
         env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: french-typo
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deployment summary
