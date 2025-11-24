@@ -3,9 +3,9 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®).
- * Version: 1.0.0
+ * Version: 1.1
  * Requires at least: 6.0
- * Requires PHP: 8.3
+ * Requires PHP: 7.4
  * Tested up to: 6.8
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
@@ -25,6 +25,8 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
+define( 'FRENCH_TYPO_VERSION', '1.1' );
+
 /**
  * Initialize plugin hooks.
  *
@@ -34,101 +36,105 @@ defined( 'ABSPATH' ) || die( 'Silence is golden.' );
  */
 function french_typo_hooks() {
 	// Apply typography rules to post titles and content.
-	add_filter( 'the_title', 'french_typo_replace_title' );
-	add_filter( 'the_content', 'french_typo_replace_content' );
-	add_filter( 'the_excerpt', 'french_typo_replace_excerpt' );
+	add_filter( 'the_title',   'french_typo_replace_wrapper' );
+	add_filter( 'the_content', 'french_typo_replace_wrapper' );
+	add_filter( 'the_excerpt', 'french_typo_replace_wrapper' );
 
 	// Apply to widgets.
-	add_filter( 'widget_text', 'french_typo_replace_widget' );
-	add_filter( 'widget_title', 'french_typo_replace_widget_title' );
+	add_filter( 'widget_text',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_text_content',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_block_content',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_title', 'french_typo_replace_wrapper' );
+	add_filter( 'widget_text_title',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_block_title',  'french_typo_replace_wrapper' );
 
 	// Apply to menu items.
-	add_filter( 'wp_nav_menu_items', 'french_typo_replace_menu' );
+	add_filter( 'wp_nav_menu_items', 'french_typo_replace_wrapper' );
 
 	// Apply to taxonomies (categories, tags, custom taxonomies).
-	add_filter( 'term_description', 'french_typo_replace_taxonomy' );
-	add_filter( 'single_term_title', 'french_typo_replace_taxonomy_title' );
-	add_filter( 'single_cat_title', 'french_typo_replace_taxonomy_title' );
-	add_filter( 'single_tag_title', 'french_typo_replace_taxonomy_title' );
-	add_filter( 'single_post_type_archive_title', 'french_typo_replace_taxonomy_title' );
+	add_filter( 'term_description',               'french_typo_replace_wrapper' );
+	add_filter( 'single_term_title',              'french_typo_replace_wrapper' );
+	add_filter( 'single_cat_title',               'french_typo_replace_wrapper' );
+	add_filter( 'single_tag_title',               'french_typo_replace_wrapper' );
+	add_filter( 'single_post_type_archive_title', 'french_typo_replace_wrapper' );
 
 	// Apply to archive titles and descriptions.
-	add_filter( 'get_the_archive_title', 'french_typo_replace_archive_title' );
-	add_filter( 'get_the_archive_description', 'french_typo_replace_archive' );
+	add_filter( 'get_the_archive_title',       'french_typo_replace_wrapper' );
+	add_filter( 'get_the_archive_description', 'french_typo_replace_wrapper' );
 
 	// Apply to comments.
-	add_filter( 'comment_text', 'french_typo_replace_comment' );
-	add_filter( 'get_comment_author', 'french_typo_replace_comment_author' );
+	add_filter( 'comment_text',       'french_typo_replace_wrapper' );
+	add_filter( 'get_comment_author', 'french_typo_replace_wrapper' );
 
 	// Support for Advanced Custom Fields (ACF).
 	if ( function_exists( 'get_field' ) ) {
-		add_filter( 'acf/format_value/type=text', 'french_typo_replace_custom_field', 10, 3 );
-		add_filter( 'acf/format_value/type=textarea', 'french_typo_replace_custom_field', 10, 3 );
-		add_filter( 'acf/format_value/type=wysiwyg', 'french_typo_replace_custom_field', 10, 3 );
+		add_filter( 'acf/format_value/type=text',     'french_typo_replace_custom_field' );
+		add_filter( 'acf/format_value/type=textarea', 'french_typo_replace_custom_field' );
+		add_filter( 'acf/format_value/type=wysiwyg',  'french_typo_replace_custom_field' );
 	}
 
 	// Support for Meta Box plugin.
 	if ( function_exists( 'rwmb_get_value' ) ) {
-		add_filter( 'rwmb_the_value', 'french_typo_replace_custom_field', 10, 3 );
+		add_filter( 'rwmb_the_value', 'french_typo_replace_custom_field' );
 	}
 
 	// Apply to RSS feeds.
-	add_filter( 'the_title_rss', 'french_typo_replace_rss_title' );
+	add_filter( 'the_title_rss',    'french_typo_replace_rss_title' );
 	add_filter( 'the_content_feed', 'french_typo_replace_rss_content' );
-	add_filter( 'the_excerpt_rss', 'french_typo_replace_rss_excerpt' );
+	add_filter( 'the_excerpt_rss',  'french_typo_replace_rss_excerpt' );
 	add_filter( 'comment_text_rss', 'french_typo_replace_rss_comment' );
 
 	// Apply to REST API responses.
-	add_filter( 'rest_prepare_post', 'french_typo_rest_api_post', 10, 3 );
-	add_filter( 'rest_prepare_page', 'french_typo_rest_api_post', 10, 3 );
-	add_filter( 'rest_prepare_attachment', 'french_typo_rest_api_post', 10, 3 );
+	add_filter( 'rest_prepare_post',       'french_typo_rest_api_post' );
+	add_filter( 'rest_prepare_page',       'french_typo_rest_api_post' );
+	add_filter( 'rest_prepare_attachment', 'french_typo_rest_api_post' );
 
 	// Apply to user profiles.
-	add_filter( 'get_the_author_description', 'french_typo_replace_user_profile', 10, 1 );
-	add_filter( 'get_user_meta', 'french_typo_user_meta', 10, 4 );
+	add_filter( 'get_the_author_description', 'french_typo_replace_wrapper' );
+	add_filter( 'get_user_meta',              'french_typo_user_meta', 10, 2 );
 
 	// Apply to breadcrumbs (Yoast, Rank Math, SEOPress).
 	if ( defined( 'WPSEO_VERSION' ) ) {
-		add_filter( 'wpseo_breadcrumb_links', 'french_typo_breadcrumbs' );
+		add_filter( 'wpseo_breadcrumb_links',              'french_typo_breadcrumbs' );
 	}
 	if ( defined( 'RANK_MATH_VERSION' ) ) {
 		add_filter( 'rank_math/frontend/breadcrumb/items', 'french_typo_breadcrumbs' );
 	}
 	if ( defined( 'SEOPRESS_VERSION' ) ) {
-		add_filter( 'seopress_breadcrumbs_items', 'french_typo_breadcrumbs' );
+		add_filter( 'seopress_breadcrumbs_items',          'french_typo_breadcrumbs' );
 	}
 
 	// Support for SEO plugins meta descriptions.
 	// Yoast SEO.
 	if ( defined( 'WPSEO_VERSION' ) ) {
-		add_filter( 'wpseo_metadesc', 'french_typo_replace', 10, 1 );
-		add_filter( 'wpseo_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'wpseo_opengraph_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'wpseo_opengraph_desc', 'french_typo_replace', 10, 1 );
-		add_filter( 'wpseo_twitter_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'wpseo_twitter_description', 'french_typo_replace', 10, 1 );
+		add_filter( 'wpseo_metadesc',            'french_typo_replace' );
+		add_filter( 'wpseo_title',               'french_typo_replace' );
+		add_filter( 'wpseo_opengraph_title',     'french_typo_replace' );
+		add_filter( 'wpseo_opengraph_desc',      'french_typo_replace' );
+		add_filter( 'wpseo_twitter_title',       'french_typo_replace' );
+		add_filter( 'wpseo_twitter_description', 'french_typo_replace' );
 	}
 	// Rank Math.
 	if ( defined( 'RANK_MATH_VERSION' ) ) {
-		add_filter( 'rank_math/frontend/title', 'french_typo_replace', 10, 1 );
-		add_filter( 'rank_math/frontend/description', 'french_typo_replace', 10, 1 );
-		add_filter( 'rank_math/opengraph/title', 'french_typo_replace', 10, 1 );
-		add_filter( 'rank_math/opengraph/description', 'french_typo_replace', 10, 1 );
-		add_filter( 'rank_math/twitter/title', 'french_typo_replace', 10, 1 );
-		add_filter( 'rank_math/twitter/description', 'french_typo_replace', 10, 1 );
+		add_filter( 'rank_math/frontend/title',        'french_typo_replace' );
+		add_filter( 'rank_math/frontend/description',  'french_typo_replace' );
+		add_filter( 'rank_math/opengraph/title',       'french_typo_replace' );
+		add_filter( 'rank_math/opengraph/description', 'french_typo_replace' );
+		add_filter( 'rank_math/twitter/title',         'french_typo_replace' );
+		add_filter( 'rank_math/twitter/description',   'french_typo_replace' );
 	}
 	// SEOPress.
 	if ( defined( 'SEOPRESS_VERSION' ) ) {
-		add_filter( 'seopress_titles_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'seopress_titles_desc', 'french_typo_replace', 10, 1 );
-		add_filter( 'seopress_social_og_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'seopress_social_og_desc', 'french_typo_replace', 10, 1 );
-		add_filter( 'seopress_social_twitter_title', 'french_typo_replace', 10, 1 );
-		add_filter( 'seopress_social_twitter_desc', 'french_typo_replace', 10, 1 );
+		add_filter( 'seopress_titles_title',         'french_typo_replace' );
+		add_filter( 'seopress_titles_desc',          'french_typo_replace' );
+		add_filter( 'seopress_social_og_title',      'french_typo_replace' );
+		add_filter( 'seopress_social_og_desc',       'french_typo_replace' );
+		add_filter( 'seopress_social_twitter_title', 'french_typo_replace' );
+		add_filter( 'seopress_social_twitter_desc',  'french_typo_replace' );
 	}
 
 	// Generic filter for custom fields and other content.
-	add_filter( 'french_typo_process_text', 'french_typo_replace', 10, 1 );
+	add_filter( 'french_typo_process_text', 'french_typo_replace' );
 
 	// Only load admin functionality when in WordPress admin area.
 	if ( is_admin() ) {
@@ -141,165 +147,96 @@ function french_typo_hooks() {
 add_action( 'init', 'french_typo_hooks' );
 
 /**
- * Clean up on plugin deactivation.
+ * Get plugin options with static cache and processed values.
  *
- * Removes temporary options and invalidates caches.
- *
- * @since 1.0.0
- */
-function french_typo_deactivate() {
-	// Invalidate options cache.
-	french_typo_invalidate_options_cache();
-	// Note: We don't delete the options_version option as it's lightweight
-	// and helps maintain cache consistency if the plugin is reactivated.
-}
-register_deactivation_hook( __FILE__, 'french_typo_deactivate' );
-
-/**
- * Get plugin options with static cache.
- *
- * Retrieves plugin options from database and caches them in memory
- * to avoid repeated database queries. Cache is automatically invalidated
- * when options are updated via the update_option hook.
+ * Retrieves plugin options from database, processes them, and caches them in memory
+ * to avoid repeated processing. WordPress already caches options via get_option().
  *
  * @since 1.0.0
  *
- * @return array Plugin options array.
+ * @return array Processed plugin options array with ready-to-use values.
  */
 function french_typo_get_options() {
-	static $cached_options = null;
-	static $cache_version  = 0;
+	static $cached_processed_options = null;
 
-	// Get current option version from database to detect changes.
-	$current_version = get_option( 'french_typo_options_version', 0 );
+	// If cache is empty, load and process options.
+	if ( null === $cached_processed_options ) {
+		$raw_options = get_option( 'french_typo_options', array() );
 
-	// If version changed or cache is empty, reload options.
-	if ( null === $cached_options || $cache_version !== $current_version ) {
-		$cached_options = get_option( 'french_typo_options', array() );
-		$cache_version  = $current_version;
+		// Default values for all options.
+		$defaults = array(
+			'narrow_space'           => false,
+			'special_characters'     => true,
+			'apply_to_titles'        => true,
+			'apply_to_content'       => true,
+			'apply_to_excerpts'      => true,
+			'apply_to_widgets'       => true,
+			'apply_to_menus'         => true,
+			'apply_to_custom_fields' => true,
+			'apply_to_taxonomies'    => true,
+			'apply_to_archives'      => true,
+			'apply_to_comments'      => true,
+			'apply_to_rss'           => true,
+			'apply_to_rest_api'      => true,
+			'apply_to_user_profiles' => true,
+			'apply_to_breadcrumbs'   => true,
+		);
+
+		// Merge raw options with defaults using wp_parse_args().
+		$cached_processed_options = wp_parse_args( $raw_options, $defaults );
+		if ( $cached_processed_options['narrow_space'] ) {
+			$cached_processed_options['narrow_space'] = $cached_processed_options['narrow_space'] === 1 ? '&#160;' : '&#8239;';
+		} else {
+			$cached_processed_options['narrow_space'] = false;
+		}
+
 	}
-
-	return $cached_options;
+	return $cached_processed_options;
 }
 
 /**
- * Invalidate the options cache.
+ * Generic wrapper function for French typo filters.
+ * Uses current_filter() to determine which option to check.
+ * Optimized for performance - no closures, single function for all simple filters.
  *
- * Forces the next call to french_typo_get_options() to reload
- * options from the database by incrementing the version number.
+ * @since 1.1
  *
- * @since 1.0.0
+ * @param string $text The text to process.
+ * @return string The processed text.
  */
-function french_typo_invalidate_options_cache() {
-	$current_version = get_option( 'french_typo_options_version', 0 );
-	update_option( 'french_typo_options_version', $current_version + 1, false );
-}
+function french_typo_replace_wrapper( $text ) {
+	// Map hooks to option keys (static for performance).
+	static $hook_option_map = array(
+		'the_title'                      => 'apply_to_titles',
+		'the_content'                    => 'apply_to_content',
+		'the_excerpt'                    => 'apply_to_excerpts',
+		'widget_text'                    => 'apply_to_widgets',
+		'widget_text_content'            => 'apply_to_widgets',
+		'widget_block_content'           => 'apply_to_widgets',
+		'widget_title'                   => 'apply_to_widgets',
+		'widget_text_title'              => 'apply_to_widgets',
+		'widget_block_title'             => 'apply_to_widgets',
+		'wp_nav_menu_items'              => 'apply_to_menus',
+		'term_description'               => 'apply_to_taxonomies',
+		'single_term_title'              => 'apply_to_taxonomies',
+		'single_cat_title'               => 'apply_to_taxonomies',
+		'single_tag_title'               => 'apply_to_taxonomies',
+		'single_post_type_archive_title' => 'apply_to_taxonomies',
+		'get_the_archive_title'          => 'apply_to_archives',
+		'get_the_archive_description'    => 'apply_to_archives',
+		'comment_text'                   => 'apply_to_comments',
+		'get_comment_author'             => 'apply_to_comments',
+		'get_the_author_description'     => 'apply_to_user_profiles',
+	);
+	// Get the option key for this hook.
+	$option_key = $hook_option_map[ current_filter() ] ?? null;
 
-/**
- * Apply French typography rules to post titles.
- *
- * Wrapper function that checks if title processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The title text to process.
- * @return string The processed title text.
- */
-function french_typo_replace_title( $text ) {
+	// Check if processing is enabled for this content type.
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_titles'] ) || 1 === $options['apply_to_titles'] ) {
+	if ( $options[ $option_key ] ) {
 		return french_typo_replace( $text );
 	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to post content.
- *
- * Wrapper function that checks if content processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The content text to process.
- * @return string The processed content text.
- */
-function french_typo_replace_content( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_content'] ) || 1 === $options['apply_to_content'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to post excerpts.
- *
- * Wrapper function that checks if excerpt processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The excerpt text to process.
- * @return string The processed excerpt text.
- */
-function french_typo_replace_excerpt( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_excerpts'] ) || 1 === $options['apply_to_excerpts'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to widget content.
- *
- * Wrapper function that checks if widget processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The widget text to process.
- * @return string The processed widget text.
- */
-function french_typo_replace_widget( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_widgets'] ) || 1 === $options['apply_to_widgets'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to widget titles.
- *
- * Wrapper function that checks if widget processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The widget title text to process.
- * @return string The processed widget title text.
- */
-function french_typo_replace_widget_title( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_widgets'] ) || 1 === $options['apply_to_widgets'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to menu items.
- *
- * Wrapper function that checks if menu processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The menu items text to process.
- * @return string The processed menu items text.
- */
-function french_typo_replace_menu( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_menus'] ) || 1 === $options['apply_to_menus'] ) {
-		return french_typo_replace( $text );
-	}
+	
 	return $text;
 }
 
@@ -311,132 +248,32 @@ function french_typo_replace_menu( $text ) {
  * @since 1.0.0
  *
  * @param mixed  $value     The custom field value to process.
- * @param int    $_post_id  The post ID (unused, required by filter hook).
- * @param object $_field    The field object (unused, required by filter hook).
  * @return mixed The processed custom field value.
  */
-function french_typo_replace_custom_field( $value, $_post_id = null, $_field = null ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
-	// Parameters $_post_id and $_field are required by filter hooks but not used.
+function french_typo_replace_custom_field( $value ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 	// Only process string values.
 	if ( ! is_string( $value ) ) {
 		return $value;
 	}
 
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_custom_fields'] ) || 1 === $options['apply_to_custom_fields'] ) {
+	if ( $options['apply_to_custom_fields'] ) {
 		return french_typo_replace( $value );
 	}
 	return $value;
 }
 
+
 /**
- * Apply French typography rules to taxonomy descriptions.
+ * Apply French typography rules to RSS feed titles.
  *
- * Wrapper function that checks if taxonomy processing is enabled before applying rules.
+ * Wrapper function that checks if RSS processing is enabled before applying rules.
  *
  * @since 1.0.0
  *
- * @param string $text The taxonomy description text to process.
- * @return string The processed taxonomy description text.
+ * @param string $text The RSS title text to process.
+ * @return string The processed RSS title text.
  */
-function french_typo_replace_taxonomy( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_taxonomies'] ) || 1 === $options['apply_to_taxonomies'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to taxonomy titles.
- *
- * Wrapper function that checks if taxonomy processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The taxonomy title text to process.
- * @return string The processed taxonomy title text.
- */
-function french_typo_replace_taxonomy_title( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_taxonomies'] ) || 1 === $options['apply_to_taxonomies'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to archive descriptions.
- *
- * Wrapper function that checks if archive processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The archive description text to process.
- * @return string The processed archive description text.
- */
-function french_typo_replace_archive( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_archives'] ) || 1 === $options['apply_to_archives'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to archive titles.
- *
- * Wrapper function that checks if archive processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The archive title text to process.
- * @return string The processed archive title text.
- */
-function french_typo_replace_archive_title( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_archives'] ) || 1 === $options['apply_to_archives'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to comment text.
- *
- * Wrapper function that checks if comment processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The comment text to process.
- * @return string The processed comment text.
- */
-function french_typo_replace_comment( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_comments'] ) || 1 === $options['apply_to_comments'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
-/**
- * Apply French typography rules to comment author names.
- *
- * Wrapper function that checks if comment processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The comment author name to process.
- * @return string The processed comment author name.
- */
-function french_typo_replace_comment_author( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_comments'] ) || 1 === $options['apply_to_comments'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
-
 /**
  * Apply French typography rules to RSS feed titles.
  *
@@ -449,7 +286,7 @@ function french_typo_replace_comment_author( $text ) {
  */
 function french_typo_replace_rss_title( $text ) {
 	$options = french_typo_get_options();
-	if ( ( ! isset( $options['apply_to_rss'] ) || 1 === $options['apply_to_rss'] ) && ( ! isset( $options['apply_to_titles'] ) || 1 === $options['apply_to_titles'] ) ) {
+	if ( $options['apply_to_rss'] && $options['apply_to_titles'] ) {
 		return french_typo_replace( $text );
 	}
 	return $text;
@@ -467,7 +304,7 @@ function french_typo_replace_rss_title( $text ) {
  */
 function french_typo_replace_rss_content( $text ) {
 	$options = french_typo_get_options();
-	if ( ( ! isset( $options['apply_to_rss'] ) || 1 === $options['apply_to_rss'] ) && ( ! isset( $options['apply_to_content'] ) || 1 === $options['apply_to_content'] ) ) {
+	if ( $options['apply_to_rss'] && $options['apply_to_content'] ) {
 		return french_typo_replace( $text );
 	}
 	return $text;
@@ -485,7 +322,7 @@ function french_typo_replace_rss_content( $text ) {
  */
 function french_typo_replace_rss_excerpt( $text ) {
 	$options = french_typo_get_options();
-	if ( ( ! isset( $options['apply_to_rss'] ) || 1 === $options['apply_to_rss'] ) && ( ! isset( $options['apply_to_excerpts'] ) || 1 === $options['apply_to_excerpts'] ) ) {
+	if ( $options['apply_to_rss'] && $options['apply_to_excerpts'] ) {
 		return french_typo_replace( $text );
 	}
 	return $text;
@@ -503,7 +340,7 @@ function french_typo_replace_rss_excerpt( $text ) {
  */
 function french_typo_replace_rss_comment( $text ) {
 	$options = french_typo_get_options();
-	if ( ( ! isset( $options['apply_to_rss'] ) || 1 === $options['apply_to_rss'] ) && ( ! isset( $options['apply_to_comments'] ) || 1 === $options['apply_to_comments'] ) ) {
+	if ( $options['apply_to_rss'] && $options['apply_to_comments'] ) {
 		return french_typo_replace( $text );
 	}
 	return $text;
@@ -517,29 +354,27 @@ function french_typo_replace_rss_comment( $text ) {
  * @since 1.0.0
  *
  * @param WP_REST_Response $response  The response object.
- * @param WP_Post          $_post    The post object (unused, required by filter hook).
- * @param WP_REST_Request  $_request The request object (unused, required by filter hook).
  * @return WP_REST_Response Modified response object.
  */
-function french_typo_rest_api_post( $response, $_post, $_request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function french_typo_rest_api_post( $response ) {
 	// Parameters $_post and $_request are required by filter hooks but not used.
 	$options = french_typo_get_options();
 
-	if ( ! isset( $options['apply_to_rest_api'] ) || 1 === $options['apply_to_rest_api'] ) {
+	if ( $options['apply_to_rest_api'] ) {
 		$data = $response->get_data();
 
 		// Process title if enabled.
-		if ( isset( $data['title']['rendered'] ) && ( ! isset( $options['apply_to_titles'] ) || 1 === $options['apply_to_titles'] ) ) {
+		if ( isset( $data['title']['rendered'] ) && $options['apply_to_titles'] ) {
 			$data['title']['rendered'] = french_typo_replace( $data['title']['rendered'] );
 		}
 
 		// Process content if enabled.
-		if ( isset( $data['content']['rendered'] ) && ( ! isset( $options['apply_to_content'] ) || 1 === $options['apply_to_content'] ) ) {
+		if ( isset( $data['content']['rendered'] ) && $options['apply_to_content'] ) {
 			$data['content']['rendered'] = french_typo_replace( $data['content']['rendered'] );
 		}
 
 		// Process excerpt if enabled.
-		if ( isset( $data['excerpt']['rendered'] ) && ( ! isset( $options['apply_to_excerpts'] ) || 1 === $options['apply_to_excerpts'] ) ) {
+		if ( isset( $data['excerpt']['rendered'] ) && $options['apply_to_excerpts'] ) {
 			$data['excerpt']['rendered'] = french_typo_replace( $data['excerpt']['rendered'] );
 		}
 
@@ -549,23 +384,6 @@ function french_typo_rest_api_post( $response, $_post, $_request ) { // phpcs:ig
 	return $response;
 }
 
-/**
- * Apply French typography rules to user profile descriptions.
- *
- * Wrapper function that checks if user profile processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The user description text to process.
- * @return string The processed user description text.
- */
-function french_typo_replace_user_profile( $text ) {
-	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_user_profiles'] ) || 1 === $options['apply_to_user_profiles'] ) {
-		return french_typo_replace( $text );
-	}
-	return $text;
-}
 
 /**
  * Apply French typography rules to user metadata.
@@ -575,12 +393,10 @@ function french_typo_replace_user_profile( $text ) {
  * @since 1.0.0
  *
  * @param mixed  $value     The metadata value.
- * @param int    $_user_id  The user ID (unused, required by filter hook).
  * @param string $meta_key  The meta key.
- * @param bool   $_single   Whether to return a single value (unused, required by filter hook).
  * @return mixed The processed metadata value.
  */
-function french_typo_user_meta( $value, $_user_id, $meta_key, $_single ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function french_typo_user_meta( $value, $meta_key ) {
 	// Parameters $_user_id and $_single are required by filter hooks but not used.
 	// Only process description field.
 	if ( 'description' !== $meta_key ) {
@@ -588,7 +404,7 @@ function french_typo_user_meta( $value, $_user_id, $meta_key, $_single ) { // ph
 	}
 
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_user_profiles'] ) || 1 === $options['apply_to_user_profiles'] ) {
+	if ( $options['apply_to_user_profiles'] ) {
 		if ( is_string( $value ) ) {
 			return french_typo_replace( $value );
 		} elseif ( is_array( $value ) ) {
@@ -611,7 +427,7 @@ function french_typo_user_meta( $value, $_user_id, $meta_key, $_single ) { // ph
  */
 function french_typo_breadcrumbs( $items ) {
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_breadcrumbs'] ) || 1 === $options['apply_to_breadcrumbs'] ) {
+	if ( $options['apply_to_breadcrumbs'] ) {
 		foreach ( $items as $key => $item ) {
 			if ( isset( $item['text'] ) && is_string( $item['text'] ) ) {
 				$items[ $key ]['text'] = french_typo_replace( $item['text'] );
@@ -637,90 +453,104 @@ function french_typo_breadcrumbs( $items ) {
  * @return string The processed text with French typography rules applied.
  */
 function french_typo_replace( $text ) {
+	static $cache = array();
+
 	// Early return for empty or very short text to avoid unnecessary processing.
-	if ( empty( $text ) || ( is_string( $text ) && strlen( $text ) < 3 ) ) {
+	if ( ! is_string( $text ) || mb_strlen( $text ) < 3 ) {
 		return $text;
 	}
 
-	// Get plugin options from cache.
+	$cache_max_size  = 50; // Limit cache to 50 entries to prevent memory issues.
+	$cache_threshold = 100; // Only cache texts longer than this.
+
+	$text_length = mb_strlen( $text );
+	$use_cache   = ( $text_length >= $cache_threshold );
+	$cache_key   = null;
+
+	if ( $use_cache ) {
+		$cache_key = crc32( $text ) . '_' . $text_length;
+		
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
+	}
+
+	// Get processed plugin options (already cached and ready to use).
 	$options = french_typo_get_options();
 
-	// Determine which type of non-breaking space to use based on settings.
-	// 0 = disabled, 1 = regular (&#160;), 2 = thin (&#8239;).
-	$narrow_space = null;
-	if ( isset( $options['narrow_space'] ) && '0' !== $options['narrow_space'] ) {
-		switch ( $options['narrow_space'] ) {
-			case '1':
-				$narrow_space = '&#160;';
-				break;
-			case '2':
-				$narrow_space = '&#8239;';
-				break;
-		}
-	}
-
-	// Check if special character replacement is enabled.
-	$special_characters = isset( $options['special_characters'] ) && 0 !== $options['special_characters'] ? $options['special_characters'] : 0;
-
 	// If both features are disabled, return text unchanged.
-	if ( null === $narrow_space && 0 === $special_characters ) {
+	if ( ! $options['narrow_space'] && ! $options['special_characters'] ) {
 		return $text;
 	}
 
-	// Static replacements: simple character sequences that don't need regex.
-	$french_typo_static_characters   = array( '(c)', '(r)' );
-	$french_typo_static_replacements = array( '&#169;', '&#174;' );
-
-	// Dynamic replacements using regex patterns (only if narrow_space is enabled):
-	// Pattern 1: Add non-breaking space before ; : ! ? % » (but not if followed by word char or //).
-	// Pattern 2: Add non-breaking space after «.
-	// Pattern 3: Fix cases where non-breaking space was incorrectly added before semicolon in HTML entities.
-	$french_typo_dynamic_characters   = array();
-	$french_typo_dynamic_replacements = array();
-
-	if ( null !== $narrow_space ) {
-		$french_typo_dynamic_characters[]   = '#\s?([?!:;%»])(?!\w|//)#u';
-		$french_typo_dynamic_replacements[] = $narrow_space . '$1';
-		$french_typo_dynamic_characters[]   = '#([«])\s?#u';
-		$french_typo_dynamic_replacements[] = '$1' . $narrow_space;
-		$french_typo_dynamic_characters[]   = '/(&#?[a-zA-Z0-9]+)' . preg_quote( $narrow_space, '/' ) . ';/';
-		$french_typo_dynamic_replacements[] = '$1;';
+	// Replace special characters if enabled.
+	if ( $options['special_characters'] ) {
+		static $static_replacements = array(
+			'(c)' => '&#169;',
+			'(r)' => '&#174;',
+		);
+		$text = strtr( $text, $static_replacements );
 	}
 
-	// Check if text contains HTML tags or shortcodes before processing.
-	// This avoids expensive regex operations on plain text.
-	$has_markup = ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) );
+	// Apply non-breaking space rules if enabled.
+	if ( $options['narrow_space'] ) {
+		$nbs        = $options['narrow_space'];
+		$nbs_quoted = preg_quote( $nbs, '#' );
 
-	// Split text into array, preserving HTML tags and shortcodes as separate elements.
-	// Use optimized pattern: match tags and shortcodes more efficiently.
-	if ( $has_markup ) {
-		$textarr = preg_split( '#(<[^>]+>|\[[^\]]+\])#Us', $text, -1, PREG_SPLIT_DELIM_CAPTURE );
-	} else {
-		// Plain text: no need to split, process directly.
-		$textarr = array( $text );
-	}
-	$stop = count( $textarr );
-
-	$text = '';
-
-	// Process each segment of the text.
-	for ( $i = 0; $i < $stop; $i++ ) {
-		$curl = $textarr[ $i ];
-
-		// Only process text segments (not HTML tags or shortcodes).
-		if ( ! empty( $curl ) && ( ! $has_markup || ( '<' !== $curl[0] && '[' !== $curl[0] ) ) ) {
-			// Replace special characters if enabled.
-			if ( $special_characters > 0 ) {
-				$curl = str_replace( $french_typo_static_characters, $french_typo_static_replacements, $curl );
-			}
-
-			// Apply non-breaking space rules if enabled.
-			if ( null !== $narrow_space && ! empty( $french_typo_dynamic_characters ) ) {
-				$curl = preg_replace( $french_typo_dynamic_characters, $french_typo_dynamic_replacements, $curl );
+		// Protect HTML entities by temporarily replacing them (fast with str_replace).
+		// Only if entities are detected to avoid unnecessary processing.
+		$entities     = array();
+		$placeholders = array();
+		if ( false !== strpos( $text, '&' ) ) {
+			// Find all HTML entities and replace them with unique placeholders.
+			preg_match_all( '/&#?[a-zA-Z0-9]{1,31};/', $text, $matches );
+			if ( ! empty( $matches[0] ) ) {
+				$entities = array_unique( $matches[0] );
+				foreach ( $entities as $index => $entity ) {
+					$placeholders[] = '___FT_ENT_' . $index . '___';
+				}
+				$text = str_replace( $entities, $placeholders, $text );
 			}
 		}
-		$text .= $curl;
+
+		// Use WordPress HTML splitting API. Only split if markup is detected for performance.
+		if ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) ) {
+			$segments = wp_html_split( $text );
+			$processed = '';
+
+			foreach ( $segments as $segment ) {
+				// Only process text segments (skip HTML tags and shortcodes).
+				if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
+					// Add non-breaking space before punctuation (avoid if already exists).
+					$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
+					// Add non-breaking space after « (avoid if already exists).
+					$segment = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $segment );
+				}
+				$processed .= $segment;
+			}
+			$text = $processed;
+		} else {
+			// Plain text: process directly without splitting.
+			// Add non-breaking space before punctuation (avoid if already exists).
+			$text = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $text );
+			// Add non-breaking space after « (avoid if already exists).
+			$text = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $text );
+		}
+
+		// Restore HTML entities if they were protected.
+		if ( ! empty( $entities ) ) {
+			$text = str_replace( $placeholders, $entities, $text );
+		}
 	}
+
+	if ( $use_cache ) {
+		if ( count( $cache ) >= $cache_max_size ) {
+			$cache = array_slice( $cache, 10, null, true );
+		}
+		
+		$cache[ $cache_key ] = $text;
+	}
+
 	return $text;
 }
 
@@ -855,12 +685,13 @@ function french_typo_narrow_space_text() {
 	?>
 	<p>
 		<?php
-		echo wp_kses_post(
+		echo wp_kses_post( 
 			sprintf(
 			/* translators: %1$s and %2$s are links to Wikipedia articles */
-				__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters <code>;</code>, <code>:</code>, <code>!</code>, <code>?</code>, <code>%%</code>, <code>«</code> and <code>»</code>.', 'french-typo' ),
-				esc_url( 'http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable' ),
-				esc_url( 'https://fr.wikipedia.org/wiki/Espace_fine_ins%C3%A9cable' )
+			__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters %3$s.', 'french-typo' ),
+			esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space', 'french-typo' ) ),
+			esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space', 'french-typo' ) ),
+			wp_sprintf_l( '%l', array( '<code>;</code>', '<code>:</code>', '<code>!</code>', '<code>?</code>', '<code>%</code>', '<code>«</code>', '<code>»</code>' ) )
 			)
 		);
 		?>
@@ -875,28 +706,25 @@ function french_typo_narrow_space_text() {
  */
 function french_typo_narrow_space() {
 	$options = french_typo_get_options();
-	if ( ! isset( $options['narrow_space'] ) ) {
-		$options['narrow_space'] = 1;
-	}
 	?>
 	<div class="french-typo-checkbox-group">
 		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], 0 ); ?> />
+			<input type="radio" name="french_typo_options[narrow_space]" value="0" <?php checked( $options['narrow_space'], false ); ?> />
 			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
 		</label>
 		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], 1 ); ?> />
+			<input type="radio" name="french_typo_options[narrow_space]" value="1" <?php checked( $options['narrow_space'], '&#160;' ); ?> />
 			<?php
 			printf(
-				/* translators: %1$s and %2$s are HTML entity codes */
-				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
+				/* translators: %s are both HTML entity codes */
+				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %s or %s)', 'french-typo' ),
 				'<code>&amp;nbsp;</code>',
 				'<code>&amp;#160;</code>'
 			);
 			?>
 		</label>
 		<label>
-			<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], 2 ); ?> />
+			<input type="radio" name="french_typo_options[narrow_space]" value="2" <?php checked( $options['narrow_space'], '&#8239;' ); ?> />
 			<?php
 			printf(
 				/* translators: %s is an HTML entity code */
@@ -921,14 +749,14 @@ function french_typo_special_characters_text() {
 	?>
 	<p>
 		<?php
-		echo wp_kses_post(
+		echo wp_kses_post( 
 			sprintf(
 			/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
-				__( 'French Typo replaces the characters <code>%1$s</code> and <code>%2$s</code> with <code>%3$s</code> and <code>%4$s</code>.', 'french-typo' ),
-				esc_html( '(c)' ),
-				esc_html( '(r)' ),
-				esc_html( '©' ),
-				esc_html( '®' )
+				__( 'Replaces the characters %1$s and %2$s with %3$s and %4$s.', 'french-typo' ),
+				'<code>(c)</code>',
+				'<code>(r)</code>',
+				'<code>&#169;</code>',
+				'<code>&#174;</code>'
 			)
 		);
 		?>
@@ -943,18 +771,11 @@ function french_typo_special_characters_text() {
  */
 function french_typo_special_characters() {
 	$options = french_typo_get_options();
-	if ( ! isset( $options['special_characters'] ) ) {
-		$options['special_characters'] = 1;
-	}
 	?>
 	<div class="french-typo-checkbox-group">
 		<label>
-			<input type="radio" name="french_typo_options[special_characters]" value="0" <?php checked( $options['special_characters'], 0 ); ?> />
-			<?php esc_html_e( 'Disable', 'french-typo' ); ?>
-		</label>
-		<label>
-			<input type="radio" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
-			<?php esc_html_e( 'Enable', 'french-typo' ); ?>
+			<input type="checkbox" name="french_typo_options[special_characters]" value="1" <?php checked( $options['special_characters'], 1 ); ?> />
+			<?php esc_html_e( 'Replace special characters', 'french-typo' ); ?>
 		</label>
 	</div>
 	<?php
@@ -969,98 +790,47 @@ function french_typo_special_characters() {
  * @return array Sanitized options array.
  */
 function french_typo_options_validate( $input ) {
-	$newinput = array();
-
-	if ( isset( $input['narrow_space'] ) ) {
-		$newinput['narrow_space'] = absint( $input['narrow_space'] );
+	static $validated;
+	if ( isset( $validated['sanitized'] ) ) {
+		return $validated;
 	}
-
-	if ( isset( $input['special_characters'] ) ) {
-		$newinput['special_characters'] = absint( $input['special_characters'] );
+	// Default values for all options.
+	$defaults = array(
+		'narrow_space'           => false,
+		'special_characters'     => false,
+		'apply_to_titles'        => false,
+		'apply_to_content'       => false,
+		'apply_to_excerpts'      => false,
+		'apply_to_widgets'       => false,
+		'apply_to_menus'         => false,
+		'apply_to_custom_fields' => false,
+		'apply_to_taxonomies'    => false,
+		'apply_to_archives'      => false,
+		'apply_to_comments'      => false,
+		'apply_to_rss'           => false,
+		'apply_to_rest_api'      => false,
+		'apply_to_user_profiles' => false,
+		'apply_to_breadcrumbs'   => false,
+	);
+	
+	// Merge input with defaults using wp_parse_args().
+	$validated = wp_parse_args( $input, $defaults );
+	
+	// Remove narrow_space from the validated array, we don't need to validate it as a boolean.
+	$narrow_space_value = $validated['narrow_space'];
+	unset( $validated['narrow_space'] );
+	
+	// Convert all values to booleans.
+	foreach ( $validated as $key => $value ) {
+		$validated[ $key ] = (bool) $value;
 	}
+	
+	// Validate and restore narrow_space as integer (must be 0, 1, or 2).
+	$validated['narrow_space'] = min( 2, max( 0, absint( $narrow_space_value ) ) );
 
-	if ( isset( $input['apply_to_titles'] ) ) {
-		$newinput['apply_to_titles'] = absint( $input['apply_to_titles'] );
-	} else {
-		$newinput['apply_to_titles'] = 0;
-	}
+	$validated['sanitized'] = true;
 
-	if ( isset( $input['apply_to_content'] ) ) {
-		$newinput['apply_to_content'] = absint( $input['apply_to_content'] );
-	} else {
-		$newinput['apply_to_content'] = 0;
-	}
-
-	if ( isset( $input['apply_to_excerpts'] ) ) {
-		$newinput['apply_to_excerpts'] = absint( $input['apply_to_excerpts'] );
-	} else {
-		$newinput['apply_to_excerpts'] = 0;
-	}
-
-	if ( isset( $input['apply_to_widgets'] ) ) {
-		$newinput['apply_to_widgets'] = absint( $input['apply_to_widgets'] );
-	} else {
-		$newinput['apply_to_widgets'] = 0;
-	}
-
-	if ( isset( $input['apply_to_menus'] ) ) {
-		$newinput['apply_to_menus'] = absint( $input['apply_to_menus'] );
-	} else {
-		$newinput['apply_to_menus'] = 0;
-	}
-
-	if ( isset( $input['apply_to_custom_fields'] ) ) {
-		$newinput['apply_to_custom_fields'] = absint( $input['apply_to_custom_fields'] );
-	} else {
-		$newinput['apply_to_custom_fields'] = 0;
-	}
-
-	if ( isset( $input['apply_to_taxonomies'] ) ) {
-		$newinput['apply_to_taxonomies'] = absint( $input['apply_to_taxonomies'] );
-	} else {
-		$newinput['apply_to_taxonomies'] = 0;
-	}
-
-	if ( isset( $input['apply_to_archives'] ) ) {
-		$newinput['apply_to_archives'] = absint( $input['apply_to_archives'] );
-	} else {
-		$newinput['apply_to_archives'] = 0;
-	}
-
-	if ( isset( $input['apply_to_comments'] ) ) {
-		$newinput['apply_to_comments'] = absint( $input['apply_to_comments'] );
-	} else {
-		$newinput['apply_to_comments'] = 0;
-	}
-
-	if ( isset( $input['apply_to_rss'] ) ) {
-		$newinput['apply_to_rss'] = absint( $input['apply_to_rss'] );
-	} else {
-		$newinput['apply_to_rss'] = 0;
-	}
-
-	if ( isset( $input['apply_to_rest_api'] ) ) {
-		$newinput['apply_to_rest_api'] = absint( $input['apply_to_rest_api'] );
-	} else {
-		$newinput['apply_to_rest_api'] = 0;
-	}
-
-	if ( isset( $input['apply_to_user_profiles'] ) ) {
-		$newinput['apply_to_user_profiles'] = absint( $input['apply_to_user_profiles'] );
-	} else {
-		$newinput['apply_to_user_profiles'] = 0;
-	}
-
-	if ( isset( $input['apply_to_breadcrumbs'] ) ) {
-		$newinput['apply_to_breadcrumbs'] = absint( $input['apply_to_breadcrumbs'] );
-	} else {
-		$newinput['apply_to_breadcrumbs'] = 0;
-	}
-
-	// Invalidate options cache when settings are updated.
-	french_typo_invalidate_options_cache();
-
-	return $newinput;
+	return $validated;
 }
 
 /**
@@ -1086,8 +856,8 @@ function french_typo_advanced_text() {
 		echo wp_kses_post(
 			sprintf(
 			/* translators: %s is a code example */
-				__( 'Apply typography rules to additional content areas like widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs. Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast, Rank Math, SEOPress) are also processed automatically. You can also use the filter <code>%s</code> in your code to process custom content.', 'french-typo' ),
-				'apply_filters( \'french_typo_process_text\', $text )'
+				__( 'Apply typography rules to additional content areas like widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs. Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast, Rank Math, SEOPress) are also processed automatically. You can also use the filter %s in your code to process custom content.', 'french-typo' ),
+				'<code>apply_filters( \'french_typo_process_text\', $text )</code>'
 			)
 		);
 		?>
@@ -1102,39 +872,6 @@ function french_typo_advanced_text() {
  */
 function french_typo_advanced() {
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_widgets'] ) ) {
-		$options['apply_to_widgets'] = 1;
-	}
-	if ( ! isset( $options['apply_to_menus'] ) ) {
-		$options['apply_to_menus'] = 1;
-	}
-	if ( ! isset( $options['apply_to_excerpts'] ) ) {
-		$options['apply_to_excerpts'] = 1;
-	}
-	if ( ! isset( $options['apply_to_custom_fields'] ) ) {
-		$options['apply_to_custom_fields'] = 1;
-	}
-	if ( ! isset( $options['apply_to_taxonomies'] ) ) {
-		$options['apply_to_taxonomies'] = 1;
-	}
-	if ( ! isset( $options['apply_to_archives'] ) ) {
-		$options['apply_to_archives'] = 1;
-	}
-	if ( ! isset( $options['apply_to_comments'] ) ) {
-		$options['apply_to_comments'] = 1;
-	}
-	if ( ! isset( $options['apply_to_rss'] ) ) {
-		$options['apply_to_rss'] = 1;
-	}
-	if ( ! isset( $options['apply_to_rest_api'] ) ) {
-		$options['apply_to_rest_api'] = 1;
-	}
-	if ( ! isset( $options['apply_to_user_profiles'] ) ) {
-		$options['apply_to_user_profiles'] = 1;
-	}
-	if ( ! isset( $options['apply_to_breadcrumbs'] ) ) {
-		$options['apply_to_breadcrumbs'] = 1;
-	}
 	?>
 	<details class="french-typo-advanced-details">
 		<summary class="french-typo-advanced-toggle" aria-label="<?php esc_attr_e( 'Toggle advanced options visibility', 'french-typo' ); ?>">
@@ -1146,27 +883,27 @@ function french_typo_advanced() {
 				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Core WordPress Areas', 'french-typo' ); ?></h3>
 				<div class="french-typo-checkbox-group">
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_excerpts]" value="1" <?php checked( $options['apply_to_excerpts'], true ); ?> />
 						<?php esc_html_e( 'Excerpts', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_widgets]" value="1" <?php checked( $options['apply_to_widgets'], true ); ?> />
 						<?php esc_html_e( 'Widgets (text widgets and widget titles)', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_menus]" value="1" <?php checked( $options['apply_to_menus'], true ); ?> />
 						<?php esc_html_e( 'Menu items', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_archives]" value="1" <?php checked( $options['apply_to_archives'], true ); ?> />
 						<?php esc_html_e( 'Archives (titles and descriptions)', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], 1 ); ?> />
-						<?php esc_html_e( 'Comments (text and author names)', 'french-typo' ); ?>
+						<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], true ); ?> />
+						<?php esc_html_e( 'Comments (texts and author names)', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], true ); ?> />
 						<?php esc_html_e( 'User profiles (descriptions)', 'french-typo' ); ?>
 					</label>
 				</div>
@@ -1177,11 +914,11 @@ function french_typo_advanced() {
 				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Custom Content', 'french-typo' ); ?></h3>
 				<div class="french-typo-checkbox-group">
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_custom_fields]" value="1" <?php checked( $options['apply_to_custom_fields'], true ); ?> />
 						<?php esc_html_e( 'Custom fields (ACF, Meta Box, etc.)', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_taxonomies]" value="1" <?php checked( $options['apply_to_taxonomies'], true ); ?> />
 						<?php esc_html_e( 'Taxonomies (categories, tags, custom taxonomies)', 'french-typo' ); ?>
 					</label>
 				</div>
@@ -1192,22 +929,22 @@ function french_typo_advanced() {
 				<h3 class="french-typo-checkbox-subgroup-title"><?php esc_html_e( 'Integrations', 'french-typo' ); ?></h3>
 				<div class="french-typo-checkbox-group">
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_rss]" value="1" <?php checked( $options['apply_to_rss'], true ); ?> />
 						<?php esc_html_e( 'RSS feeds', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_rest_api]" value="1" <?php checked( $options['apply_to_rest_api'], true ); ?> />
 						<?php esc_html_e( 'REST API responses', 'french-typo' ); ?>
 					</label>
 					<label>
-						<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], 1 ); ?> />
+						<input type="checkbox" name="french_typo_options[apply_to_breadcrumbs]" value="1" <?php checked( $options['apply_to_breadcrumbs'], true ); ?> />
 						<?php esc_html_e( 'Breadcrumbs (Yoast, Rank Math, SEOPress)', 'french-typo' ); ?>
 					</label>
 				</div>
 			</div>
 
 			<p class="description">
-				<?php esc_html_e( 'By default, all additional content areas are processed. Uncheck to disable processing for specific areas.', 'french-typo' ); ?>
+				<?php esc_html_e( 'By default, all additional content areas are processed.', 'french-typo' ); ?>
 			</p>
 		</div>
 	</details>
@@ -1221,25 +958,19 @@ function french_typo_advanced() {
  */
 function french_typo_content_types() {
 	$options = french_typo_get_options();
-	if ( ! isset( $options['apply_to_titles'] ) ) {
-		$options['apply_to_titles'] = 1;
-	}
-	if ( ! isset( $options['apply_to_content'] ) ) {
-		$options['apply_to_content'] = 1;
-	}
 	?>
 	<div class="french-typo-checkbox-group">
 		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], 1 ); ?> />
+			<input type="checkbox" name="french_typo_options[apply_to_titles]" value="1" <?php checked( $options['apply_to_titles'], true ); ?> />
 			<?php esc_html_e( 'Post and page titles', 'french-typo' ); ?>
 		</label>
 		<label>
-			<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], 1 ); ?> />
+			<input type="checkbox" name="french_typo_options[apply_to_content]" value="1" <?php checked( $options['apply_to_content'], true ); ?> />
 			<?php esc_html_e( 'Post and page content', 'french-typo' ); ?>
 		</label>
 	</div>
 	<p class="description">
-		<?php esc_html_e( 'By default, both titles and content are processed. Uncheck to disable processing for specific content types.', 'french-typo' ); ?>
+		<?php esc_html_e( 'By default, both titles and content are processed.', 'french-typo' ); ?>
 	</p>
 	<?php
 }
@@ -1250,9 +981,6 @@ function french_typo_content_types() {
  * @since 1.0.0
  */
 function french_typo_admin_options() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'french-typo' ) );
-	}
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
@@ -1313,33 +1041,16 @@ function french_typo_admin_options() {
 			</div>
 		</form>
 		
-		<?php french_typo_display_version_info(); ?>
+		<div class="french-typo-version-info">
+			<?php
+			printf(
+				/* translators: %s is the version number */
+				esc_html__( 'Installed version: %s', 'french-typo' ),
+				FRENCH_TYPO_VERSION
+			);
+			?>
+		</div>
+
 	</div>
 	<?php
 }
-
-/**
- * Display version information in footer.
- *
- * Shows the installed version from plugin headers.
- *
- * @since 1.0.0
- */
-function french_typo_display_version_info() {
-	$plugin_data = get_file_data( __FILE__, array( 'Version' => 'Version' ) );
-	if ( ! isset( $plugin_data['Version'] ) || empty( $plugin_data['Version'] ) ) {
-		return;
-	}
-	?>
-	<div class="french-typo-version-info">
-		<?php
-		printf(
-			/* translators: %s is the version number */
-			esc_html__( 'Installed version: %s', 'french-typo' ),
-			esc_html( $plugin_data['Version'] )
-		);
-		?>
-	</div>
-	<?php
-}
-
