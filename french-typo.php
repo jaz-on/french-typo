@@ -3,13 +3,13 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®).
- * Version: 1.1
+ * Version: 1.1.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
- * Contributors: jaz_on, audrasjb
+ * Contributors: jaz_on, audrasjb, juliobox
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: french-typo
@@ -25,7 +25,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-define( 'FRENCH_TYPO_VERSION', '1.1' );
+define( 'FRENCH_TYPO_VERSION', '1.1.0' );
 
 /**
  * Initialize plugin hooks.
@@ -36,41 +36,41 @@ define( 'FRENCH_TYPO_VERSION', '1.1' );
  */
 function french_typo_hooks() {
 	// Apply typography rules to post titles and content.
-	add_filter( 'the_title',   'french_typo_replace_wrapper' );
+	add_filter( 'the_title', 'french_typo_replace_wrapper' );
 	add_filter( 'the_content', 'french_typo_replace_wrapper' );
 	add_filter( 'the_excerpt', 'french_typo_replace_wrapper' );
 
 	// Apply to widgets.
-	add_filter( 'widget_text',  'french_typo_replace_wrapper' );
-	add_filter( 'widget_text_content',  'french_typo_replace_wrapper' );
-	add_filter( 'widget_block_content',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_text', 'french_typo_replace_wrapper' );
+	add_filter( 'widget_text_content', 'french_typo_replace_wrapper' );
+	add_filter( 'widget_block_content', 'french_typo_replace_wrapper' );
 	add_filter( 'widget_title', 'french_typo_replace_wrapper' );
-	add_filter( 'widget_text_title',  'french_typo_replace_wrapper' );
-	add_filter( 'widget_block_title',  'french_typo_replace_wrapper' );
+	add_filter( 'widget_text_title', 'french_typo_replace_wrapper' );
+	add_filter( 'widget_block_title', 'french_typo_replace_wrapper' );
 
 	// Apply to menu items.
 	add_filter( 'wp_nav_menu_items', 'french_typo_replace_wrapper' );
 
 	// Apply to taxonomies (categories, tags, custom taxonomies).
-	add_filter( 'term_description',               'french_typo_replace_wrapper' );
-	add_filter( 'single_term_title',              'french_typo_replace_wrapper' );
-	add_filter( 'single_cat_title',               'french_typo_replace_wrapper' );
-	add_filter( 'single_tag_title',               'french_typo_replace_wrapper' );
+	add_filter( 'term_description', 'french_typo_replace_wrapper' );
+	add_filter( 'single_term_title', 'french_typo_replace_wrapper' );
+	add_filter( 'single_cat_title', 'french_typo_replace_wrapper' );
+	add_filter( 'single_tag_title', 'french_typo_replace_wrapper' );
 	add_filter( 'single_post_type_archive_title', 'french_typo_replace_wrapper' );
 
 	// Apply to archive titles and descriptions.
-	add_filter( 'get_the_archive_title',       'french_typo_replace_wrapper' );
+	add_filter( 'get_the_archive_title', 'french_typo_replace_wrapper' );
 	add_filter( 'get_the_archive_description', 'french_typo_replace_wrapper' );
 
 	// Apply to comments.
-	add_filter( 'comment_text',       'french_typo_replace_wrapper' );
+	add_filter( 'comment_text', 'french_typo_replace_wrapper' );
 	add_filter( 'get_comment_author', 'french_typo_replace_wrapper' );
 
 	// Support for Advanced Custom Fields (ACF).
 	if ( function_exists( 'get_field' ) ) {
-		add_filter( 'acf/format_value/type=text',     'french_typo_replace_custom_field' );
+		add_filter( 'acf/format_value/type=text', 'french_typo_replace_custom_field' );
 		add_filter( 'acf/format_value/type=textarea', 'french_typo_replace_custom_field' );
-		add_filter( 'acf/format_value/type=wysiwyg',  'french_typo_replace_custom_field' );
+		add_filter( 'acf/format_value/type=wysiwyg', 'french_typo_replace_custom_field' );
 	}
 
 	// Support for Meta Box plugin.
@@ -79,58 +79,58 @@ function french_typo_hooks() {
 	}
 
 	// Apply to RSS feeds.
-	add_filter( 'the_title_rss',    'french_typo_replace_rss_title' );
+	add_filter( 'the_title_rss', 'french_typo_replace_rss_title' );
 	add_filter( 'the_content_feed', 'french_typo_replace_rss_content' );
-	add_filter( 'the_excerpt_rss',  'french_typo_replace_rss_excerpt' );
+	add_filter( 'the_excerpt_rss', 'french_typo_replace_rss_excerpt' );
 	add_filter( 'comment_text_rss', 'french_typo_replace_rss_comment' );
 
 	// Apply to REST API responses.
-	add_filter( 'rest_prepare_post',       'french_typo_rest_api_post' );
-	add_filter( 'rest_prepare_page',       'french_typo_rest_api_post' );
+	add_filter( 'rest_prepare_post', 'french_typo_rest_api_post' );
+	add_filter( 'rest_prepare_page', 'french_typo_rest_api_post' );
 	add_filter( 'rest_prepare_attachment', 'french_typo_rest_api_post' );
 
 	// Apply to user profiles.
 	add_filter( 'get_the_author_description', 'french_typo_replace_wrapper' );
-	add_filter( 'get_user_meta',              'french_typo_user_meta', 10, 2 );
+	add_filter( 'get_user_meta', 'french_typo_user_meta', 10, 2 );
 
 	// Apply to breadcrumbs (Yoast, Rank Math, SEOPress).
 	if ( defined( 'WPSEO_VERSION' ) ) {
-		add_filter( 'wpseo_breadcrumb_links',              'french_typo_breadcrumbs' );
+		add_filter( 'wpseo_breadcrumb_links', 'french_typo_breadcrumbs' );
 	}
 	if ( defined( 'RANK_MATH_VERSION' ) ) {
 		add_filter( 'rank_math/frontend/breadcrumb/items', 'french_typo_breadcrumbs' );
 	}
 	if ( defined( 'SEOPRESS_VERSION' ) ) {
-		add_filter( 'seopress_breadcrumbs_items',          'french_typo_breadcrumbs' );
+		add_filter( 'seopress_breadcrumbs_items', 'french_typo_breadcrumbs' );
 	}
 
 	// Support for SEO plugins meta descriptions.
 	// Yoast SEO.
 	if ( defined( 'WPSEO_VERSION' ) ) {
-		add_filter( 'wpseo_metadesc',            'french_typo_replace' );
-		add_filter( 'wpseo_title',               'french_typo_replace' );
-		add_filter( 'wpseo_opengraph_title',     'french_typo_replace' );
-		add_filter( 'wpseo_opengraph_desc',      'french_typo_replace' );
-		add_filter( 'wpseo_twitter_title',       'french_typo_replace' );
+		add_filter( 'wpseo_metadesc', 'french_typo_replace' );
+		add_filter( 'wpseo_title', 'french_typo_replace' );
+		add_filter( 'wpseo_opengraph_title', 'french_typo_replace' );
+		add_filter( 'wpseo_opengraph_desc', 'french_typo_replace' );
+		add_filter( 'wpseo_twitter_title', 'french_typo_replace' );
 		add_filter( 'wpseo_twitter_description', 'french_typo_replace' );
 	}
 	// Rank Math.
 	if ( defined( 'RANK_MATH_VERSION' ) ) {
-		add_filter( 'rank_math/frontend/title',        'french_typo_replace' );
-		add_filter( 'rank_math/frontend/description',  'french_typo_replace' );
-		add_filter( 'rank_math/opengraph/title',       'french_typo_replace' );
+		add_filter( 'rank_math/frontend/title', 'french_typo_replace' );
+		add_filter( 'rank_math/frontend/description', 'french_typo_replace' );
+		add_filter( 'rank_math/opengraph/title', 'french_typo_replace' );
 		add_filter( 'rank_math/opengraph/description', 'french_typo_replace' );
-		add_filter( 'rank_math/twitter/title',         'french_typo_replace' );
-		add_filter( 'rank_math/twitter/description',   'french_typo_replace' );
+		add_filter( 'rank_math/twitter/title', 'french_typo_replace' );
+		add_filter( 'rank_math/twitter/description', 'french_typo_replace' );
 	}
 	// SEOPress.
 	if ( defined( 'SEOPRESS_VERSION' ) ) {
-		add_filter( 'seopress_titles_title',         'french_typo_replace' );
-		add_filter( 'seopress_titles_desc',          'french_typo_replace' );
-		add_filter( 'seopress_social_og_title',      'french_typo_replace' );
-		add_filter( 'seopress_social_og_desc',       'french_typo_replace' );
+		add_filter( 'seopress_titles_title', 'french_typo_replace' );
+		add_filter( 'seopress_titles_desc', 'french_typo_replace' );
+		add_filter( 'seopress_social_og_title', 'french_typo_replace' );
+		add_filter( 'seopress_social_og_desc', 'french_typo_replace' );
 		add_filter( 'seopress_social_twitter_title', 'french_typo_replace' );
-		add_filter( 'seopress_social_twitter_desc',  'french_typo_replace' );
+		add_filter( 'seopress_social_twitter_desc', 'french_typo_replace' );
 	}
 
 	// Generic filter for custom fields and other content.
@@ -185,11 +185,10 @@ function french_typo_get_options() {
 		// Merge raw options with defaults using wp_parse_args().
 		$cached_processed_options = wp_parse_args( $raw_options, $defaults );
 		if ( $cached_processed_options['narrow_space'] ) {
-			$cached_processed_options['narrow_space'] = $cached_processed_options['narrow_space'] === 1 ? '&#160;' : '&#8239;';
+			$cached_processed_options['narrow_space'] = 1 === $cached_processed_options['narrow_space'] ? '&#160;' : '&#8239;';
 		} else {
 			$cached_processed_options['narrow_space'] = false;
 		}
-
 	}
 	return $cached_processed_options;
 }
@@ -236,7 +235,7 @@ function french_typo_replace_wrapper( $text ) {
 	if ( $options[ $option_key ] ) {
 		return french_typo_replace( $text );
 	}
-	
+
 	return $text;
 }
 
@@ -250,7 +249,7 @@ function french_typo_replace_wrapper( $text ) {
  * @param mixed  $value     The custom field value to process.
  * @return mixed The processed custom field value.
  */
-function french_typo_replace_custom_field( $value ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function french_typo_replace_custom_field( $value ) {
 	// Only process string values.
 	if ( ! is_string( $value ) ) {
 		return $value;
@@ -469,7 +468,7 @@ function french_typo_replace( $text ) {
 
 	if ( $use_cache ) {
 		$cache_key = crc32( $text ) . '_' . $text_length;
-		
+
 		if ( isset( $cache[ $cache_key ] ) ) {
 			return $cache[ $cache_key ];
 		}
@@ -489,7 +488,7 @@ function french_typo_replace( $text ) {
 			'(c)' => '&#169;',
 			'(r)' => '&#174;',
 		);
-		$text = strtr( $text, $static_replacements );
+		$text                       = strtr( $text, $static_replacements );
 	}
 
 	// Apply non-breaking space rules if enabled.
@@ -515,7 +514,7 @@ function french_typo_replace( $text ) {
 
 		// Use WordPress HTML splitting API. Only split if markup is detected for performance.
 		if ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) ) {
-			$segments = wp_html_split( $text );
+			$segments  = wp_html_split( $text );
 			$processed = '';
 
 			foreach ( $segments as $segment ) {
@@ -547,7 +546,7 @@ function french_typo_replace( $text ) {
 		if ( count( $cache ) >= $cache_max_size ) {
 			$cache = array_slice( $cache, 10, null, true );
 		}
-		
+
 		$cache[ $cache_key ] = $text;
 	}
 
@@ -685,13 +684,13 @@ function french_typo_narrow_space_text() {
 	?>
 	<p>
 		<?php
-		echo wp_kses_post( 
+		echo wp_kses_post(
 			sprintf(
 			/* translators: %1$s and %2$s are links to Wikipedia articles */
-			__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters %3$s.', 'french-typo' ),
-			esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space', 'french-typo' ) ),
-			esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space', 'french-typo' ) ),
-			wp_sprintf_l( '%l', array( '<code>;</code>', '<code>:</code>', '<code>!</code>', '<code>?</code>', '<code>%</code>', '<code>«</code>', '<code>»</code>' ) )
+				__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters %3$s.', 'french-typo' ),
+				esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space', 'french-typo' ) ),
+				esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space', 'french-typo' ) ),
+				wp_sprintf_l( '%l', array( '<code>;</code>', '<code>:</code>', '<code>!</code>', '<code>?</code>', '<code>%</code>', '<code>«</code>', '<code>»</code>' ) )
 			)
 		);
 		?>
@@ -717,7 +716,7 @@ function french_typo_narrow_space() {
 			<?php
 			printf(
 				/* translators: %s are both HTML entity codes */
-				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %s or %s)', 'french-typo' ),
+				esc_html__( 'Enable and use regular non-breaking spaces (HTML entity %1$s or %2$s)', 'french-typo' ),
 				'<code>&amp;nbsp;</code>',
 				'<code>&amp;#160;</code>'
 			);
@@ -749,7 +748,7 @@ function french_typo_special_characters_text() {
 	?>
 	<p>
 		<?php
-		echo wp_kses_post( 
+		echo wp_kses_post(
 			sprintf(
 			/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
 				__( 'Replaces the characters %1$s and %2$s with %3$s and %4$s.', 'french-typo' ),
@@ -812,19 +811,19 @@ function french_typo_options_validate( $input ) {
 		'apply_to_user_profiles' => false,
 		'apply_to_breadcrumbs'   => false,
 	);
-	
+
 	// Merge input with defaults using wp_parse_args().
 	$validated = wp_parse_args( $input, $defaults );
-	
+
 	// Remove narrow_space from the validated array, we don't need to validate it as a boolean.
 	$narrow_space_value = $validated['narrow_space'];
 	unset( $validated['narrow_space'] );
-	
+
 	// Convert all values to booleans.
 	foreach ( $validated as $key => $value ) {
 		$validated[ $key ] = (bool) $value;
 	}
-	
+
 	// Validate and restore narrow_space as integer (must be 0, 1, or 2).
 	$validated['narrow_space'] = min( 2, max( 0, absint( $narrow_space_value ) ) );
 
@@ -1046,7 +1045,7 @@ function french_typo_admin_options() {
 			printf(
 				/* translators: %s is the version number */
 				esc_html__( 'Installed version: %s', 'french-typo' ),
-				FRENCH_TYPO_VERSION
+				esc_html( FRENCH_TYPO_VERSION )
 			);
 			?>
 		</div>
