@@ -4,7 +4,7 @@ This document describes the technical architecture of the French Typo plugin, it
 
 ## Plugin Structure
 
-The French Typo plugin follows a **monolithic** architecture: all code is contained in a single main file `french-typo.php` (1345 lines).
+The French Typo plugin follows a **monolithic** architecture: all code is contained in a single main file `french-typo.php` (1056 lines).
 
 ### Main File
 
@@ -29,10 +29,11 @@ The code is organized into logical sections:
    - `french_typo_invalidate_options_cache()` — Cache invalidation via version increment (line 193)
 
 3. **Processing Functions** (lines 198-725)
-   - Wrapper functions for each content type (title, content, excerpt, widget, etc.)
+   - **NEW in v1.1.0**: Generic wrapper function `french_typo_replace_wrapper()` for optimized processing
+   - Static hook mapping array for performance optimization
    - Each wrapper checks if processing is enabled via options before applying rules
    - Default behavior: if option is not set, processing is enabled (backward compatibility)
-   - Main function `french_typo_replace()` — Generic text processing (line 639)
+   - Main function `french_typo_replace()` — Generic text processing (line 454)
    - RSS functions check both `apply_to_rss` and the specific content type option
    - REST API function processes title, content, and excerpt based on their respective options
 
@@ -88,7 +89,36 @@ The `french_typo_replace()` function (line 639) is the core of the plugin. It ap
 
 ### WordPress Hooks Management
 
-The `french_typo_hooks()` function (line 35) registers all necessary WordPress filters.
+The `french_typo_hooks()` function (line 37) registers all necessary WordPress filters.
+
+#### Performance Optimization (v1.1.0)
+
+The plugin now uses a single optimized wrapper function `french_typo_replace_wrapper()` instead of multiple individual wrapper functions. This approach provides:
+
+- **Reduced function calls**: Single function handles multiple hook types
+- **Static mapping**: Hook-to-option mapping cached in static array
+- **Memory efficiency**: Reduced memory footprint through function consolidation
+- **Maintainability**: Easier to maintain and extend
+
+```php
+function french_typo_replace_wrapper( $text ) {
+    static $hook_option_map = array(
+        'the_title'      => 'apply_to_titles',
+        'the_content'    => 'apply_to_content',
+        'the_excerpt'    => 'apply_to_excerpts',
+        // ... more mappings
+    );
+    
+    $option_key = $hook_option_map[ current_filter() ] ?? null;
+    $options = french_typo_get_options();
+    
+    if ( $options[ $option_key ] ) {
+        return french_typo_replace( $text );
+    }
+    
+    return $text;
+}
+```
 
 #### Hooks by Content Type
 
@@ -241,9 +271,8 @@ All these areas can be enabled or disabled individually from the settings page.
 
 ## Code References
 
-- Main function: `french_typo_replace()` — line 639
-- Hook initialization: `french_typo_hooks()` — line 35
-- Options cache: `french_typo_get_options()` — line 169
-- Cache invalidation: `french_typo_invalidate_options_cache()` — line 193
-- Plugin deactivation: `french_typo_deactivate()` — line 150
-- Admin interface: `french_typo_admin_options()` — line 1252
+- Main function: `french_typo_replace()` — line 454
+- **NEW**: Generic wrapper: `french_typo_replace_wrapper()` — line 206
+- Hook initialization: `french_typo_hooks()` — line 37
+- Options cache: `french_typo_get_options()` — line 159
+- Admin interface: `french_typo_admin_options()` — line 982

@@ -16,6 +16,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - (Placeholder for future changes)
 
+## [1.1.0]
+
+### Added
+- New generic wrapper function `french_typo_replace_wrapper()` for optimized filter processing
+- Enhanced static cache implementation with improved memory management
+- Comprehensive hook mapping system for better performance
+
+### Changed
+- Consolidated multiple individual wrapper functions into single optimized function
+- Improved code organization and maintainability
+- Enhanced performance through reduced function calls and optimized hook handling
+- Updated technical architecture documentation to reflect new optimizations
+
+### Performance
+- Significant reduction in function calls through consolidated wrapper approach
+- Optimized static cache implementation for better memory usage
+- Enhanced hook processing efficiency with static mapping array
+- Improved overall plugin performance and resource utilization
+
+### Compatibility
+- Tested up to WordPress 6.9
+- Maintained backward compatibility with all existing functionality
+- Confirmed compatibility with PHP 7.4 through 8.3
+
+### Code Quality
+- Improved code organization with better separation of concerns
+- Enhanced maintainability through consolidated function architecture
+- Better documentation and inline comments for complex logic
+- Maintained full compliance with WordPress Coding Standards
+
 ## [1.0.0]
 
 ### Added
