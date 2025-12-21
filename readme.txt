@@ -1,5 +1,5 @@
 === French Typo ===
-Contributors: jaz_on, audrasjb
+Contributors: jaz_on, audrasjb, juliobox
 Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 6.9
