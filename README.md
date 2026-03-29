@@ -2,241 +2,96 @@
 
 > <small>*English? [See section below](#english)*</small>
 
-Extension WordPress qui permet d'appliquer des règles typographiques de la langue française aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
+Extension WordPress qui applique automatiquement les règles typographiques françaises aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
 
-> **Note** : Ce plugin est compatible avec Git Updater pour les mises à jour automatiques depuis GitHub.
+Le plugin ajoute des espaces insécables avant les signes de ponctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`) et remplace `(c)` par `©` et `(r)` par `®`. Vous pouvez choisir entre des espaces insécables normaux ou fins.
 
-## Fonctionnalités
+Les règles s'appliquent à tous vos contenus : articles, pages, extraits, taxonomies, archives, commentaires, widgets, menus, flux RSS, API REST, champs personnalisés, breadcrumbs et métadonnées SEO. Chaque zone peut être activée ou désactivée individuellement dans les réglages.
 
-### Espaces insécables
-
-Les [espaces insécables](http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable) sont gérées automatiquement pour les caractères `;`, `:`, `!`, `?`, `%`, `«` et `»`. Vous pouvez choisir entre :
-* Des espaces insécables « normaux » (entité HTML `&nbsp;` ou `&#160;`)
-* Des espaces fines insécables (entité HTML `&#8239;`)
-
-### Caractères spéciaux
-
-Les caractères `(c)` et `(r)` sont remplacés automatiquement par `©` et `®`.
-
-### Zones de contenu couvertes
-
-Le plugin applique automatiquement les règles typographiques à de nombreuses zones de votre site WordPress :
-
-* **Contenu principal** : Titres et contenus des posts et pages, extraits
-* **Custom Post Types** : Tous les types de contenus personnalisés
-* **Custom Fields** : Support pour ACF (Advanced Custom Fields) et Meta Box
-* **Taxonomies** : Catégories, tags et taxonomies personnalisées (titres et descriptions)
-* **Archives** : Titres et descriptions de toutes les pages d'archives
-* **Commentaires** : Texte des commentaires et noms d'auteurs
-* **Widgets** : Contenu et titres des widgets de texte
-* **Menus** : Éléments de navigation
-* **RSS Feeds** : Flux RSS (titres, contenus, extraits, commentaires)
-* **REST API** : Réponses de l'API REST pour posts, pages et attachments
-* **Profils utilisateurs** : Descriptions des utilisateurs
-* **Breadcrumbs** : Support pour Yoast SEO, Rank Math et SEOPress
-* **SEO** : Meta descriptions et titres (Yoast SEO, Rank Math, SEOPress)
-* **Social Media** : Tags Open Graph et Twitter Cards (Yoast SEO, Rank Math, SEOPress)
-
-Toutes ces zones peuvent être activées ou désactivées individuellement depuis la page de réglages du plugin.
+> **Note** : Compatible avec Git Updater pour les mises à jour automatiques depuis GitHub.
 
 ## Installation
 
-1. Téléchargez la dernière version de Typographie française.
-2. Décompressez le contenu du fichier `zip` et ajoutez le dossier `french-typo` dans le répertoire `/wp-content/plugins/` (ou `/wp-content/mu-plugins/` si vous voulez la rendre obligatoire par défaut sur votre site par exemple).
-3. Activez l'extension.
-4. Configurez l'extension comme vous le désirez dans le menu `Réglages > Réglages typographiques` (`Settings > French Typo`) à partir du back-office de WordPress.
+1. Téléchargez et décompressez le plugin dans `/wp-content/plugins/french-typo`.
+2. Activez l'extension depuis le menu Extensions.
+3. Configurez les options dans `Réglages > French Typo`.
 
 ## Questions fréquentes
 
-### Que fait ce plugin ?
+**L'extension modifie-t-ekke mon contenu existant ?**
 
-Ce plugin applique automatiquement les règles typographiques françaises à vos contenus WordPress, notamment les espaces insécables avant les signes de ponctuation et le remplacement de caractères spéciaux.
+Non. Les règles typographiques sont appliquées à la volée lors de l'affichage, sans modifier le contenu dans la base de données.
 
-### Quels signes de ponctuation sont gérés ?
+**Quelle est la différence entre espaces insécables normales et fines ?**
 
-Le plugin gère : `;`, `:`, `!`, `?`, `%`, `«` et `»`.
+Les espaces normales (`&nbsp;`) sont standards et empêchent les retours à la ligne. Les espaces fines (`&#8239;`) sont plus étroites et peuvent ne pas s'afficher correctement selon la fonte ou le navigateur.
 
-### Quelle est la différence entre les espaces insécables normaux et fins ?
+**Puis-je désactiver certaines fonctionnalités ?**
 
-Les espaces insécables normaux (`&nbsp;` / `&#160;`) sont des espaces standards qui empêchent les retours à la ligne. Les espaces fines insécables (`&#8239;`) sont des espaces plus étroites qui peuvent ne pas s'afficher correctement selon la fonte, le navigateur et le système d'exploitation utilisés.
+Oui. Vous pouvez désactiver les espaces insécables ou les remplacements de caractères, et choisir précisément quelles zones de contenu doivent être traitées.
 
-### Ce plugin modifie-t-il le contenu existant ?
+## Auteur et crédits
 
-Non, le plugin applique les règles typographiques à la volée lors de l'affichage du contenu, sans modifier le contenu original dans la base de données.
+**Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-### Puis-je désactiver certaines fonctionnalités ?
+Vous pouvez soutenir ce projet sur [Ko-fi](https://ko-fi.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
-Oui, vous pouvez désactiver indépendamment les espaces insécables ou les remplacements de caractères spéciaux dans les réglages du plugin. Vous pouvez également choisir précisément quelles zones de contenu doivent être traitées (titres, contenus, widgets, menus, taxonomies, archives, commentaires, RSS, REST API, etc.).
+Cette extension est un fork de **French Typo** créé par Gilles Marchand (master_shiva), entièrement refondu depuis mars 2024 avec l'aide de [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/).
+Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) et [Consistency](https://wordpress.org/plugins/consistency/).
 
-### Quelles zones de contenu sont couvertes ?
+## Documentation
 
-Le plugin traite automatiquement :
-* Les titres et contenus des posts et pages (y compris les Custom Post Types)
-* Les extraits
-* Les widgets et menus
-* Les taxonomies (catégories, tags, custom taxonomies)
-* Les archives
-* Les commentaires
-* Les custom fields (ACF, Meta Box)
-* Les flux RSS
-* Les réponses REST API
-* Les profils utilisateurs
-* Les breadcrumbs (Yoast, Rank Math, SEOPress)
-* Les meta descriptions et tags sociaux (Open Graph, Twitter Cards)
-
-Toutes ces zones peuvent être activées ou désactivées individuellement depuis les réglages.
-
-## Auteur et sponsoring
-
-**Jason Rouet**
-
-* Site internet: [jasonrouet.com](https://jasonrouet.com)
-* E-mail: [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com)
-* Profil WordPress.org: [profiles.wordpress.org/jaz_on/](https://profiles.wordpress.org/jaz_on/)
-
-Vous pouvez m'aider à financer mon travail opensource sur [Ko-fi](https://ko-fi.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on). Toute aide est la bienvenue et partager le projet, faire des retours, signaler des problèmes y participe également !
-
-## Historique et crédits
-
-### Fork et contribution
-
-Ce plugin est un fork de l'extension **French Typo** créée par **Gilles Marchand** (master_shiva). Le code a été totalement refondu depuis mars 2024 avec l'aide de [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Pour voir le code d'origine, consultez le commit [25940a7d11b08e1f02791812cbdcf840d97a4086](https://github.com/jaz-on/french-typo/commit/25940a7d11b08e1f02791812cbdcf840d97a4086).
-
-### Inspirations
-
-Ce plugin s'inspire également d'autres projets :
-
-* [TypoFR](https://wordpress.org/plugins/typofr/) — Plugin WordPress pour la typographie française (archivé)
-* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Orthotypographie automatique (inactif)
-* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg (actif et plugin le plus avancé avec des options Gutenberg modernes)
+* [Changelog](CHANGELOG.md) — Historique des versions
+* [Documentation détaillée](docs/README.md) — Tutoriels d'utilisation et documentation technique
 
 ## Licence
 
-Ce plugin est sous licence [GPLv2 ou ultérieure](https://www.gnu.org/licenses/gpl-2.0.html).
-
-## Changelog
-
-Voir [CHANGELOG.md](CHANGELOG.md) pour l'historique complet des versions (en anglais, conformément au standard « Keep a Changelog »).
-
-## Documentation pour développeurs
-
-Pour la documentation technique détaillée, voir le dossier [`docs/`](docs/README.md).
+[GPLv2 ou ultérieure](https://www.gnu.org/licenses/gpl-2.0.html)
 
 ---
 
 <a name="english"></a>
 ## English
 
-WordPress plugin that allows you to apply French typography rules to the content you publish on a site powered by [WordPress](http://wordpress.org/).
+WordPress plugin that automatically applies French typography rules to your content.
 
-### Features
+The plugin adds non-breaking spaces before punctuation marks (`;`, `:`, `!`, `?`, `%`, `«`, `»`) and replaces `(c)` with `©` and `(r)` with `®`. You can choose between regular or thin non-breaking spaces.
 
-#### Non-breaking spaces
+Rules apply to all your content: posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Each area can be enabled or disabled individually in settings.
 
-[Non-breaking spaces](http://fr.wikipedia.org/wiki/Espace_ins%C3%A9cable) are automatically managed for the characters `;`, `:`, `!`, `?`, `%`, `«` and `»`. You can choose between:
-* Regular non-breaking spaces (HTML entity `&nbsp;` or `&#160;`)
-* Thin non-breaking spaces (HTML entity `&#8239;`)
+## Installation
 
-#### Special characters
+1. Download and extract the plugin to `/wp-content/plugins/french-typo`.
+2. Activate the plugin from the Plugins menu.
+3. Configure options in `Settings > French Typo`.
 
-The characters `(c)` and `(r)` are automatically replaced by `©` and `®`.
+## Frequently Asked Questions
 
-#### Content areas covered
+**Does this plugin modify existing content?**
 
-The plugin automatically applies typography rules to many areas of your WordPress site:
+No. Typography rules are applied on-the-fly when content is displayed, without modifying the original content in the database.
 
-* **Main content**: Post and page titles and content, excerpts
-* **Custom Post Types**: All custom content types
-* **Custom Fields**: Support for ACF (Advanced Custom Fields) and Meta Box
-* **Taxonomies**: Categories, tags and custom taxonomies (titles and descriptions)
-* **Archives**: Titles and descriptions of all archive pages
-* **Comments**: Comment text and author names
-* **Widgets**: Text widget content and titles
-* **Menus**: Navigation items
-* **RSS Feeds**: RSS feeds (titles, content, excerpts, comments)
-* **REST API**: REST API responses for posts, pages and attachments
-* **User Profiles**: User descriptions
-* **Breadcrumbs**: Support for Yoast SEO, Rank Math and SEOPress
-* **SEO**: Meta descriptions and titles (Yoast SEO, Rank Math, SEOPress)
-* **Social Media**: Open Graph and Twitter Cards tags (Yoast SEO, Rank Math, SEOPress)
+**What's the difference between regular and thin non-breaking spaces?**
 
-All these areas can be enabled or disabled individually from the plugin settings page.
+Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#8239;`) are narrower and may not display correctly depending on the font or browser.
 
-### Installation
+**Can I disable certain features?**
 
-1. Download the latest version of Typographie française.
-2. Extract the contents of the `zip` file and add the `french-typo` folder to the `/wp-content/plugins/` directory (or `/wp-content/mu-plugins/` if you want to make it mandatory by default on your site, for example).
-3. Activate the plugin.
-4. Configure the plugin as you wish in the `Settings > Réglages typographiques` (`Settings > French Typo`) menu from the WordPress back-office.
+Yes. You can disable non-breaking spaces or character replacements, and choose precisely which content areas should be processed.
 
-### Frequently Asked Questions
+## Author & Credits
 
-#### What does this plugin do?
+**Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-This plugin automatically applies French typography rules to your WordPress content, including non-breaking spaces before punctuation marks and special character replacements.
+You can support this project on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
-#### Which punctuation marks are handled?
+This plugin is a fork of **French Typo** created by Gilles Marchand (master_shiva), completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Inspired by [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/), and [Consistency](https://wordpress.org/plugins/consistency/).
 
-The plugin handles: `;`, `:`, `!`, `?`, `%`, `«`, and `»`.
+## Documentation
 
-#### What's the difference between regular and thin non-breaking spaces?
+* [Changelog](CHANGELOG.md) — Version history
+* [Developer documentation](docs/README.md) — Detailed technical documentation
 
-Regular non-breaking spaces (`&nbsp;` / `&#160;`) are standard spaces that prevent line breaks. Thin non-breaking spaces (`&#8239;`) are narrower spaces that may not display correctly depending on the font, browser, and operating system.
+## License
 
-#### Does this plugin modify existing content?
-
-No, the plugin applies typography rules on-the-fly when content is displayed, without modifying the original content in the database.
-
-#### Can I disable certain features?
-
-Yes, you can disable non-breaking spaces or special character replacements independently in the plugin settings. You can also choose precisely which content areas should be processed (titles, content, widgets, menus, taxonomies, archives, comments, RSS, REST API, etc.).
-
-#### Which content areas are covered?
-
-The plugin automatically processes:
-* Post and page titles and content (including Custom Post Types)
-* Excerpts
-* Widgets and menus
-* Taxonomies (categories, tags, custom taxonomies)
-* Archives
-* Comments
-* Custom fields (ACF, Meta Box)
-* RSS feeds
-* REST API responses
-* User profiles
-* Breadcrumbs (Yoast, Rank Math, SEOPress)
-* SEO meta descriptions and social tags (Open Graph, Twitter Cards)
-
-All these areas can be enabled or disabled individually from the settings.
-
-### Author & Sponsorship
-
-**Jason Rouet**
-
-* Website: [jasonrouet.com](https://jasonrouet.com)
-* Email: [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com)
-* WordPress.org: [profiles.wordpress.org/jaz_on/](https://profiles.wordpress.org/jaz_on/)
-
-You can sponsor me on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on). Any help is welcome: sharing the project, feedback, reporting issues, etc.
-
-### History and credits
-
-#### Fork and contribution
-
-This plugin is a fork of the **French Typo** extension created by **Gilles Marchand** (master_shiva). The code has been completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). To see the original code, check commit [25940a7d11b08e1f02791812cbdcf840d97a4086](https://github.com/jaz-on/french-typo/commit/25940a7d11b08e1f02791812cbdcf840d97a4086).
-
-#### Inspirations
-
-This plugin is also inspired by other projects:
-
-* [TypoFR](https://wordpress.org/plugins/typofr/) — WordPress plugin for French typography (archived)
-* [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) — Automatic orthotypography (inactive)
-* [Consistency](https://wordpress.org/plugins/consistency/) — Typography Corrector for Gutenberg (active and a most advanced plugin with modern Gutenberg options)
-
-### License
-
-This plugin is licensed under [GPLv2 or later](https://www.gnu.org/licenses/gpl-2.0.html).
-
-### Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for the complete version history.
+[GPLv2 or later](https://www.gnu.org/licenses/gpl-2.0.html)
