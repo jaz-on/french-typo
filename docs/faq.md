@@ -71,7 +71,7 @@ The plugin automatically processes:
 - **Social Media**: Open Graph and Twitter Cards tags (Yoast SEO, Rank Math, SEOPress)
 - **Custom Fields**: Support for ACF (Advanced Custom Fields) and Meta Box
 
-All these areas can be enabled or disabled individually from settings.
+Most of these areas follow the **Settings > French Typo** checkboxes. **Exception:** when Yoast SEO, Rank Math, or SEOPress is active, their **SEO titles, meta descriptions, and social tags** are still passed through `french_typo_replace` on output—they are **not** gated by the “Titles” or “Content” toggles in the same way as `the_title` / `the_content`. Breadcrumbs from those plugins respect the breadcrumbs toggle.
 
 ### Does the plugin work with Custom Post Types?
 

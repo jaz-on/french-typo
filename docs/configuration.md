@@ -111,26 +111,25 @@ The plugin can process different areas of your WordPress site. You can enable or
 
 ## Default Behavior
 
-By default, all content areas are **enabled** for processing. The plugin uses a backward-compatible approach:
+When **no options are saved yet**, `french_typo_get_options()` merges the empty (or partial) stored array with built-in defaults:
 
-- If an option is not set in the database, processing is **enabled** by default
-- Options are only saved when explicitly changed by the user
-- This ensures existing installations continue working without configuration
+- **Special characters** (`(c)` / `(r)`): **on**
+- **Content-area toggles** (`apply_to_*`): **on** for titles, content, excerpts, widgets, menus, custom fields, taxonomies, archives, comments, RSS, REST API, user profiles, breadcrumbs
+- **Non-breaking spaces**: **off** (`narrow_space` is not applied) until you choose “regular” or “thin” in settings and save (or until a saved option set includes that choice)
 
-The default values when options are not set:
-- `narrow_space`: `1` (regular non-breaking spaces)
-- `special_characters`: `1` (enabled)
-- All `apply_to_*` options: `1` (enabled) if not set
+After the first **Save Changes**, the values stored in the database replace that merge behavior for whatever keys WordPress persists.
+
+SEO plugin title, description, and social strings use a separate code path (see [api.md](api.md)): they are **not** controlled by the same `apply_to_*` checkboxes as front-end titles and content.
 
 ## Configuration Examples
 
 ### Default Configuration (Recommended)
 
-- **Non-breaking spaces**: Regular
+- **Non-breaking spaces**: Regular (choose explicitly after activation; not applied until you save that choice)
 - **Special characters**: Enabled
-- **All areas**: Enabled (default behavior)
+- **All areas**: Enabled (defaults before first save)
 
-This configuration processes all content on your site with French typography rules. This is the default behavior when the plugin is first activated.
+This is the usual target setup once you have saved settings; right after activation only, non-breaking spaces are not applied until configured.
 
 ### Minimal Configuration
 

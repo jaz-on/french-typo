@@ -101,9 +101,15 @@ The plugin integrates with WordPress using many native filters. Here is the comp
 
 ### Widgets and Menus
 
-- `widget_text` — Text widget content
-- `widget_title` — Widget titles
+- `widget_text` — Legacy text widget content
+- `widget_text_content` — Text widget content (modern path)
+- `widget_block_content` — Block-based widget content
+- `widget_title` — Legacy widget titles
+- `widget_text_title` — Text widget titles
+- `widget_block_title` — Block-based widget titles
 - `wp_nav_menu_items` — Navigation menu items
+
+All of the above widget hooks share the same `apply_to_widgets` flag in `french_typo_replace_wrapper()`.
 
 ### Taxonomies
 
@@ -143,7 +149,7 @@ The plugin integrates with WordPress using many native filters. Here is the comp
 ### User Profiles
 
 - `get_the_author_description` — Author description
-- `get_user_meta` — User meta (only processes the `description` meta key, ignores other meta keys)
+- `get_user_metadata` — User meta (only processes the `description` meta key; uses a remove/add filter guard to avoid recursion)
 
 ### Advanced Custom Fields (ACF)
 
@@ -195,6 +201,8 @@ If SEOPress is installed, the plugin uses:
 - `seopress_social_twitter_title` — Twitter Card title
 - `seopress_social_twitter_desc` — Twitter Card description
 
+**SEO plugins (breadcrumb vs meta):** Breadcrumb filters run through `french_typo_breadcrumbs()`, which honors **`apply_to_breadcrumbs`**. Title, meta description, Open Graph, and Twitter filters listed above call **`french_typo_replace()` directly**—they still respect your narrow-space and special-character settings, but they **do not** use `french_typo_replace_wrapper()`, so they are **not** tied to `apply_to_titles` / `apply_to_content` the way `the_title` and `the_content` are.
+
 ## Advanced Use Cases
 
 ### Disable Processing for Specific Content
@@ -240,8 +248,6 @@ add_action( 'wp_ajax_my_action', function() {
 } );
 ```
 
-## Code References
+## Where to look in code
 
-- Custom hook: line 131 in `french-typo.php`
-- Processing function: `french_typo_replace()` — line 639
-- Hook registration: `french_typo_hooks()` — line 35
+Registration lives in `french_typo_hooks()`; typography logic in `french_typo_replace()`; the public filter is `french_typo_process_text` in [`french-typo.php`](../french-typo.php). Prefer function names over line numbers so docs stay accurate.

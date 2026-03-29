@@ -4,275 +4,100 @@ This document describes the technical architecture of the French Typo plugin, it
 
 ## Plugin Structure
 
-The French Typo plugin follows a **monolithic** architecture: all code is contained in a single main file `french-typo.php` (1056 lines).
+The French Typo plugin follows a **monolithic** architecture: almost all runtime code lives in [`french-typo.php`](../french-typo.php). Admin styles load from [`admin.css`](../admin.css) on the settings screen (`settings_page_french-typo`).
 
-### Main File
+### Main file responsibilities
 
-- **`french-typo.php`** — Single entry point of the plugin
-  - Plugin header (lines 1-23)
-  - Security check (line 26)
-  - Hook initialization (line 35)
-  - Text processing functions
-  - Administration interface
-  - Options management
-
-### Code Organization
-
-The code is organized into logical sections:
-
-1. **Initialization** (lines 28-141)
-   - `french_typo_hooks()` function — Registration of all WordPress hooks
-
-2. **Options Management** (lines 143-197)
-   - `french_typo_deactivate()` — Cleanup on plugin deactivation (line 150)
-   - `french_typo_get_options()` — Options retrieval with static cache and versioning (line 169)
-   - `french_typo_invalidate_options_cache()` — Cache invalidation via version increment (line 193)
-
-3. **Processing Functions** (lines 198-725)
-   - **NEW in v1.1.0**: Generic wrapper function `french_typo_replace_wrapper()` for optimized processing
-   - Static hook mapping array for performance optimization
-   - Each wrapper checks if processing is enabled via options before applying rules
-   - Default behavior: if option is not set, processing is enabled (backward compatibility)
-   - Main function `french_typo_replace()` — Generic text processing (line 454)
-   - RSS functions check both `apply_to_rss` and the specific content type option
-   - REST API function processes title, content, and excerpt based on their respective options
-
-4. **Administration Interface** (lines 727-1345)
-   - Administration menu
-   - Settings page
-   - Options validation
-   - Form display
-
-## Text Processing Flow
-
-### Main Function: `french_typo_replace()`
-
-The `french_typo_replace()` function (line 639) is the core of the plugin. It applies French typography rules to text.
-
-#### Processing Algorithm
-
-1. **Preliminary Checks** (lines 641-643)
-   - Immediate return if text is empty or very short (< 3 characters)
-
-2. **Options Retrieval** (line 646)
-   - Uses static cache with versioning to avoid repeated database queries
-   - Only checks version number on each call (fast)
-   - Reloads options only when version changes
-
-3. **Non-breaking Space Type Determination** (lines 648-660)
-   - `0` = disabled
-   - `1` = regular non-breaking space (`&#160;`)
-   - `2` = thin non-breaking space (`&#8239;`)
-
-4. **Special Characters Check** (lines 662-663)
-   - Enable/disable replacement of `(c)` → `©` and `(r)` → `®`
-
-5. **Early Return if Everything is Disabled** (lines 665-668)
-   - Optimization: avoids unnecessary processing
-
-6. **Replacement Preparation** (lines 670-688)
-   - Static replacements for special characters
-   - Regex patterns for non-breaking spaces
-
-7. **Markup Detection** (lines 690-692)
-   - Checks for HTML tags or shortcodes
-   - Optimization: avoids regex processing on plain text
-
-8. **Text Division** (lines 694-701)
-   - If markup present: split into segments (text, HTML tags, shortcodes)
-   - If plain text: direct processing
-
-9. **Segment-by-Segment Processing** (lines 704-723)
-   - Processes only text segments (ignores HTML/shortcodes)
-   - Applies replacements
-   - Reconstructs final text
+- **`french-typo.php`**
+  - Plugin header and constants
+  - `french_typo_load_textdomain()` — text domain on `init` (priority 0)
+  - `french_typo_hooks()` — registers WordPress filters and (in admin) menu, settings, assets, action links
+  - Options: `french_typo_get_options()`, `french_typo_options_validate()`
+  - Processing: `french_typo_replace()`, `french_typo_replace_wrapper()`, RSS/REST/breadcrumb/user-meta helpers
+  - Markup helpers (v1.2.0): `french_typo_markup_*` — stack-aware boundaries for raw text in HTML
+  - Administration UI callbacks and settings page
 
-### WordPress Hooks Management
+### Code organization (by function)
 
-The `french_typo_hooks()` function (line 37) registers all necessary WordPress filters.
+1. **Bootstrap** — `french_typo_load_textdomain`, `french_typo_hooks` (attached to `init`).
+2. **Options** — `french_typo_get_options()` merges saved values with defaults via `wp_parse_args()` and normalizes the non-breaking space setting to an HTML entity or `false`. A static variable avoids recomputing that merge on every call in the same request.
+3. **Filtering** — `french_typo_replace_wrapper()` maps `current_filter()` to an `apply_to_*` option and calls `french_typo_replace()` only when enabled. RSS, REST, breadcrumbs, user meta, and custom fields use small dedicated functions with explicit checks.
+4. **Core typography** — `french_typo_replace()` applies special-character replacements and/or narrow-space rules, with optional in-memory caching for longer strings; cache keys include the active narrow-space mode and special-character toggle so output cannot go stale after a settings change.
+5. **Admin** — Settings API registration, validation, and `french_typo_admin_options()` output.
 
-#### Performance Optimization (v1.1.0)
+## Text processing flow
 
-The plugin now uses a single optimized wrapper function `french_typo_replace_wrapper()` instead of multiple individual wrapper functions. This approach provides:
+### `french_typo_replace()`
 
-- **Reduced function calls**: Single function handles multiple hook types
-- **Static mapping**: Hook-to-option mapping cached in static array
-- **Memory efficiency**: Reduced memory footprint through function consolidation
-- **Maintainability**: Easier to maintain and extend
+This is the core function. In order:
 
-```php
-function french_typo_replace_wrapper( $text ) {
-    static $hook_option_map = array(
-        'the_title'      => 'apply_to_titles',
-        'the_content'    => 'apply_to_content',
-        'the_excerpt'    => 'apply_to_excerpts',
-        // ... more mappings
-    );
-    
-    $option_key = $hook_option_map[ current_filter() ] ?? null;
-    $options = french_typo_get_options();
-    
-    if ( $options[ $option_key ] ) {
-        return french_typo_replace( $text );
-    }
-    
-    return $text;
-}
-```
-
-#### Hooks by Content Type
-
-**Main Content:**
-- `the_title` — Post/page titles
-- `the_content` — Post/page content
-- `the_excerpt` — Excerpts
-
-**Widgets and Menus:**
-- `widget_text` — Text widget content
-- `widget_title` — Widget titles
-- `wp_nav_menu_items` — Menu items
-
-**Taxonomies:**
-- `term_description` — Term descriptions
-- `single_term_title`, `single_cat_title`, `single_tag_title` — Taxonomy titles
-- `single_post_type_archive_title` — Post type archive titles
+1. **Guards** — Ignore non-strings and very short strings.
+2. **Options** — Read processed options (see caching below). If both narrow spaces and special-character replacement are off, return unchanged.
+3. **Caching** — For longer texts, a small static request-level cache may short-circuit repeated work; keys incorporate typography-related settings.
+4. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
+5. **Raw markup** — Inside HTML, `script`, `style`, `pre`, and `code` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
 
-**Archives:**
-- `get_the_archive_title` — Archive titles
-- `get_the_archive_description` — Archive descriptions
-
-**Comments:**
-- `comment_text` — Comment text
-- `get_comment_author` — Comment author names
+When there is no HTML/shortcode signal, processing uses a simpler path with the same punctuation rules.
 
-**RSS:**
-- `the_title_rss`, `the_content_feed`, `the_excerpt_rss`, `comment_text_rss`
-
-**REST API:**
-- `rest_prepare_post`, `rest_prepare_page`, `rest_prepare_attachment`
-
-**User Profiles:**
-- `get_the_author_description` — Author descriptions
-- `get_user_meta` — User meta (only processes `description` meta key, line 586)
+### WordPress hooks
 
-**Breadcrumbs (SEO):**
-- `wpseo_breadcrumb_links` (Yoast SEO) — Processes `text` and `title` properties of breadcrumb items
-- `rank_math/frontend/breadcrumb/items` (Rank Math) — Processes `text` and `title` properties
-- `seopress_breadcrumbs_items` (SEOPress) — Processes `text` and `title` properties
-
-**SEO Meta:**
-- Yoast SEO, Rank Math, and SEOPress filters for meta descriptions and social tags
-
-**Generic Hook:**
-- `french_typo_process_text` — Custom hook for custom content processing
-
-### Third-Party Plugin Support
-
-The plugin automatically detects and integrates with:
-
-#### Advanced Custom Fields (ACF)
-- Detection: `function_exists( 'get_field' )` (line 64)
-- Filters: `acf/format_value/type=text`, `acf/format_value/type=textarea`, `acf/format_value/type=wysiwyg`
-
-#### Meta Box
-- Detection: `function_exists( 'rwmb_get_value' )` (line 71)
-- Filter: `rwmb_the_value`
-
-#### Yoast SEO
-- Detection: `defined( 'WPSEO_VERSION' )` (line 91)
-- Filters: breadcrumbs, meta descriptions, Open Graph, Twitter Cards
-
-#### Rank Math
-- Detection: `defined( 'RANK_MATH_VERSION' )` (line 94)
-- Filters: breadcrumbs, meta descriptions, Open Graph, Twitter Cards
-
-#### SEOPress
-- Detection: `defined( 'SEOPRESS_VERSION' )` (line 97)
-- Filters: breadcrumbs, meta descriptions, Open Graph, Twitter Cards
-
-## Caching System
-
-### Static Options Cache with Versioning
-
-The plugin uses a sophisticated static cache with versioning to avoid repeated database queries:
-
-```php
-function french_typo_get_options() {
-    static $cached_options = null;
-    static $cache_version  = 0;
-
-    // Get current option version from database to detect changes.
-    $current_version = get_option( 'french_typo_options_version', 0 );
-
-    // If version changed or cache is empty, reload options.
-    if ( null === $cached_options || $cache_version !== $current_version ) {
-        $cached_options = get_option( 'french_typo_options', array() );
-        $cache_version  = $current_version;
-    }
-
-    return $cached_options;
-}
-```
-
-**Advantages:**
-- Performance: single DB query per HTTP request (only checks version number)
-- Simplicity: no external dependency
-- Reliability: cache automatically invalidated via version increment
-- Efficiency: version check is faster than full option retrieval
-
-**Invalidation:**
-- Automatic on options save via `french_typo_invalidate_options_cache()` (line 193)
-- Increments `french_typo_options_version` option to trigger cache refresh
-- Cache is checked on every call but only reloaded when version changes
-
-## Design Decisions
-
-### Why a Monolithic Architecture?
-
-1. **Simplicity** — Single file to maintain
-2. **Performance** — No multiple file loading
-3. **Compatibility** — Works on all WordPress environments
-4. **Project Size** — Plugin is small enough to remain monolithic
-
-### Why Static Cache with Versioning Instead of External Caching System?
-
-1. **Simplicity** — No dependency on complex caching systems
-2. **Performance** — Version check is faster than full option retrieval, cache only reloads when needed
-3. **Reliability** — Version-based invalidation ensures cache consistency across requests
-4. **Compatibility** — Works on all environments, even without external cache
-5. **Maintenance** — Less code to maintain than full caching solution
-
-### Why Process HTML with Regex Instead of a Parser?
-
-1. **Performance** — Regex is faster than a full DOM parser
-2. **Simplicity** — No external dependency
-3. **Reliability** — Code carefully avoids processing HTML tags
-4. **Compatibility** — Works with all WordPress content types
-
-## Processed Content Areas
-
-The plugin automatically processes:
-
-- **Main Content**: Posts, pages, Custom Post Types (titles, content, excerpts)
-- **Taxonomies**: Categories, tags, custom taxonomies (titles and descriptions)
-- **Archives**: All archive types (titles and descriptions)
-- **Comments**: Text and author names
-- **Widgets**: Text widget content and titles
-- **Menus**: Navigation items
-- **RSS**: RSS feeds (titles, content, excerpts, comments)
-- **REST API**: API responses for posts, pages, and attachments
-- **User Profiles**: User descriptions
-- **Breadcrumbs**: Yoast SEO, Rank Math, SEOPress support
-- **SEO**: Meta descriptions and titles (Yoast SEO, Rank Math, SEOPress)
-- **Social Media**: Open Graph and Twitter Cards tags (Yoast SEO, Rank Math, SEOPress)
-- **Custom Fields**: ACF and Meta Box
-
-All these areas can be enabled or disabled individually from the settings page.
-
-## Code References
-
-- Main function: `french_typo_replace()` — line 454
-- **NEW**: Generic wrapper: `french_typo_replace_wrapper()` — line 206
-- Hook initialization: `french_typo_hooks()` — line 37
-- Options cache: `french_typo_get_options()` — line 159
-- Admin interface: `french_typo_admin_options()` — line 982
+`french_typo_hooks()` registers all content filters.
+
+**Wrapper (`french_typo_replace_wrapper`)** — Maps each hook name to one `apply_to_*` flag via a static array, loads options once per call path, and delegates to `french_typo_replace()` when enabled.
+
+**Main content:** `the_title`, `the_content`, `the_excerpt`
+
+**Widgets and menus:** `widget_text`, `widget_text_content`, `widget_block_content`, `widget_title`, `widget_text_title`, `widget_block_title`, `wp_nav_menu_items`
+
+**Taxonomies:** `term_description`, `single_term_title`, `single_cat_title`, `single_tag_title`, `single_post_type_archive_title`
+
+**Archives:** `get_the_archive_title`, `get_the_archive_description`
+
+**Comments:** `comment_text`, `get_comment_author`
+
+**RSS:** `the_title_rss`, `the_content_feed`, `the_excerpt_rss`, `comment_text_rss` (each checks `apply_to_rss` plus the relevant content flag)
+
+**REST API:** `rest_prepare_post`, `rest_prepare_page`, `rest_prepare_attachment`
+
+**User profiles:** `get_the_author_description`, `get_user_metadata` (description only; see `french_typo_user_meta()`)
+
+**Breadcrumbs (when SEO plugin present):** `wpseo_breadcrumb_links`, `rank_math/frontend/breadcrumb/items`, `seopress_breadcrumbs_items` — gated by `apply_to_breadcrumbs`.
+
+**SEO title, description, Open Graph, Twitter (when plugin present):** Yoast, Rank Math, SEOPress filters call `french_typo_replace` **directly** (not the wrapper), so they are **not** tied to the “Titles / Content” toggles. See [api.md](api.md).
+
+**Custom integration:** `french_typo_process_text` → `french_typo_replace`.
+
+### Third-party integrations
+
+- **ACF** — `function_exists( 'get_field' )` — `acf/format_value` for `text`, `textarea`, `wysiwyg` via `french_typo_replace_custom_field`.
+- **Meta Box** — `function_exists( 'rwmb_get_value' )` — `rwmb_the_value`.
+- **Yoast / Rank Math / SEOPress** — Constants `WPSEO_VERSION`, `RANK_MATH_VERSION`, `SEOPRESS_VERSION` — breadcrumbs plus meta/social filters as above.
+
+## Caching
+
+- **`french_typo_get_options()`** — One static copy of merged, normalized options per HTTP request (rebuilt when the function runs again in the same process after a cold start; WordPress persists options via `get_option()`).
+- **`french_typo_replace()`** — Optional small static cache for long strings; keys include settings that affect output so results stay consistent after option changes.
+
+No separate “options version” option or invalidation hook is used.
+
+## Design decisions
+
+### Monolithic file
+
+Single entry point, easy deployment, no autoload overhead, appropriate for the project size.
+
+### Static in-request caches
+
+Avoids repeated merging and repeated heavy transforms on duplicate long strings without external cache dependencies.
+
+### HTML handling: split + stack, not a full DOM
+
+`wp_html_split()` keeps tag boundaries stable; a stack tracks raw containers (`script`, `style`, `pre`, `code`) so typography does not corrupt code or SVG/CSS snippets. Regex alone is not enough for nested regions; the stack addresses that without pulling in a DOM parser.
+
+## Processed content areas (overview)
+
+Posts/pages/CPTs, taxonomies, archives, comments, widgets (classic and block), menus, RSS, REST, user bios, breadcrumbs (optional), ACF/Meta Box, and SEO plugin outputs where hooks are registered. Most areas respect their `apply_to_*` checkboxes; SEO title/description/social strings from Yoast, Rank Math, and SEOPress are an exception (see [api.md](api.md)).
+
+## Where to look in code
+
+Use `french_typo_hooks()`, `french_typo_replace()`, and `french_typo_get_options()` in [`french-typo.php`](../french-typo.php) as the main entry points; avoid citing line numbers in documentation because they drift.

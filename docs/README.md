@@ -39,7 +39,7 @@ To contribute to the documentation:
 
 1. Edit the Markdown files in this `docs/` folder
 2. Follow French typography rules (non-breaking spaces, etc.)
-3. Reference code files with their line numbers when relevant
+3. Point to **functions and files** in `french-typo.php` (avoid hard-coded line numbers—they go stale)
 4. Maintain consistency with the source code
 
 ## Useful Links
