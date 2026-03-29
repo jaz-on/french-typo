@@ -18,8 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0]
 
+### Added
+- Stack-based raw-text boundaries for `<pre>`, `<code>`, `<script>`, and `<style>` (nested safe). Gutenberg Verse (`wp-block-verse`) remains typographic unless `wp-block-code` is also present on the same `<pre>`.
+
 ### Fixed
-- Skip narrow non-breaking space rules inside `<style>` and `<script>` (including inline SVG/CSS such as Elementor icon markup), so `:` and `;` in embedded CSS/JSON/JS are left unchanged.
+- Skip narrow non-breaking spaces **and** `(c)` / `(r)` replacements inside `<pre>`, `<code>`, `<script>`, and `<style>` (including inline SVG/CSS such as Elementor icon markup), so `:` / `;` in embedded CSS/JSON/JS and literals in code blocks stay unchanged.
+- Static cache key in `french_typo_replace()` now factors in narrow-space choice and special-character toggle to avoid stale output after settings change.
 
 ### Removed
 - Root `TODO.md` file (outdated; task tracking lives elsewhere, e.g. `_todo/`).

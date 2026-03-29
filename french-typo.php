@@ -194,6 +194,124 @@ function french_typo_get_options() {
 }
 
 /**
+ * Normalize HTML tag name to local lowercase (strip XML / SVG prefix).
+ *
+ * @since 1.2.0
+ *
+ * @param string $name Raw tag name from markup.
+ * @return string Local tag name.
+ */
+function french_typo_markup_tag_local_name( $name ) {
+	$name = strtolower( $name );
+	if ( false !== strpos( $name, ':' ) ) {
+		$parts = explode( ':', $name );
+		return end( $parts );
+	}
+	return $name;
+}
+
+/**
+ * Whether a pre opening tag is Gutenberg Verse without the Code block class.
+ *
+ * @since 1.2.0
+ *
+ * @param string $attr_region Text between the tag name and the closing '>'.
+ * @return bool True when typography should still run inside (do not push pre on stack).
+ */
+function french_typo_markup_pre_is_verse_not_code( $attr_region ) {
+	if ( ! preg_match( '#\bclass\s*=\s*("|\')([^"\']*)\1#iu', $attr_region, $m ) ) {
+		return false;
+	}
+	$classes = $m[2];
+	if ( ! preg_match( '#\bwp-block-verse\b#iu', $classes ) ) {
+		return false;
+	}
+	if ( preg_match( '#\bwp-block-code\b#iu', $classes ) ) {
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Update stack of raw-text elements (script, style, pre, code) from one wp_html_split() tag segment.
+ *
+ * Malformed HTML: closing tag pops only when it matches the stack top (strict LIFO).
+ *
+ * @since 1.2.0
+ *
+ * @param array  $stack   Stack of open raw tag local names (modified by reference).
+ * @param string $segment Full tag segment starting with '<'.
+ */
+function french_typo_markup_stack_update( array &$stack, $segment ) {
+	static $raw_flip  = null;
+	static $void_flip = null;
+
+	if ( null === $raw_flip ) {
+		$raw_flip  = array_flip( array( 'script', 'style', 'pre', 'code' ) );
+		$void_flip = array_flip(
+			array(
+				'area',
+				'base',
+				'br',
+				'col',
+				'embed',
+				'hr',
+				'img',
+				'input',
+				'link',
+				'meta',
+				'param',
+				'source',
+				'track',
+				'wbr',
+			)
+		);
+	}
+
+	$events = array();
+
+	if ( preg_match_all( '#</\s*([A-Za-z0-9:]+)\s*>#u', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
+		foreach ( $m[0] as $i => $hit ) {
+			$nm = french_typo_markup_tag_local_name( $m[1][ $i ][0] );
+			if ( isset( $raw_flip[ $nm ] ) ) {
+				$events[ $hit[1] ] = array( 'close', $nm );
+			}
+		}
+	}
+
+	if ( preg_match_all( '#<\s*(?!/)([A-Za-z0-9:]+)([^>]*)>#u', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
+		foreach ( $m[0] as $i => $hit ) {
+			$nm   = french_typo_markup_tag_local_name( $m[1][ $i ][0] );
+			$rest = $m[2][ $i ][0];
+			if ( ! isset( $raw_flip[ $nm ] ) ) {
+				continue;
+			}
+			if ( isset( $void_flip[ $nm ] ) ) {
+				continue;
+			}
+			if ( preg_match( '#/\s*$#u', $rest ) ) {
+				continue;
+			}
+			if ( 'pre' === $nm && french_typo_markup_pre_is_verse_not_code( $rest ) ) {
+				continue;
+			}
+			$events[ $hit[1] ] = array( 'open', $nm );
+		}
+	}
+
+	ksort( $events, SORT_NUMERIC );
+	foreach ( $events as $ev ) {
+		if ( 'close' === $ev[0] ) {
+			if ( ! empty( $stack ) && end( $stack ) === $ev[1] ) {
+				array_pop( $stack );
+			}
+		} else {
+			$stack[] = $ev[1];
+		}
+	}
+}
+
+/**
  * Generic wrapper function for French typo filters.
  * Uses current_filter() to determine which option to check.
  * Optimized for performance - no closures, single function for all simple filters.
@@ -443,8 +561,8 @@ function french_typo_breadcrumbs( $items ) {
  * Apply French typography rules to text content.
  *
  * Processes text to add non-breaking spaces before/after punctuation and replaces
- * special character sequences. Carefully avoids processing HTML tags and shortcodes
- * to prevent breaking the markup.
+ * special character sequences. Skips HTML tag segments, shortcode segments (leading `[`),
+ * and raw text inside script, style, pre, and code (stack-aware, including nesting).
  *
  * @since 1.0.0
  *
@@ -466,14 +584,6 @@ function french_typo_replace( $text ) {
 	$use_cache   = ( $text_length >= $cache_threshold );
 	$cache_key   = null;
 
-	if ( $use_cache ) {
-		$cache_key = crc32( $text ) . '_' . $text_length;
-
-		if ( isset( $cache[ $cache_key ] ) ) {
-			return $cache[ $cache_key ];
-		}
-	}
-
 	// Get processed plugin options (already cached and ready to use).
 	$options = french_typo_get_options();
 
@@ -482,26 +592,32 @@ function french_typo_replace( $text ) {
 		return $text;
 	}
 
-	// Replace special characters if enabled.
-	if ( $options['special_characters'] ) {
-		static $static_replacements = array(
-			'(c)' => '&#169;',
-			'(r)' => '&#174;',
-		);
-		$text                       = strtr( $text, $static_replacements );
+	$narrow_key  = $options['narrow_space'] ? (string) crc32( (string) $options['narrow_space'] ) : '0';
+	$special_key = $options['special_characters'] ? '1' : '0';
+
+	if ( $use_cache ) {
+		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key;
+
+		if ( isset( $cache[ $cache_key ] ) ) {
+			return $cache[ $cache_key ];
+		}
 	}
 
-	// Apply non-breaking space rules if enabled.
-	if ( $options['narrow_space'] ) {
-		$nbs        = $options['narrow_space'];
-		$nbs_quoted = preg_quote( $nbs, '#' );
+	static $static_replacements = array(
+		'(c)' => '&#169;',
+		'(r)' => '&#174;',
+	);
 
-		// Protect HTML entities by temporarily replacing them (fast with str_replace).
-		// Only if entities are detected to avoid unnecessary processing.
+	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
+	$nbs_quoted = $options['narrow_space'] ? preg_quote( $options['narrow_space'], '#' ) : '';
+
+	$has_markup = ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) );
+
+	if ( $has_markup ) {
+		// Protect HTML entities before narrow-space regexes (unchanged; only when NBSP rules run).
 		$entities     = array();
 		$placeholders = array();
-		if ( false !== strpos( $text, '&' ) ) {
-			// Find all HTML entities and replace them with unique placeholders.
+		if ( $options['narrow_space'] && false !== strpos( $text, '&' ) ) {
 			preg_match_all( '/&#?[a-zA-Z0-9]{1,31};/', $text, $matches );
 			if ( ! empty( $matches[0] ) ) {
 				$entities = array_unique( $matches[0] );
@@ -512,53 +628,44 @@ function french_typo_replace( $text ) {
 			}
 		}
 
-		// Use WordPress HTML splitting API. Only split if markup is detected for performance.
-		if ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) ) {
-			$segments           = wp_html_split( $text );
-			$processed          = '';
-			$in_style_or_script = false;
+		$segments  = wp_html_split( $text );
+		$processed = '';
+		$stack     = array();
 
-			foreach ( $segments as $segment ) {
-				// Track raw text inside <style>/<script> (e.g. SVG inline CSS) to skip typography there.
-				if ( ! empty( $segment ) && '<' === $segment[0] ) {
-					$tag_events = array();
-					if ( preg_match_all( '#<\s*(style|script)\b#i', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
-						foreach ( $m[0] as $hit ) {
-							$tag_events[ $hit[1] ] = 'open';
-						}
-					}
-					if ( preg_match_all( '#</\s*(style|script)\s*>#i', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
-						foreach ( $m[0] as $hit ) {
-							$tag_events[ $hit[1] ] = 'close';
-						}
-					}
-					ksort( $tag_events, SORT_NUMERIC );
-					foreach ( $tag_events as $ev ) {
-						$in_style_or_script = ( 'open' === $ev );
-					}
-				}
-
-				// Only process text segments (skip HTML tags and shortcodes).
-				if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] && ! $in_style_or_script ) {
-					// Add non-breaking space before punctuation (avoid if already exists).
-					$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
-					// Add non-breaking space after « (avoid if already exists).
-					$segment = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $segment );
-				}
-				$processed .= $segment;
+		foreach ( $segments as $segment ) {
+			if ( ! empty( $segment ) && '<' === $segment[0] ) {
+				french_typo_markup_stack_update( $stack, $segment );
 			}
-			$text = $processed;
-		} else {
+			if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
+				if ( empty( $stack ) ) {
+					if ( $options['special_characters'] ) {
+						$segment = strtr( $segment, $static_replacements );
+					}
+					if ( $options['narrow_space'] ) {
+						// Add non-breaking space before punctuation (avoid if already exists).
+						$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
+						// Add non-breaking space after « (avoid if already exists).
+						$segment = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $segment );
+					}
+				}
+			}
+			$processed .= $segment;
+		}
+		$text = $processed;
+
+		if ( ! empty( $entities ) ) {
+			$text = str_replace( $placeholders, $entities, $text );
+		}
+	} else {
+		if ( $options['special_characters'] ) {
+			$text = strtr( $text, $static_replacements );
+		}
+		if ( $options['narrow_space'] ) {
 			// Plain text: process directly without splitting.
 			// Add non-breaking space before punctuation (avoid if already exists).
 			$text = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $text );
 			// Add non-breaking space after « (avoid if already exists).
 			$text = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $text );
-		}
-
-		// Restore HTML entities if they were protected.
-		if ( ! empty( $entities ) ) {
-			$text = str_replace( $placeholders, $entities, $text );
 		}
 	}
 

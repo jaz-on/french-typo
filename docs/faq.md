@@ -106,6 +106,10 @@ The plugin is compatible with all WordPress themes. It processes content via sta
 
 The plugin may conflict with other plugins that also modify typography. If you use multiple typography plugins, test them together to verify they don't overlap.
 
+### Does the plugin change text inside code or preformatted blocks?
+
+Non-breaking space rules and `(c)` / `(r)` replacements are **not** applied inside `<pre>`, `<code>`, `<script>`, or `<style>` (including `<code>` nested in `<pre>`). The Gutenberg **Verse** block (`wp-block-verse`) is still typography-processed like normal text, unless the same `<pre>` also has the Code block class (`wp-block-code`). Shortcodes are skipped only when an entire segment starts with `[`; mixed prose and shortcodes in one segment keep the plugin’s historic behaviour.
+
 ### Does the plugin work with page builders?
 
 Yes, the plugin works with most page builders (Elementor, Beaver Builder, Gutenberg, etc.) because it processes content via standard WordPress filters. However, some page builders may have their own content processing system. Test on your site to verify.

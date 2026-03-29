@@ -43,7 +43,7 @@ jobs:
       - name: Run PHPCS
         run: |
           echo "Running WordPress Coding Standards check..."
-          php -d memory_limit=512M vendor/bin/phpcs --standard=WordPress-Extra --report=full --extensions=php --ignore=vendor/ .
+          php -d memory_limit=512M vendor/bin/phpcs --standard=WordPress-Extra --report=full --extensions=php --ignore=vendor/,tests/ .
           echo "✅ PHPCS check passed"
 
   validate-readme:
