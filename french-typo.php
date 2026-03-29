@@ -156,6 +156,7 @@ function french_typo_hooks() {
 		add_action( 'admin_init', 'french_typo_admin_init' );
 		add_action( 'admin_enqueue_scripts', 'french_typo_admin_enqueue_scripts' );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'french_typo_action_links' );
+		add_filter( 'plugin_row_meta', 'french_typo_plugin_row_meta', 10, 2 );
 	}
 }
 add_action( 'init', 'french_typo_hooks' );
@@ -751,6 +752,65 @@ function french_typo_action_links( $links ) {
 	);
 	array_unshift( $links, $settings_link );
 	return $links;
+}
+
+/**
+ * Add GitHub, Support, Donate, documentation, and review links to the plugin meta row.
+ *
+ * @since 1.2.0
+ *
+ * @param array  $plugin_meta An array of plugin row meta links.
+ * @param string $plugin_file Path to the plugin file relative to the plugins directory.
+ * @return array Plugin row meta links, possibly with French Typo entries appended.
+ */
+function french_typo_plugin_row_meta( $plugin_meta, $plugin_file ) {
+	if ( plugin_basename( __FILE__ ) !== $plugin_file ) {
+		return $plugin_meta;
+	}
+
+	$review_url = 'https://wordpress.org/support/plugin/french-typo/reviews/?filter=5';
+	$star_span  = '<span class="dashicons dashicons-star-filled" style="font-size:16px;width:16px;height:16px" aria-hidden="true"></span>';
+	$stars_html = wp_kses(
+		str_repeat( $star_span, 5 ),
+		array(
+			'span' => array(
+				'class'       => true,
+				'style'       => true,
+				'aria-hidden' => true,
+			),
+		)
+	);
+
+	$new_links = array(
+		sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( 'https://github.com/jaz-on/french-typo' ),
+			esc_html__( 'GitHub', 'french-typo' )
+		),
+		sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( 'https://wordpress.org/support/plugin/french-typo/' ),
+			esc_html__( 'Support', 'french-typo' )
+		),
+		sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( 'https://ko-fi.com/jasonrouet' ),
+			esc_html__( 'Donate', 'french-typo' )
+		),
+		sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( 'https://github.com/jaz-on/french-typo/tree/main/docs' ),
+			esc_html__( 'Documentation', 'french-typo' )
+		),
+		sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer" style="color:#ffb900" aria-label="%2$s">%3$s</a>',
+			esc_url( $review_url ),
+			esc_attr__( 'Rate French Typo 5 stars on WordPress.org', 'french-typo' ),
+			$stars_html
+		),
+	);
+
+	return array_merge( $plugin_meta, $new_links );
 }
 
 /**

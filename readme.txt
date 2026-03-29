@@ -59,25 +59,25 @@ No. Narrow spaces and (c)/(r)/(tm) replacements are skipped inside script, style
 == Changelog ==
 
 = 1.2.0 =
+* Added: Plugins admin screen — row meta links for French Typo (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review).
+* Added: Regenerated `languages/french-typo.pot` and French (`fr_FR`) translations for those meta link labels.
 * Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
 * Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
-* Added: Documentation refresh (`README.md`), `docs/test-post-content.md`, configuration/FAQ/architecture updates (raw regions, RSS/REST notes, rare legacy `sanitized` key troubleshooting).
+* Added: Documentation — streamlined root `README.md`; `docs/test-post-content.md` for manual QA; `docs/configuration.md` (legacy `sanitized` option), `docs/faq.md` (where typography runs), `docs/architecture.md` (`textarea` in raw markup); admin copy aligned for Posts and pages, RSS/REST toggles, and raw HTML regions.
 * Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
 * Fixed: Cache key includes typography options to avoid stale output after a settings change.
 * Fixed: Options sanitization no longer adds a stray `sanitized` flag or reuses a static cache across validate calls.
 * Improved: Settings labels and help text (Posts and pages section, raw markup, RSS/REST combined toggles).
-* Credits: Julio Potier (juliobox) added to the Contributors header.
+* Credits: Julio Potier (`juliobox`) added to plugin contributors on WordPress.org; reflected in the Contributors header above.
 * Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
 * Compatibility: Tested up to WordPress 7.0
 
 = 1.1.0 =
-* Performance: Optimized filter processing with new generic wrapper function
-* Performance: Reduced function calls and improved hook handling efficiency
-* Performance: Enhanced static cache implementation for better memory usage
-* Code Quality: Consolidated multiple wrapper functions into single optimized function
-* Code Quality: Improved code organization and maintainability
-* Compatibility: Tested up to WordPress 6.9
-* Documentation: Updated technical architecture documentation
+* Added: Generic wrapper `french_typo_replace_wrapper()` for optimized filter processing; enhanced static cache and comprehensive hook mapping
+* Changed: Consolidated wrapper functions; improved code organization, maintainability, and hook handling
+* Performance: Fewer function calls; optimized static cache and hook processing (static mapping array)
+* Compatibility: Tested up to WordPress 6.9; PHP 7.4 through 8.3; backward compatible with existing functionality
+* Code quality: Architecture documentation updated for the new optimizations
 
 = 1.0.0 =
 * Initial release

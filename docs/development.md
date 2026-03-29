@@ -165,6 +165,17 @@ french-typo/
 └── CHANGELOG.md             # Version history
 ```
 
+### Regenerating strings (`POT` / `PO`)
+
+From the repository root (requires [WP-CLI](https://wp-cli.org/) and `wp-cli/i18n-command`):
+
+```bash
+wp i18n make-pot . languages/french-typo.pot --domain=french-typo --exclude=vendor,node_modules,.git,tests
+wp i18n update-po languages/french-typo.pot languages
+```
+
+Then fill new empty `msgstr` entries in `languages/french-typo-fr_FR.po` (and run `wp i18n make-mo languages` locally if you need compiled `*.mo` files; they remain gitignored).
+
 ## Release Process
 
 ### Creating a Release

@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0]
 
 ### Added
+- Plugins admin screen: row meta links (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review) for French Typo.
+- i18n: regenerated [`languages/french-typo.pot`](languages/french-typo.pot); French ([`languages/french-typo-fr_FR.po`](languages/french-typo-fr_FR.po)) strings for those meta link labels and the 5-star `aria-label`.
 - Stack-based raw-text boundaries for `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested safe). Gutenberg Verse (`wp-block-verse`) remains typographic unless `wp-block-code` is also present on the same `<pre>`.
 - Special characters: `(tm)` / `(TM)` → ™ (same option as © / ®).
 - Documentation: streamlined root [README.md](README.md) and added [docs/test-post-content.md](docs/test-post-content.md) with copy-paste Gutenberg scenarios for manual QA (not an automated test suite).
