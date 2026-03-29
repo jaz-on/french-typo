@@ -57,6 +57,14 @@ The plugin can automatically replace certain characters:
 - **Enabled** — Special characters are automatically replaced
 - **Disabled** — No replacement is performed
 
+### Ordinal Abbreviations
+
+When **Normalize French ordinal abbreviations** is enabled (default for sites that have never saved this checkbox), the plugin adjusts common French ordinal forms in running text—for example `1ère` → `1re`, `3ème` → `3e`, and hyphenated patterns like `n-ième` / `x-ième` (ASCII hyphen, non-breaking hyphen, or en dash) → `nième` / `xième`. English ordinals (`1st`, `2nd`) and non-standard `1ème` are not changed.
+
+The same raw-markup rules as narrow spaces and special characters apply: nothing runs inside `<script>`, `<style>`, nested `<pre>` / `<code>`, or `<textarea>` (stack-aware). Gutenberg Verse behaves like other prose unless it is also a Code block.
+
+Turn this off if you want displayed text to keep spellings such as `3ème`.
+
 ### Content Areas
 
 The plugin can process different areas of your WordPress site. You can enable or disable each area individually.

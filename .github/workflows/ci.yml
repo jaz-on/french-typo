@@ -26,7 +26,10 @@ jobs:
           echo "✅ All PHP files are valid"
 
       - name: Run french_typo_replace tests
-        run: php tests/french-typo-replace-test.php
+        run: |
+          php tests/french-typo-replace-test.php
+          php tests/french-typo-replace-ordinal-off-test.php
+          php tests/french-typo-replace-ordinal-only-test.php
 
   wpcs:
     name: WordPress Coding Standards

@@ -54,5 +54,34 @@ if ( $out_ta !== '<textarea>q ! (c)</textarea>' ) {
 	french_typo_test_fail( 'textarea: inner content must not be typographed.' );
 }
 
+// Ordinal abbreviations (issue #3): plain text.
+$plain_ord = '1ère 3ème 22ème n-ième x–ième 1ème 1st 2nd';
+$out_ord   = french_typo_replace( $plain_ord );
+$exp_ord   = '1re 3e 22e nième xième 1ème 1st 2nd';
+if ( $out_ord !== $exp_ord ) {
+	french_typo_test_fail( 'Ordinal plain: expected ' . $exp_ord . ' got: ' . $out_ord );
+}
+
+// Ordinal: HTML inner text only.
+$html_ord = '<p>La 3ème fois</p>';
+$out_pord = french_typo_replace( $html_ord );
+if ( $out_pord !== '<p>La 3e fois</p>' ) {
+	french_typo_test_fail( 'Ordinal HTML: expected <p>La 3e fois</p> got: ' . $out_pord );
+}
+
+// Ordinal: unchanged inside code.
+$html_ocode = '<code>3ème</code>';
+$out_ocode  = french_typo_replace( $html_ocode );
+if ( $out_ocode !== '<code>3ème</code>' ) {
+	french_typo_test_fail( 'Ordinal code: inner 3ème must stay unchanged.' );
+}
+
+// Ordinal + SVG: prose still normalized after SVG block.
+$html_svg_ord = '<svg><style>.x{a:b;}</style></svg><p>2ème</p>';
+$out_svg_ord  = french_typo_replace( $html_svg_ord );
+if ( false === strpos( $out_svg_ord, '<p>2e</p>' ) ) {
+	french_typo_test_fail( 'Ordinal SVG: expected 2ème → 2e in <p> after SVG.' );
+}
+
 fwrite( STDERR, "french_typo_replace() tests OK\n" );
 exit( 0 );

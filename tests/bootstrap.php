@@ -35,10 +35,20 @@ if ( ! function_exists( 'get_option' ) ) {
 	 */
 	function get_option( $option, $default = false ) { // phpcs:ignore
 		if ( 'french_typo_options' === $option ) {
-			return array(
-				'narrow_space'       => 1,
-				'special_characters' => 1,
+			$opts = array(
+				'narrow_space'          => 1,
+				'special_characters'    => 1,
+				'ordinal_abbreviations' => true,
 			);
+			if ( defined( 'FRENCH_TYPO_TEST_ORDINAL_ABBREV_OFF' ) && FRENCH_TYPO_TEST_ORDINAL_ABBREV_OFF ) {
+				$opts['ordinal_abbreviations'] = false;
+			}
+			if ( defined( 'FRENCH_TYPO_TEST_ORDINAL_ONLY' ) && FRENCH_TYPO_TEST_ORDINAL_ONLY ) {
+				$opts['narrow_space']          = 0;
+				$opts['special_characters']    = 0;
+				$opts['ordinal_abbreviations'] = true;
+			}
+			return $opts;
 		}
 		return $default;
 	}

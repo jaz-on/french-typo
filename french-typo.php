@@ -2,14 +2,14 @@
 /**
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
- * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
+ * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « »), optional French ordinal abbreviations (e.g. 1ère → 1re, 3ème → 3e), and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
  * Version: 1.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Tested up to: 7.0
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
- * Contributors: jaz_on, audrasjb, juliobox
+ * Contributors: jaz_on, audrasjb, juliobox, beryldlg
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: french-typo
@@ -195,6 +195,7 @@ function french_typo_get_options() {
 			'apply_to_rest_api'      => true,
 			'apply_to_user_profiles' => true,
 			'apply_to_breadcrumbs'   => true,
+			'ordinal_abbreviations'  => true,
 		);
 
 		// Merge raw options with defaults using wp_parse_args().
@@ -573,10 +574,66 @@ function french_typo_breadcrumbs( $items ) {
 }
 
 /**
+ * Normalize French ordinal abbreviations in a plain-text segment (1ère → 1re, 3ème → 3e, n-ième → nième).
+ *
+ * English forms (1st, 2nd) and non-standard 1ème are left unchanged. Uses UTF-8-safe patterns.
+ *
+ * @since 1.2.0
+ *
+ * @param string $segment Text segment (no HTML tags).
+ * @return string Segment with ordinal abbreviations normalized.
+ */
+function french_typo_apply_ordinal_abbreviations( $segment ) {
+	if ( '' === $segment || mb_strlen( $segment ) < 3 ) {
+		return $segment;
+	}
+
+	// Indefinite ordinals: n-ième / x-ième (hyphen, non-breaking hyphen, en dash).
+	$segment = preg_replace_callback(
+		'#(?<![\p{L}\p{N}])([nNxX])([\-\x{2011}\x{2013}])(?i)ième(?![\p{L}\p{N}])#u',
+		static function ( $m ) {
+			return $m[1] . 'ième';
+		},
+		$segment
+	);
+
+	// Feminine first: 1ère → 1re (not 11ère, 21ère, etc.).
+	$segment = preg_replace_callback(
+		'#(?<![0-9])1(?![0-9])((?i)ère)#u',
+		static function ( $m ) {
+			$s       = $m[1];
+			$first   = mb_substr( $s, 0, 1, 'UTF-8' );
+			$last    = mb_substr( $s, 2, 1, 'UTF-8' );
+			$r_upper = ( mb_strtoupper( $first, 'UTF-8' ) === $first && preg_match( '/\p{L}/u', $first ) );
+			$r_char  = $r_upper ? 'R' : 'r';
+			$e_char  = ( mb_strtoupper( $last, 'UTF-8' ) === $last && preg_match( '/\p{L}/u', $last ) ) ? 'E' : 'e';
+			return '1' . $r_char . $e_char;
+		},
+		$segment
+	);
+
+	// Abbreviated ordinals ≥ 2: Nème → Ne for N in 2–999 (single digit 2–9 or 10–999).
+	$segment = preg_replace_callback(
+		'#(?<![0-9])((?:[2-9]|[1-9][0-9]{1,2}))(?i)(ème)(?![0-9])#u',
+		static function ( $m ) {
+			$num  = $m[1];
+			$suf  = $m[2];
+			$last = mb_substr( $suf, -1, 1, 'UTF-8' );
+			$e_ch = ( mb_strtoupper( $last, 'UTF-8' ) === $last && preg_match( '/\p{L}/u', $last ) ) ? 'E' : 'e';
+			return $num . $e_ch;
+		},
+		$segment
+	);
+
+	return $segment;
+}
+
+/**
  * Apply French typography rules to text content.
  *
  * Processes text to add non-breaking spaces before/after punctuation and replaces
- * special character sequences. Skips HTML tag segments, shortcode segments (leading `[`),
+ * special character sequences. Optionally normalizes French ordinal abbreviations (1ère → 1re, etc.).
+ * Skips HTML tag segments, shortcode segments (leading `[`),
  * and raw text inside script, style, pre, code, and textarea (stack-aware, including nesting).
  *
  * @since 1.0.0
@@ -602,16 +659,17 @@ function french_typo_replace( $text ) {
 	// Get processed plugin options (already cached and ready to use).
 	$options = french_typo_get_options();
 
-	// If both features are disabled, return text unchanged.
-	if ( ! $options['narrow_space'] && ! $options['special_characters'] ) {
+	$has_typo = $options['narrow_space'] || $options['special_characters'] || ! empty( $options['ordinal_abbreviations'] );
+	if ( ! $has_typo ) {
 		return $text;
 	}
 
 	$narrow_key  = $options['narrow_space'] ? (string) crc32( (string) $options['narrow_space'] ) : '0';
 	$special_key = $options['special_characters'] ? '1' : '0';
+	$ordinal_key = ! empty( $options['ordinal_abbreviations'] ) ? '1' : '0';
 
 	if ( $use_cache ) {
-		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key;
+		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key . '_' . $ordinal_key;
 
 		if ( isset( $cache[ $cache_key ] ) ) {
 			return $cache[ $cache_key ];
@@ -658,6 +716,9 @@ function french_typo_replace( $text ) {
 					if ( $options['special_characters'] ) {
 						$segment = strtr( $segment, $static_replacements );
 					}
+					if ( ! empty( $options['ordinal_abbreviations'] ) ) {
+						$segment = french_typo_apply_ordinal_abbreviations( $segment );
+					}
 					if ( $options['narrow_space'] ) {
 						// Add non-breaking space before punctuation (avoid if already exists).
 						$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
@@ -676,6 +737,9 @@ function french_typo_replace( $text ) {
 	} else {
 		if ( $options['special_characters'] ) {
 			$text = strtr( $text, $static_replacements );
+		}
+		if ( ! empty( $options['ordinal_abbreviations'] ) ) {
+			$text = french_typo_apply_ordinal_abbreviations( $text );
 		}
 		if ( $options['narrow_space'] ) {
 			// Plain text: process directly without splitting.
@@ -850,6 +914,20 @@ function french_typo_admin_init() {
 	);
 
 	add_settings_section(
+		'ordinal_abbreviations_section',
+		__( 'Ordinal abbreviations', 'french-typo' ),
+		'french_typo_ordinal_abbreviations_text',
+		'admin_options'
+	);
+	add_settings_field(
+		'ordinal_abbreviations_field',
+		__( 'Automatic replacement', 'french-typo' ),
+		'french_typo_ordinal_abbreviations',
+		'admin_options',
+		'ordinal_abbreviations_section'
+	);
+
+	add_settings_section(
 		'content_types_section',
 		__( 'Posts and pages', 'french-typo' ),
 		'french_typo_content_types_text',
@@ -1020,6 +1098,68 @@ function french_typo_special_characters() {
 }
 
 /**
+ * Display description text for the ordinal abbreviations section.
+ *
+ * @since 1.2.0
+ */
+function french_typo_ordinal_abbreviations_text() {
+	?>
+	<p>
+		<?php
+		echo wp_kses_post(
+			sprintf(
+				/* translators: %1$s–%7$s: code examples (ordinal forms). */
+				__( 'Normalizes common French ordinal abbreviations in running text (for example %1$s becomes %2$s, %3$s becomes %4$s, %5$s becomes %6$s). English forms such as 1st and 2nd are left as-is; non-standard %7$s is unchanged.', 'french-typo' ),
+				'<code>1ère</code>',
+				'<code>1re</code>',
+				'<code>3ème</code>',
+				'<code>3e</code>',
+				'<code>n-ième</code>',
+				'<code>nième</code>',
+				'<code>1ème</code>'
+			)
+		);
+		?>
+	</p>
+	<p>
+		<?php
+		echo wp_kses_post(
+			sprintf(
+			/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
+				__( 'These rules use the same raw-markup boundaries as narrow spaces and special characters: they do not run inside &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, or &lt;%5$s&gt;.', 'french-typo' ),
+				'script',
+				'style',
+				'pre',
+				'code',
+				'textarea'
+			)
+		);
+		?>
+	</p>
+	<p class="description">
+		<?php esc_html_e( 'Enabled by default when the option has never been saved. After upgrading, turn this off here if you prefer to keep forms like 3ème in displayed text.', 'french-typo' ); ?>
+	</p>
+	<?php
+}
+
+/**
+ * Render the ordinal abbreviations settings field.
+ *
+ * @since 1.2.0
+ */
+function french_typo_ordinal_abbreviations() {
+	$options = french_typo_get_options();
+	?>
+	<div class="french-typo-checkbox-group">
+		<label>
+			<input type="checkbox" name="french_typo_options[ordinal_abbreviations]" value="1" <?php checked( ! empty( $options['ordinal_abbreviations'] ) ); ?> />
+			<?php esc_html_e( 'Normalize French ordinal abbreviations', 'french-typo' ); ?>
+		</label>
+	</div>
+	<?php
+}
+
+/**
  * Validate and sanitize plugin options before saving.
  *
  * @since 1.0.0
@@ -1032,6 +1172,7 @@ function french_typo_options_validate( $input ) {
 	$defaults = array(
 		'narrow_space'           => false,
 		'special_characters'     => false,
+		'ordinal_abbreviations'  => false,
 		'apply_to_titles'        => false,
 		'apply_to_content'       => false,
 		'apply_to_excerpts'      => false,

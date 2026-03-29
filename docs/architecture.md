@@ -20,9 +20,9 @@ The French Typo plugin follows a **monolithic** architecture: almost all runtime
 ### Code organization (by function)
 
 1. **Bootstrap** — `french_typo_load_textdomain`, `french_typo_hooks` (attached to `init`).
-2. **Options** — `french_typo_get_options()` merges saved values with defaults via `wp_parse_args()` and normalizes the non-breaking space setting to an HTML entity or `false`. A static variable avoids recomputing that merge on every call in the same request.
+2. **Options** — `french_typo_get_options()` merges saved values with defaults via `wp_parse_args()` and normalizes the non-breaking space setting to an HTML entity or `false`. Boolean options include special characters, optional ordinal abbreviations (`ordinal_abbreviations`), and the various `apply_to_*` gates. A static variable avoids recomputing that merge on every call in the same request.
 3. **Filtering** — `french_typo_replace_wrapper()` maps `current_filter()` to an `apply_to_*` option and calls `french_typo_replace()` only when enabled. RSS, REST, breadcrumbs, user meta, and custom fields use small dedicated functions with explicit checks.
-4. **Core typography** — `french_typo_replace()` applies special-character replacements and/or narrow-space rules, with optional in-memory caching for longer strings; cache keys include the active narrow-space mode and special-character toggle so output cannot go stale after a settings change.
+4. **Core typography** — `french_typo_replace()` applies special-character replacements, optional French ordinal abbreviations (`french_typo_apply_ordinal_abbreviations()` in prose segments only), and/or narrow-space rules, with optional in-memory caching for longer strings; cache keys include the active narrow-space mode, special-character toggle, and ordinal setting so output cannot go stale after a settings change.
 5. **Admin** — Settings API registration, validation, and `french_typo_admin_options()` output.
 
 ## Text processing flow
@@ -32,7 +32,7 @@ The French Typo plugin follows a **monolithic** architecture: almost all runtime
 This is the core function. In order:
 
 1. **Guards** — Ignore non-strings and very short strings.
-2. **Options** — Read processed options (see caching below). If both narrow spaces and special-character replacement are off, return unchanged.
+2. **Options** — Read processed options (see caching below). If narrow spaces, special-character replacement, and ordinal abbreviations are all off, return unchanged.
 3. **Caching** — For longer texts, a small static request-level cache may short-circuit repeated work; keys incorporate typography-related settings.
 4. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
 5. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
