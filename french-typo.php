@@ -514,9 +514,9 @@ function french_typo_replace( $text ) {
 
 		// Use WordPress HTML splitting API. Only split if markup is detected for performance.
 		if ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) ) {
-			$segments               = wp_html_split( $text );
-			$processed              = '';
-			$in_style_or_script     = false;
+			$segments           = wp_html_split( $text );
+			$processed          = '';
+			$in_style_or_script = false;
 
 			foreach ( $segments as $segment ) {
 				// Track raw text inside <style>/<script> (e.g. SVG inline CSS) to skip typography there.
