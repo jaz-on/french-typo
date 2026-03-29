@@ -2,7 +2,7 @@
 /**
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
- * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®).
+ * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
  * Version: 1.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
@@ -26,6 +26,20 @@
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
 define( 'FRENCH_TYPO_VERSION', '1.2.0' );
+
+/**
+ * Load plugin text domain for translations.
+ *
+ * @since 1.2.0
+ */
+function french_typo_load_textdomain() {
+	load_plugin_textdomain(
+		'french-typo',
+		false,
+		dirname( plugin_basename( __FILE__ ) ) . '/languages'
+	);
+}
+add_action( 'init', 'french_typo_load_textdomain', 0 );
 
 /**
  * Initialize plugin hooks.
@@ -91,7 +105,7 @@ function french_typo_hooks() {
 
 	// Apply to user profiles.
 	add_filter( 'get_the_author_description', 'french_typo_replace_wrapper' );
-	add_filter( 'get_user_meta', 'french_typo_user_meta', 10, 2 );
+	add_filter( 'get_user_metadata', 'french_typo_user_meta', 10, 5 );
 
 	// Apply to breadcrumbs (Yoast, Rank Math, SEOPress).
 	if ( defined( 'WPSEO_VERSION' ) ) {
@@ -233,7 +247,7 @@ function french_typo_markup_pre_is_verse_not_code( $attr_region ) {
 }
 
 /**
- * Update stack of raw-text elements (script, style, pre, code) from one wp_html_split() tag segment.
+ * Update stack of raw-text elements (script, style, pre, code, textarea) from one wp_html_split() tag segment.
  *
  * Malformed HTML: closing tag pops only when it matches the stack top (strict LIFO).
  *
@@ -247,7 +261,7 @@ function french_typo_markup_stack_update( array &$stack, $segment ) {
 	static $void_flip = null;
 
 	if ( null === $raw_flip ) {
-		$raw_flip  = array_flip( array( 'script', 'style', 'pre', 'code' ) );
+		$raw_flip  = array_flip( array( 'script', 'style', 'pre', 'code', 'textarea' ) );
 		$void_flip = array_flip(
 			array(
 				'area',
@@ -391,16 +405,6 @@ function french_typo_replace_custom_field( $value ) {
  * @param string $text The RSS title text to process.
  * @return string The processed RSS title text.
  */
-/**
- * Apply French typography rules to RSS feed titles.
- *
- * Wrapper function that checks if RSS processing is enabled before applying rules.
- *
- * @since 1.0.0
- *
- * @param string $text The RSS title text to process.
- * @return string The processed RSS title text.
- */
 function french_typo_replace_rss_title( $text ) {
 	$options = french_typo_get_options();
 	if ( $options['apply_to_rss'] && $options['apply_to_titles'] ) {
@@ -503,33 +507,43 @@ function french_typo_rest_api_post( $response ) {
 
 
 /**
- * Apply French typography rules to user metadata.
+ * Apply French typography rules to user metadata (biography).
  *
- * Processes user description and other text metadata.
+ * Hooks `get_user_metadata`, fetches the raw value without recursion, then returns
+ * the processed value when the biography (`description`) field is read.
  *
  * @since 1.0.0
  *
- * @param mixed  $value     The metadata value.
- * @param string $meta_key  The meta key.
- * @return mixed The processed metadata value.
+ * @param mixed  $pre_value  Value to return if short-circuiting, or null to continue.
+ * @param int    $object_id  User ID.
+ * @param string $meta_key   Meta key.
+ * @param bool   $single     Whether to return a single value.
+ * @param string $meta_type  Object type (must be `user`).
+ * @return mixed Filtered meta, or $pre_value to let WordPress load meta normally.
  */
-function french_typo_user_meta( $value, $meta_key ) {
-	// Parameters $_user_id and $_single are required by filter hooks but not used.
-	// Only process description field.
-	if ( 'description' !== $meta_key ) {
-		return $value;
+function french_typo_user_meta( $pre_value, $object_id, $meta_key, $single, $meta_type ) {
+	if ( 'user' !== $meta_type || 'description' !== $meta_key ) {
+		return $pre_value;
 	}
 
 	$options = french_typo_get_options();
-	if ( $options['apply_to_user_profiles'] ) {
-		if ( is_string( $value ) ) {
-			return french_typo_replace( $value );
-		} elseif ( is_array( $value ) ) {
-			return array_map( 'french_typo_replace', $value );
-		}
+	if ( ! $options['apply_to_user_profiles'] ) {
+		return $pre_value;
 	}
 
-	return $value;
+	remove_filter( 'get_user_metadata', 'french_typo_user_meta', 10 );
+	$value = get_user_meta( $object_id, $meta_key, $single );
+	add_filter( 'get_user_metadata', 'french_typo_user_meta', 10, 5 );
+
+	if ( is_string( $value ) ) {
+		return french_typo_replace( $value );
+	}
+
+	if ( is_array( $value ) ) {
+		return array_map( 'french_typo_replace', $value );
+	}
+
+	return $pre_value;
 }
 
 /**
@@ -562,7 +576,7 @@ function french_typo_breadcrumbs( $items ) {
  *
  * Processes text to add non-breaking spaces before/after punctuation and replaces
  * special character sequences. Skips HTML tag segments, shortcode segments (leading `[`),
- * and raw text inside script, style, pre, and code (stack-aware, including nesting).
+ * and raw text inside script, style, pre, code, and textarea (stack-aware, including nesting).
  *
  * @since 1.0.0
  *
@@ -604,8 +618,10 @@ function french_typo_replace( $text ) {
 	}
 
 	static $static_replacements = array(
-		'(c)' => '&#169;',
-		'(r)' => '&#174;',
+		'(TM)' => '&#8482;',
+		'(c)'  => '&#169;',
+		'(r)'  => '&#174;',
+		'(tm)' => '&#8482;',
 	);
 
 	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
@@ -813,10 +829,10 @@ function french_typo_narrow_space_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-			/* translators: %1$s and %2$s are links to Wikipedia articles */
+			/* translators: %1$s and %2$s are URL attributes (escaped). %3$s is a list of punctuation characters. */
 				__( 'This plugin automatically handles <a href="%1$s" target="_blank" rel="noopener noreferrer">non-breaking spaces</a> or <a href="%2$s" target="_blank" rel="noopener noreferrer">thin non-breaking spaces</a> for the characters %3$s.', 'french-typo' ),
-				esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space', 'french-typo' ) ),
-				esc_url( __( 'https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space', 'french-typo' ) ),
+				esc_url( 'https://en.wikipedia.org/wiki/Non-breaking_space' ),
+				esc_url( 'https://en.wikipedia.org/wiki/Non-breaking_space#Narrow_non-breaking_space' ),
 				wp_sprintf_l( '%l', array( '<code>;</code>', '<code>:</code>', '<code>!</code>', '<code>?</code>', '<code>%</code>', '<code>«</code>', '<code>»</code>' ) )
 			)
 		);
@@ -877,12 +893,15 @@ function french_typo_special_characters_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-			/* translators: %1$s, %2$s, %3$s, and %4$s are character codes */
-				__( 'Replaces the characters %1$s and %2$s with %3$s and %4$s.', 'french-typo' ),
+			/* translators: %1$s–%7$s are character or entity codes shown in the settings UI */
+				__( 'Replaces %1$s with %2$s, %3$s with %4$s, and %5$s or %6$s with %7$s.', 'french-typo' ),
 				'<code>(c)</code>',
-				'<code>(r)</code>',
 				'<code>&#169;</code>',
-				'<code>&#174;</code>'
+				'<code>(r)</code>',
+				'<code>&#174;</code>',
+				'<code>(tm)</code>',
+				'<code>(TM)</code>',
+				'<code>&#8482;</code>'
 			)
 		);
 		?>
@@ -977,12 +996,14 @@ function french_typo_content_types_text() {
  */
 function french_typo_advanced_text() {
 	?>
+	<p><?php esc_html_e( 'Typography rules also apply to many other areas: widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs.', 'french-typo' ); ?></p>
+	<p><?php esc_html_e( 'Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast SEO, Rank Math, SEOPress) are processed automatically when those integrations are enabled.', 'french-typo' ); ?></p>
 	<p>
 		<?php
 		echo wp_kses_post(
 			sprintf(
-			/* translators: %s is a code example */
-				__( 'Apply typography rules to additional content areas like widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs. Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast, Rank Math, SEOPress) are also processed automatically. You can also use the filter %s in your code to process custom content.', 'french-typo' ),
+			/* translators: %s is a code example. */
+				__( 'You can process custom text in PHP with the filter %s.', 'french-typo' ),
 				'<code>apply_filters( \'french_typo_process_text\', $text )</code>'
 			)
 		);
@@ -1026,7 +1047,7 @@ function french_typo_advanced() {
 					</label>
 					<label>
 						<input type="checkbox" name="french_typo_options[apply_to_comments]" value="1" <?php checked( $options['apply_to_comments'], true ); ?> />
-						<?php esc_html_e( 'Comments (texts and author names)', 'french-typo' ); ?>
+						<?php esc_html_e( 'Comment text and author names', 'french-typo' ); ?>
 					</label>
 					<label>
 						<input type="checkbox" name="french_typo_options[apply_to_user_profiles]" value="1" <?php checked( $options['apply_to_user_profiles'], true ); ?> />

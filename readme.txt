@@ -13,9 +13,9 @@ Apply French typography rules to your WordPress content automatically.
 
 == Description ==
 
-French Typo automatically applies French typography rules to your content. The plugin adds non-breaking spaces before punctuation marks (`;`, `:`, `!`, `?`, `%`, `«`, `»`) and replaces `(c)` with `©` and `(r)` with `®`. You can choose between regular or thin non-breaking spaces.
+French Typo automatically applies French typography rules to your content. Choose regular or thin non-breaking spaces in Settings > French Typo and save to add spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`); until you do, punctuation spacing stays off. It replaces `(c)` with `©` and `(r)` with `®`.
 
-Rules apply to all your content: posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Each area can be enabled or disabled individually in settings.
+Rules apply to posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Most areas can be enabled or disabled in settings. SEO titles, meta descriptions, and Open Graph/Twitter strings from Yoast SEO, Rank Math, or SEOPress are not gated by the same toggles as post title and content; breadcrumbs use their own option.
 
 = Features =
 
@@ -46,7 +46,7 @@ Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#
 
 = Can I disable certain features? =
 
-Yes. You can disable non-breaking spaces or character replacements, and choose precisely which content areas should be processed.
+Yes. You can disable non-breaking spaces or character replacements, and choose which content areas to process (SEO plugin title/meta/social strings are separate from those checkboxes; see description).
 
 == Screenshots ==
 
@@ -55,9 +55,10 @@ Yes. You can disable non-breaking spaces or character replacements, and choose p
 == Changelog ==
 
 = 1.2.0 =
-* Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, and `<style>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
+* Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
+* Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
 * Added: Documentation refresh (`README.md`) and `docs/test-post-content.md` with copy-paste blocks for manual checks in the editor.
-* Fixed: No narrow spaces or `(c)` / `(r)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
+* Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
 * Fixed: Cache key includes typography options to avoid stale output after a settings change.
 * Credits: Julio Potier (juliobox) added to the Contributors header.
 * Removed: Obsolete root `TODO.md` (task tracking moved to other locations).

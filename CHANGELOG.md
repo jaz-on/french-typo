@@ -19,12 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0]
 
 ### Added
-- Stack-based raw-text boundaries for `<pre>`, `<code>`, `<script>`, and `<style>` (nested safe). Gutenberg Verse (`wp-block-verse`) remains typographic unless `wp-block-code` is also present on the same `<pre>`.
+- Stack-based raw-text boundaries for `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested safe). Gutenberg Verse (`wp-block-verse`) remains typographic unless `wp-block-code` is also present on the same `<pre>`.
+- Special characters: `(tm)` / `(TM)` → ™ (same option as © / ®).
 - Documentation: streamlined root [README.md](README.md) and added [docs/test-post-content.md](docs/test-post-content.md) with copy-paste Gutenberg scenarios for manual QA (not an automated test suite).
 - Credits: [Julio Potier](https://profiles.wordpress.org/juliobox/) (`juliobox`) added to plugin contributors on WordPress.org (`readme.txt`).
 
 ### Fixed
-- Skip narrow non-breaking spaces **and** `(c)` / `(r)` replacements inside `<pre>`, `<code>`, `<script>`, and `<style>` (including inline SVG/CSS such as Elementor icon markup), so `:` / `;` in embedded CSS/JSON/JS and literals in code blocks stay unchanged.
+- Skip narrow non-breaking spaces **and** `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (including inline SVG/CSS such as Elementor icon markup), so `:` / `;` in embedded CSS/JSON/JS and literals in code blocks stay unchanged; raw boundaries extended to `<textarea>`.
 - Static cache key in `french_typo_replace()` now factors in narrow-space choice and special-character toggle to avoid stale output after settings change.
 
 ### Removed

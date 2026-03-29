@@ -25,6 +25,9 @@ jobs:
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 -P4 php -l
           echo "✅ All PHP files are valid"
 
+      - name: Run french_typo_replace tests
+        run: php tests/french-typo-replace-test.php
+
   wpcs:
     name: WordPress Coding Standards
     runs-on: ubuntu-latest
@@ -222,4 +225,32 @@ jobs:
           fi
           
           echo "✅ readme.txt validation passed"
+
+  i18n-pot:
+    name: i18n POT up to date
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Verify POT matches source strings
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o wp.phar
+          chmod +x wp.phar
+          php wp.phar i18n make-pot . languages/french-typo.pot.ci --slug=french-typo --domain=french-typo --exclude=vendor,.git
+          strip_dates() { sed -e '/^"POT-Creation-Date:/d' -e '/^"PO-Revision-Date:/d' -e '/^"X-Generator:/d' "$1"; }
+          strip_dates languages/french-typo.pot > /tmp/pot-repo.txt
+          strip_dates languages/french-typo.pot.ci > /tmp/pot-gen.txt
+          if ! diff -q /tmp/pot-repo.txt /tmp/pot-gen.txt >/dev/null; then
+            echo "❌ languages/french-typo.pot is out of date."
+            diff -u /tmp/pot-repo.txt /tmp/pot-gen.txt | head -n 120 || true
+            echo "Regenerate with: wp i18n make-pot . languages/french-typo.pot --slug=french-typo --domain=french-typo --exclude=vendor,.git"
+            exit 1
+          fi
+          echo "✅ POT file matches plugin strings"
 
