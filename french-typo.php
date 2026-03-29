@@ -3,7 +3,7 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « ») and special character replacements ((c) → ©, (r) → ®).
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Tested up to: 6.9
@@ -25,7 +25,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-define( 'FRENCH_TYPO_VERSION', '1.1.0' );
+define( 'FRENCH_TYPO_VERSION', '1.2.0' );
 
 /**
  * Initialize plugin hooks.
@@ -514,12 +514,32 @@ function french_typo_replace( $text ) {
 
 		// Use WordPress HTML splitting API. Only split if markup is detected for performance.
 		if ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) ) {
-			$segments  = wp_html_split( $text );
-			$processed = '';
+			$segments               = wp_html_split( $text );
+			$processed              = '';
+			$in_style_or_script     = false;
 
 			foreach ( $segments as $segment ) {
+				// Track raw text inside <style>/<script> (e.g. SVG inline CSS) to skip typography there.
+				if ( ! empty( $segment ) && '<' === $segment[0] ) {
+					$tag_events = array();
+					if ( preg_match_all( '#<\s*(style|script)\b#i', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
+						foreach ( $m[0] as $hit ) {
+							$tag_events[ $hit[1] ] = 'open';
+						}
+					}
+					if ( preg_match_all( '#</\s*(style|script)\s*>#i', $segment, $m, PREG_OFFSET_CAPTURE ) ) {
+						foreach ( $m[0] as $hit ) {
+							$tag_events[ $hit[1] ] = 'close';
+						}
+					}
+					ksort( $tag_events, SORT_NUMERIC );
+					foreach ( $tag_events as $ev ) {
+						$in_style_or_script = ( 'open' === $ev );
+					}
+				}
+
 				// Only process text segments (skip HTML tags and shortcodes).
-				if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
+				if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] && ! $in_style_or_script ) {
 					// Add non-breaking space before punctuation (avoid if already exists).
 					$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
 					// Add non-breaking space after « (avoid if already exists).

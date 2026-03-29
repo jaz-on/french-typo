@@ -22,3 +22,7 @@ composer/
 .phpunit.result.cache
 .phpunit.cache/
 
+
+# Dossier local (notes, plans hors dépôt)
+_local/
+_todo/

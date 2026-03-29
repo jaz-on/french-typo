@@ -4,7 +4,7 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://ko-fi.com/jasonrouet
@@ -53,6 +53,10 @@ Yes. You can disable non-breaking spaces or character replacements, and choose p
 1. Plugin settings page
 
 == Changelog ==
+
+= 1.2.0 =
+* Fixed: Do not apply thin/regular non-breaking space rules inside `<style>` or `<script>` (fixes broken inline SVG/CSS, e.g. Elementor icons).
+* Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
 
 = 1.1.0 =
 * Performance: Optimized filter processing with new generic wrapper function

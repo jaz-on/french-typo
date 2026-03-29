@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - (Placeholder for future changes)
 
+## [1.2.0]
+
+### Fixed
+- Skip narrow non-breaking space rules inside `<style>` and `<script>` (including inline SVG/CSS such as Elementor icon markup), so `:` and `;` in embedded CSS/JSON/JS are left unchanged.
+
+### Removed
+- Root `TODO.md` file (outdated; task tracking lives elsewhere, e.g. `_todo/`).
+
 ## [1.1.0]
 
 ### Added
