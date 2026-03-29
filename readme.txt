@@ -2,7 +2,7 @@
 Contributors: jaz_on, audrasjb, juliobox
 Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.2.0
 License: GPLv2 or later
@@ -13,7 +13,7 @@ Apply French typography rules to your WordPress content automatically.
 
 == Description ==
 
-French Typo automatically applies French typography rules to your content. Choose regular or thin non-breaking spaces in Settings > French Typo and save to add spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`); until you do, punctuation spacing stays off. It replaces `(c)` with `©` and `(r)` with `®`.
+French Typo automatically applies French typography rules to your content. Choose regular or thin non-breaking spaces in Settings > French Typo and save to add spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`); until you do, punctuation spacing stays off. It replaces `(c)` with `©`, `(r)` with `®`, and `(tm)` / `(TM)` with `™`.
 
 Rules apply to posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Most areas can be enabled or disabled in settings. SEO titles, meta descriptions, and Open Graph/Twitter strings from Yoast SEO, Rank Math, or SEOPress are not gated by the same toggles as post title and content; breadcrumbs use their own option.
 
@@ -48,6 +48,10 @@ Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#
 
 Yes. You can disable non-breaking spaces or character replacements, and choose which content areas to process (SEO plugin title/meta/social strings are separate from those checkboxes; see description).
 
+= Does typography run inside code, scripts, or textareas? =
+
+No. Narrow spaces and (c)/(r)/(tm) replacements are skipped inside script, style, pre/code (nested), and textarea, and in embedded CSS (e.g. SVG). The Verse block stays typographic unless it is also a Code block. See the plugin documentation on GitHub for details.
+
 == Screenshots ==
 
 1. Plugin settings page
@@ -57,11 +61,14 @@ Yes. You can disable non-breaking spaces or character replacements, and choose w
 = 1.2.0 =
 * Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
 * Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
-* Added: Documentation refresh (`README.md`) and `docs/test-post-content.md` with copy-paste blocks for manual checks in the editor.
+* Added: Documentation refresh (`README.md`), `docs/test-post-content.md`, configuration/FAQ/architecture updates (raw regions, RSS/REST notes, rare legacy `sanitized` key troubleshooting).
 * Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
 * Fixed: Cache key includes typography options to avoid stale output after a settings change.
+* Fixed: Options sanitization no longer adds a stray `sanitized` flag or reuses a static cache across validate calls.
+* Improved: Settings labels and help text (Posts and pages section, raw markup, RSS/REST combined toggles).
 * Credits: Julio Potier (juliobox) added to the Contributors header.
 * Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
+* Compatibility: Tested up to WordPress 7.0
 
 = 1.1.0 =
 * Performance: Optimized filter processing with new generic wrapper function

@@ -153,7 +153,8 @@ french-typo/
 │       └── create-release-zip.yml  # Release creation
 ├── docs/                    # Documentation (this folder)
 ├── languages/               # Translation files
-│   └── french-typo.pot     # Translation template
+│   ├── french-typo.pot      # Translation template (commit)
+│   └── french-typo-fr_FR.po # French strings (commit); compile locally with `wp i18n make-mo languages` (produces `*.mo`, gitignored)
 ├── vendor/                  # Composer dependencies (gitignored)
 ├── admin.css                # Administration interface styles
 ├── composer.json            # Composer dependencies

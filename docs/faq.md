@@ -106,9 +106,13 @@ The plugin is compatible with all WordPress themes. It processes content via sta
 
 The plugin may conflict with other plugins that also modify typography. If you use multiple typography plugins, test them together to verify they don't overlap.
 
+### Where does typography not run?
+
+See [Configuration — Raw HTML / code regions](configuration.md#raw-html--code-regions): typography (narrow spaces and `(c)` / `(r)` / `(tm)` replacements) is skipped inside `<script>`, `<style>`, nested `<pre>` / `<code>`, and `<textarea>`. Gutenberg **Verse** (`wp-block-verse` on `<pre>`) is still processed unless `wp-block-code` is on the same `<pre>`. Details also in [Technical Architecture](architecture.md).
+
 ### Does the plugin change text inside code or preformatted blocks?
 
-Non-breaking space rules and `(c)` / `(r)` replacements are **not** applied inside `<pre>`, `<code>`, `<script>`, or `<style>` (including `<code>` nested in `<pre>`). The Gutenberg **Verse** block (`wp-block-verse`) is still typography-processed like normal text, unless the same `<pre>` also has the Code block class (`wp-block-code`). Shortcodes are skipped only when an entire segment starts with `[`; mixed prose and shortcodes in one segment keep the plugin’s historic behaviour.
+Non-breaking space rules and `(c)` / `(r)` / `(tm)` replacements are **not** applied inside `<pre>`, `<code>`, `<script>`, `<style>`, or `<textarea>` (including `<code>` nested in `<pre>`). The Gutenberg **Verse** block (`wp-block-verse`) is still typography-processed like normal text, unless the same `<pre>` also has the Code block class (`wp-block-code`). Shortcodes are skipped only when an entire segment starts with `[`; mixed prose and shortcodes in one segment keep the plugin’s historic behaviour.
 
 ### Does the plugin work with page builders?
 

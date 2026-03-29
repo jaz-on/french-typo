@@ -6,7 +6,7 @@
  * Version: 1.2.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
- * Tested up to: 6.9
+ * Tested up to: 7.0
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
  * Contributors: jaz_on, audrasjb, juliobox
@@ -791,7 +791,7 @@ function french_typo_admin_init() {
 
 	add_settings_section(
 		'content_types_section',
-		__( 'Content types', 'french-typo' ),
+		__( 'Posts and pages', 'french-typo' ),
 		'french_typo_content_types_text',
 		'admin_options'
 	);
@@ -838,6 +838,21 @@ function french_typo_narrow_space_text() {
 		);
 		?>
 	</p>
+	<p>
+		<?php
+		echo wp_kses_post(
+			sprintf(
+				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
+				__( 'Narrow spaces are <strong>not</strong> inserted inside raw markup: <%1$s>, <%2$s>, nested <%3$s>/<%4$s>, and <%5$s>. Gutenberg Verse (<code>pre</code> with <code>wp-block-verse</code>) is still typographed unless <code>wp-block-code</code> is on the same <code>pre</code>.', 'french-typo' ),
+				'script',
+				'style',
+				'pre',
+				'code',
+				'textarea'
+			)
+		);
+		?>
+	</p>
 	<?php
 }
 
@@ -877,6 +892,9 @@ function french_typo_narrow_space() {
 		</label>
 	</div>
 	<p class="description">
+		<?php esc_html_e( 'Non-breaking spaces stay off until you pick regular or thin above and save your settings at least once (or they remain off if you keep disabling this feature).', 'french-typo' ); ?>
+	</p>
+	<p class="description">
 		<?php esc_html_e( 'Note: The thin non-breaking space may not display correctly. This depends on the font, browser version, and operating system used.', 'french-typo' ); ?>
 	</p>
 	<?php
@@ -902,6 +920,21 @@ function french_typo_special_characters_text() {
 				'<code>(tm)</code>',
 				'<code>(TM)</code>',
 				'<code>&#8482;</code>'
+			)
+		);
+		?>
+	</p>
+	<p>
+		<?php
+		echo wp_kses_post(
+			sprintf(
+				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
+				__( 'These replacements use the same raw-markup rules as narrow spaces: they do not run inside <%1$s>, <%2$s>, nested <%3$s>/<%4$s>, or <%5$s>.', 'french-typo' ),
+				'script',
+				'style',
+				'pre',
+				'code',
+				'textarea'
 			)
 		);
 		?>
@@ -935,10 +968,6 @@ function french_typo_special_characters() {
  * @return array Sanitized options array.
  */
 function french_typo_options_validate( $input ) {
-	static $validated;
-	if ( isset( $validated['sanitized'] ) ) {
-		return $validated;
-	}
 	// Default values for all options.
 	$defaults = array(
 		'narrow_space'           => false,
@@ -973,8 +1002,6 @@ function french_typo_options_validate( $input ) {
 	// Validate and restore narrow_space as integer (must be 0, 1, or 2).
 	$validated['narrow_space'] = min( 2, max( 0, absint( $narrow_space_value ) ) );
 
-	$validated['sanitized'] = true;
-
 	return $validated;
 }
 
@@ -985,7 +1012,7 @@ function french_typo_options_validate( $input ) {
  */
 function french_typo_content_types_text() {
 	?>
-	<p><?php esc_html_e( 'Choose which content types should have French typography rules applied.', 'french-typo' ); ?></p>
+	<p><?php esc_html_e( 'Turn typography on or off for post and page titles and main content. Excerpts and all other areas are controlled under advanced options below.', 'french-typo' ); ?></p>
 	<?php
 }
 
@@ -997,6 +1024,7 @@ function french_typo_content_types_text() {
 function french_typo_advanced_text() {
 	?>
 	<p><?php esc_html_e( 'Typography rules also apply to many other areas: widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs.', 'french-typo' ); ?></p>
+	<p><?php esc_html_e( 'RSS feeds only run typography when RSS is enabled plus the matching area: titles (RSS + titles), full content (RSS + post content), excerpts (RSS + excerpts), comments (RSS + comments). REST API responses require REST API enabled plus titles/content/excerpts as appropriate for each field.', 'french-typo' ); ?></p>
 	<p><?php esc_html_e( 'Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast SEO, Rank Math, SEOPress) are processed automatically when those integrations are enabled.', 'french-typo' ); ?></p>
 	<p>
 		<?php
@@ -1117,7 +1145,7 @@ function french_typo_content_types() {
 		</label>
 	</div>
 	<p class="description">
-		<?php esc_html_e( 'By default, both titles and content are processed.', 'french-typo' ); ?>
+		<?php esc_html_e( 'By default, both titles and content are processed. Use advanced options for excerpts and other areas.', 'french-typo' ); ?>
 	</p>
 	<?php
 }
@@ -1171,7 +1199,7 @@ function french_typo_admin_options() {
 
 				<!-- Application Zones -->
 				<fieldset class="french-typo-fieldset-group">
-					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Content types', 'french-typo' ); ?></legend>
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Posts and pages', 'french-typo' ); ?></legend>
 					<?php french_typo_content_types_text(); ?>
 					<?php french_typo_content_types(); ?>
 				</fieldset>

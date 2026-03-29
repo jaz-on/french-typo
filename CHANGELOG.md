@@ -22,14 +22,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stack-based raw-text boundaries for `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested safe). Gutenberg Verse (`wp-block-verse`) remains typographic unless `wp-block-code` is also present on the same `<pre>`.
 - Special characters: `(tm)` / `(TM)` → ™ (same option as © / ®).
 - Documentation: streamlined root [README.md](README.md) and added [docs/test-post-content.md](docs/test-post-content.md) with copy-paste Gutenberg scenarios for manual QA (not an automated test suite).
+- Documentation: [configuration.md](docs/configuration.md) troubleshooting for rare legacy `sanitized` option key; [FAQ](docs/faq.md) entry for where typography does not run; [architecture.md](docs/architecture.md) lists `textarea` in raw markup; admin-aligned copy in configuration for Posts and pages, RSS/REST toggles, and raw HTML regions.
 - Credits: [Julio Potier](https://profiles.wordpress.org/juliobox/) (`juliobox`) added to plugin contributors on WordPress.org (`readme.txt`).
+
+### Changed
+- Settings screen: **Posts and pages** section label, help text for raw markup boundaries, NBSP until first save, special-character scope in raw regions, and RSS/REST combined-toggle guidance.
 
 ### Fixed
 - Skip narrow non-breaking spaces **and** `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (including inline SVG/CSS such as Elementor icon markup), so `:` / `;` in embedded CSS/JSON/JS and literals in code blocks stay unchanged; raw boundaries extended to `<textarea>`.
 - Static cache key in `french_typo_replace()` now factors in narrow-space choice and special-character toggle to avoid stale output after settings change.
+- Settings sanitization no longer persists a stray `sanitized` key or short-circuits validation via a static cache.
 
 ### Removed
 - Root `TODO.md` file (outdated; task tracking lives elsewhere, e.g. `_todo/`).
+
+### Compatibility
+- Tested up to WordPress 7.0
 
 ## [1.1.0]
 

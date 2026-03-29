@@ -4,7 +4,7 @@
 
 Extension WordPress qui applique automatiquement les règles typographiques françaises aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
 
-Le plugin peut ajouter des espaces insécables avant la ponctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`) : choisissez un mode normal ou fin dans `Réglages > French Typo` et enregistrez ; sans ce choix, la ponctuation n'est pas espacée. Il remplace aussi `(c)` par `©` et `(r)` par `®`.
+Le plugin peut ajouter des espaces insécables avant la ponctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`) : choisissez un mode normal ou fin dans `Réglages > French Typo` et enregistrez ; sans ce choix, la ponctuation n'est pas espacée. Il remplace aussi `(c)` par `©` et `(r)` par `®`. La typo ne s'applique pas au code brut (`script`, `style`, `pre`/`code`, `textarea`) ni au CSS embarqué ; le bloc Vers reste traité sauf s'il est aussi bloc Code.
 
 Les règles couvrent articles, pages, extraits, taxonomies, archives, commentaires, widgets, menus, RSS, API REST, champs personnalisés, fil d'Ariane et SEO. La plupart des zones s'activent ou se désactivent au cas par cas dans les réglages. Les titres et méta SEO / balises sociales produits par Yoast SEO, Rank Math ou SEOPress ne suivent pas les mêmes cases que le titre ou le contenu d'article ; le fil d'Ariane SEO a une option dédiée.
 
@@ -55,7 +55,7 @@ Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https:
 
 WordPress plugin that automatically applies French typography rules to your content.
 
-The plugin can add non-breaking spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`): pick regular or thin in `Settings > French Typo` and save; until you do, punctuation is not spaced. It also replaces `(c)` with `©` and `(r)` with `®`.
+The plugin can add non-breaking spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`): pick regular or thin in `Settings > French Typo` and save; until you do, punctuation is not spaced. It also replaces `(c)` with `©` and `(r)` with `®`. Typography does not run inside raw `script`, `style`, `pre`/`code`, or `textarea` (or embedded CSS); the Verse block stays typographic unless it is also a Code block.
 
 Rules cover posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS, REST API, custom fields, breadcrumbs, and SEO. Most areas can be toggled in settings. SEO titles, meta descriptions, and social tags from Yoast SEO, Rank Math, or SEOPress are not controlled by the same switches as visible post title and content; SEO breadcrumbs have their own setting.
 

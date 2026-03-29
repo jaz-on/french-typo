@@ -35,6 +35,10 @@ Non-breaking spaces are added before:
 And after:
 - `«` (opening French quotation mark)
 
+#### Raw HTML / code regions
+
+Narrow **non-breaking spaces** are **not** inserted inside raw markup: `<script>`, `<style>`, nested `<pre>` / `<code>`, and `<textarea>` (stack-safe for nesting). The same applies to **special character** replacements (`(c)`, `(r)`, `(tm)`). Gutenberg **Verse** (`<pre class="… wp-block-verse …">`) is still typographed **unless** `wp-block-code` is also on the same `<pre>`.
+
 #### Recommendation
 
 - **Regular non-breaking spaces**: Recommended for most sites, better compatibility
@@ -46,6 +50,7 @@ The plugin can automatically replace certain characters:
 
 - `(c)` → `©` (copyright)
 - `(r)` → `®` (registered trademark)
+- `(tm)` / `(TM)` → `™` (trademark)
 
 #### Available Options
 
@@ -56,11 +61,15 @@ The plugin can automatically replace certain characters:
 
 The plugin can process different areas of your WordPress site. You can enable or disable each area individually.
 
+In **Settings > French Typo**, **Posts and pages** controls only **post and page titles** and **main content**. **Excerpts** and all other areas are under **Advanced options**.
+
 #### Available Areas
 
-**Main Content:**
+**Posts and pages (settings screen):**
 - **Titles** — Post and page titles
 - **Content** — Post and page content
+
+**Advanced options — main content-related:**
 - **Excerpts** — Post excerpts
 
 **Custom Post Types:**
@@ -113,11 +122,13 @@ The plugin can process different areas of your WordPress site. You can enable or
 
 When **no options are saved yet**, `french_typo_get_options()` merges the empty (or partial) stored array with built-in defaults:
 
-- **Special characters** (`(c)` / `(r)`): **on**
+- **Special characters** (`(c)` / `(r)` / `(tm)`): **on**
 - **Content-area toggles** (`apply_to_*`): **on** for titles, content, excerpts, widgets, menus, custom fields, taxonomies, archives, comments, RSS, REST API, user profiles, breadcrumbs
 - **Non-breaking spaces**: **off** (`narrow_space` is not applied) until you choose “regular” or “thin” in settings and save (or until a saved option set includes that choice)
 
 After the first **Save Changes**, the values stored in the database replace that merge behavior for whatever keys WordPress persists.
+
+**RSS** and **REST API** require both their own toggles and the relevant content switches (for example: RSS feed titles need **RSS feeds** and **Titles**; RSS item body needs **RSS feeds** and **Post content**; REST fields follow the same pattern per field).
 
 SEO plugin title, description, and social strings use a separate code path (see [api.md](api.md)): they are **not** controlled by the same `apply_to_*` checkboxes as front-end titles and content.
 
@@ -212,6 +223,10 @@ To return to default settings:
 1. Verify that the area is enabled in settings
 2. For custom fields (ACF, Meta Box), verify that plugins are installed and activated
 3. For SEO plugins, verify that Yoast SEO, Rank Math, or SEOPress is installed and activated
+
+### Rare: stray `sanitized` key in saved options
+
+Older plugin builds could persist a useless `sanitized` entry inside the `french_typo_options` array. **Save Settings** once on **Settings > French Typo** after updating to a fixed version so WordPress stores a clean option array. Alternatively, remove the `sanitized` key manually from the serialized option (advanced; backup first).
 
 ## Support
 
