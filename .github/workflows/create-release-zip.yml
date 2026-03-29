@@ -270,13 +270,13 @@ jobs:
             # 2) Fallback to readme.txt (WordPress.org format) if empty
             if [ -z "$CHANGELOG" ] && [ -f "readme.txt" ]; then
               echo "ℹ️ Falling back to readme.txt"
-              CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" '
+              CHANGELOG=$(awk -v ver="= $TAG_CLEAN =" "
                 BEGIN { inlog=0; found=0 }
-                /^\=\= Changelog \=\=/ { inmain=1; next }
-                inmain && $0 ~ "^= " ver " =" { inlog=1; found=1; next }
-                inlog && $0 ~ "^= " { exit }
+                /^== Changelog ==/ { inmain=1; next }
+                inmain && \$0 ~ \"^= \" ver \" =\" { inlog=1; found=1; next }
+                inlog && \$0 ~ \"^= \" { exit }
                 inlog && found { print }
-              ' readme.txt | sed '/^[[:space:]]*$/d')
+              " readme.txt | sed '/^[[:space:]]*$/d')
             fi
 
             if [ -n "$CHANGELOG" ]; then
