@@ -71,7 +71,7 @@ The plugin automatically processes:
 - **Social Media**: Open Graph and Twitter Cards tags (Yoast SEO, Rank Math, SEOPress)
 - **Custom Fields**: Support for ACF (Advanced Custom Fields) and Meta Box
 
-All these areas can be enabled or disabled individually from settings.
+Most of these areas follow the **Settings > French Typo** checkboxes. **Exception:** when Yoast SEO, Rank Math, or SEOPress is active, their **SEO titles, meta descriptions, and social tags** are still passed through `french_typo_replace` on output—they are **not** gated by the “Titles” or “Content” toggles in the same way as `the_title` / `the_content`. Breadcrumbs from those plugins respect the breadcrumbs toggle.
 
 ### Does the plugin work with Custom Post Types?
 
@@ -105,6 +105,14 @@ The plugin is compatible with all WordPress themes. It processes content via sta
 ### Is the plugin compatible with other typography plugins?
 
 The plugin may conflict with other plugins that also modify typography. If you use multiple typography plugins, test them together to verify they don't overlap.
+
+### Where does typography not run?
+
+See [Configuration — Raw HTML / code regions](configuration.md#raw-html--code-regions): typography (narrow spaces and `(c)` / `(r)` / `(tm)` replacements) is skipped inside `<script>`, `<style>`, nested `<pre>` / `<code>`, and `<textarea>`. Gutenberg **Verse** (`wp-block-verse` on `<pre>`) is still processed unless `wp-block-code` is on the same `<pre>`. Details also in [Technical Architecture](architecture.md).
+
+### Does the plugin change text inside code or preformatted blocks?
+
+Non-breaking space rules and `(c)` / `(r)` / `(tm)` replacements are **not** applied inside `<pre>`, `<code>`, `<script>`, `<style>`, or `<textarea>` (including `<code>` nested in `<pre>`). The Gutenberg **Verse** block (`wp-block-verse`) is still typography-processed like normal text, unless the same `<pre>` also has the Code block class (`wp-block-code`). Shortcodes are skipped only when an entire segment starts with `[`; mixed prose and shortcodes in one segment keep the plugin’s historic behaviour.
 
 ### Does the plugin work with page builders?
 

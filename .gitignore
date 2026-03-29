@@ -18,7 +18,15 @@ composer/
 # PHP CodeSniffer cache
 .phpcs-cache/
 
+# PHPUnit (suite not adopted yet; remove these ignores when committing phpunit.xml.dist)
+phpunit.xml
+phpunit.xml.dist
+
 # PHPUnit cache
 .phpunit.result.cache
 .phpunit.cache/
 
+
+# Dossier local (notes, plans hors dépôt)
+_local/
+_todo/

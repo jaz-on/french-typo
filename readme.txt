@@ -1,10 +1,10 @@
 === French Typo ===
-Contributors: jaz_on, audrasjb
+Contributors: jaz_on, audrasjb, juliobox, beryldlg
 Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://ko-fi.com/jasonrouet
@@ -13,13 +13,14 @@ Apply French typography rules to your WordPress content automatically.
 
 == Description ==
 
-French Typo automatically applies French typography rules to your content. The plugin adds non-breaking spaces before punctuation marks (`;`, `:`, `!`, `?`, `%`, `«`, `»`) and replaces `(c)` with `©` and `(r)` with `®`. You can choose between regular or thin non-breaking spaces.
+French Typo automatically applies French typography rules to your content. Choose regular or thin non-breaking spaces in Settings > French Typo and save to add spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`); until you do, punctuation spacing stays off. It replaces `(c)` with `©`, `(r)` with `®`, and `(tm)` / `(TM)` with `™`. It can normalize common French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, etc.) when that option is enabled (on by default until you save settings without it).
 
-Rules apply to all your content: posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Each area can be enabled or disabled individually in settings.
+Rules apply to posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Most areas can be enabled or disabled in settings. SEO titles, meta descriptions, and Open Graph/Twitter strings from Yoast SEO, Rank Math, or SEOPress are not gated by the same toggles as post title and content; breadcrumbs use their own option.
 
 = Features =
 
 * Non-breaking spaces before punctuation marks
+* Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, hyphenated “n-ième” → `nième`, etc.), with the same raw HTML boundaries as other rules
 * Special character replacements (`(c)` → `©`, `(r)` → `®`)
 * Configurable: regular or thin non-breaking spaces
 * Comprehensive coverage: all WordPress content areas
@@ -46,7 +47,15 @@ Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#
 
 = Can I disable certain features? =
 
-Yes. You can disable non-breaking spaces or character replacements, and choose precisely which content areas should be processed.
+Yes. You can disable non-breaking spaces or character replacements, and choose which content areas to process (SEO plugin title/meta/social strings are separate from those checkboxes; see description).
+
+= Does typography run inside code, scripts, or textareas? =
+
+No. Narrow spaces, (c)/(r)/(tm) replacements, and optional ordinal abbreviations are skipped inside script, style, pre/code (nested), and textarea, and in embedded CSS (e.g. SVG). The Verse block stays typographic unless it is also a Code block. See the plugin documentation on GitHub for details.
+
+= Does the plugin change English ordinals (1st, 2nd) or “1ème”? =
+
+No. English-style ordinals and non-standard `1ème` are left as typed. Disable **Ordinal abbreviations** under Settings > French Typo if you prefer to keep forms like `3ème` in French text.
 
 == Screenshots ==
 
@@ -54,14 +63,27 @@ Yes. You can disable non-breaking spaces or character replacements, and choose p
 
 == Changelog ==
 
+= 1.2.0 =
+* Added: Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`, etc.); see GitHub [issue #3](https://github.com/jaz-on/french-typo/issues/3) (idea from [Beryl](https://github.com/beryl-dlg) on [WordPress.org](https://profiles.wordpress.org/beryldlg/)). Included in PR [#6](https://github.com/jaz-on/french-typo/pull/6).
+* Added: Plugins admin screen — row meta links for French Typo (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review).
+* Added: Regenerated `languages/french-typo.pot` and French (`fr_FR`) translations for those meta link labels and settings strings.
+* Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
+* Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
+* Added: Documentation — streamlined root `README.md`; `docs/test-post-content.md` for manual QA; `docs/configuration.md` (legacy `sanitized` option), `docs/faq.md` (where typography runs), `docs/architecture.md` (`textarea` in raw markup); admin copy aligned for Posts and pages, RSS/REST toggles, and raw HTML regions.
+* Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
+* Fixed: Cache key includes typography options to avoid stale output after a settings change.
+* Fixed: Options sanitization no longer adds a stray `sanitized` flag or reuses a static cache across validate calls.
+* Improved: Settings labels and help text (Posts and pages section, raw markup, RSS/REST combined toggles).
+* Credits: Julio Potier (`juliobox`) and Beryl (`beryldlg`, [profile](https://profiles.wordpress.org/beryldlg/)) added to plugin contributors on WordPress.org; reflected in the Contributors header above.
+* Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
+* Compatibility: Tested up to WordPress 7.0
+
 = 1.1.0 =
-* Performance: Optimized filter processing with new generic wrapper function
-* Performance: Reduced function calls and improved hook handling efficiency
-* Performance: Enhanced static cache implementation for better memory usage
-* Code Quality: Consolidated multiple wrapper functions into single optimized function
-* Code Quality: Improved code organization and maintainability
-* Compatibility: Tested up to WordPress 6.9
-* Documentation: Updated technical architecture documentation
+* Added: Generic wrapper `french_typo_replace_wrapper()` for optimized filter processing; enhanced static cache and comprehensive hook mapping
+* Changed: Consolidated wrapper functions; improved code organization, maintainability, and hook handling
+* Performance: Fewer function calls; optimized static cache and hook processing (static mapping array)
+* Compatibility: Tested up to WordPress 6.9; PHP 7.4 through 8.3; backward compatible with existing functionality
+* Code quality: Architecture documentation updated for the new optimizations
 
 = 1.0.0 =
 * Initial release

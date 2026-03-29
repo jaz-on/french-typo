@@ -35,6 +35,10 @@ Non-breaking spaces are added before:
 And after:
 - `«` (opening French quotation mark)
 
+#### Raw HTML / code regions
+
+Narrow **non-breaking spaces** are **not** inserted inside raw markup: `<script>`, `<style>`, nested `<pre>` / `<code>`, and `<textarea>` (stack-safe for nesting). The same applies to **special character** replacements (`(c)`, `(r)`, `(tm)`). Gutenberg **Verse** (`<pre class="… wp-block-verse …">`) is still typographed **unless** `wp-block-code` is also on the same `<pre>`.
+
 #### Recommendation
 
 - **Regular non-breaking spaces**: Recommended for most sites, better compatibility
@@ -46,21 +50,34 @@ The plugin can automatically replace certain characters:
 
 - `(c)` → `©` (copyright)
 - `(r)` → `®` (registered trademark)
+- `(tm)` / `(TM)` → `™` (trademark)
 
 #### Available Options
 
 - **Enabled** — Special characters are automatically replaced
 - **Disabled** — No replacement is performed
 
+### Ordinal Abbreviations
+
+When **Normalize French ordinal abbreviations** is enabled (default for sites that have never saved this checkbox), the plugin adjusts common French ordinal forms in running text—for example `1ère` → `1re`, `3ème` → `3e`, and hyphenated patterns like `n-ième` / `x-ième` (ASCII hyphen, non-breaking hyphen, or en dash) → `nième` / `xième`. English ordinals (`1st`, `2nd`) and non-standard `1ème` are not changed.
+
+The same raw-markup rules as narrow spaces and special characters apply: nothing runs inside `<script>`, `<style>`, nested `<pre>` / `<code>`, or `<textarea>` (stack-aware). Gutenberg Verse behaves like other prose unless it is also a Code block.
+
+Turn this off if you want displayed text to keep spellings such as `3ème`.
+
 ### Content Areas
 
 The plugin can process different areas of your WordPress site. You can enable or disable each area individually.
 
+In **Settings > French Typo**, **Posts and pages** controls only **post and page titles** and **main content**. **Excerpts** and all other areas are under **Advanced options**.
+
 #### Available Areas
 
-**Main Content:**
+**Posts and pages (settings screen):**
 - **Titles** — Post and page titles
 - **Content** — Post and page content
+
+**Advanced options — main content-related:**
 - **Excerpts** — Post excerpts
 
 **Custom Post Types:**
@@ -111,26 +128,27 @@ The plugin can process different areas of your WordPress site. You can enable or
 
 ## Default Behavior
 
-By default, all content areas are **enabled** for processing. The plugin uses a backward-compatible approach:
+When **no options are saved yet**, `french_typo_get_options()` merges the empty (or partial) stored array with built-in defaults:
 
-- If an option is not set in the database, processing is **enabled** by default
-- Options are only saved when explicitly changed by the user
-- This ensures existing installations continue working without configuration
+- **Special characters** (`(c)` / `(r)` / `(tm)`): **on**
+- **Content-area toggles** (`apply_to_*`): **on** for titles, content, excerpts, widgets, menus, custom fields, taxonomies, archives, comments, RSS, REST API, user profiles, breadcrumbs
+- **Non-breaking spaces**: **off** (`narrow_space` is not applied) until you choose “regular” or “thin” in settings and save (or until a saved option set includes that choice)
 
-The default values when options are not set:
-- `narrow_space`: `1` (regular non-breaking spaces)
-- `special_characters`: `1` (enabled)
-- All `apply_to_*` options: `1` (enabled) if not set
+After the first **Save Changes**, the values stored in the database replace that merge behavior for whatever keys WordPress persists.
+
+**RSS** and **REST API** require both their own toggles and the relevant content switches (for example: RSS feed titles need **RSS feeds** and **Titles**; RSS item body needs **RSS feeds** and **Post content**; REST fields follow the same pattern per field).
+
+SEO plugin title, description, and social strings use a separate code path (see [api.md](api.md)): they are **not** controlled by the same `apply_to_*` checkboxes as front-end titles and content.
 
 ## Configuration Examples
 
 ### Default Configuration (Recommended)
 
-- **Non-breaking spaces**: Regular
+- **Non-breaking spaces**: Regular (choose explicitly after activation; not applied until you save that choice)
 - **Special characters**: Enabled
-- **All areas**: Enabled (default behavior)
+- **All areas**: Enabled (defaults before first save)
 
-This configuration processes all content on your site with French typography rules. This is the default behavior when the plugin is first activated.
+This is the usual target setup once you have saved settings; right after activation only, non-breaking spaces are not applied until configured.
 
 ### Minimal Configuration
 
@@ -213,6 +231,10 @@ To return to default settings:
 1. Verify that the area is enabled in settings
 2. For custom fields (ACF, Meta Box), verify that plugins are installed and activated
 3. For SEO plugins, verify that Yoast SEO, Rank Math, or SEOPress is installed and activated
+
+### Rare: stray `sanitized` key in saved options
+
+Older plugin builds could persist a useless `sanitized` entry inside the `french_typo_options` array. **Save Settings** once on **Settings > French Typo** after updating to a fixed version so WordPress stores a clean option array. Alternatively, remove the `sanitized` key manually from the serialized option (advanced; backup first).
 
 ## Support
 

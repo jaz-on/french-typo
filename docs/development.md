@@ -4,7 +4,7 @@ This guide explains how to set up a local development environment to contribute 
 
 ## Prerequisites
 
-- PHP 8.3 or higher
+- **PHP 7.4 or higher** to match the plugin’s supported runtime (see `french-typo.php` header). GitHub Actions in this repo uses **PHP 8.3** for lint and PHPCS; using 8.3 locally matches CI.
 - Composer (for development dependencies)
 - Git
 - A local WordPress environment (Local by Flywheel, MAMP, XAMPP, Docker, etc.)
@@ -49,9 +49,9 @@ The plugin follows **WordPress Coding Standards** with the **WordPress-Extra** s
 ### Code Architecture Notes
 
 - **Monolithic structure**: All code in a single file (`french-typo.php`)
-- **Cache system**: Uses static cache with versioning (`french_typo_options_version`) for optimal performance
-- **Wrapper functions**: Each content type has a wrapper function that checks options before processing
-- **Default behavior**: Options default to enabled if not set (backward compatibility)
+- **In-request caches**: Merged options are cached in `french_typo_get_options()`; long strings may be cached inside `french_typo_replace()` with keys that reflect typography settings
+- **Wrapper**: `french_typo_replace_wrapper()` maps the current filter to an `apply_to_*` option before calling `french_typo_replace()`
+- **Default behavior**: Unsaved installs use merged defaults in `french_typo_get_options()` (most `apply_to_*` and special characters on; non-breaking spaces off until the user picks a mode or saved options include it)
 
 ### Code Verification
 
@@ -153,7 +153,8 @@ french-typo/
 │       └── create-release-zip.yml  # Release creation
 ├── docs/                    # Documentation (this folder)
 ├── languages/               # Translation files
-│   └── french-typo.pot     # Translation template
+│   ├── french-typo.pot      # Translation template (commit)
+│   └── french-typo-fr_FR.po # French strings (commit); compile locally with `wp i18n make-mo languages` (produces `*.mo`, gitignored)
 ├── vendor/                  # Composer dependencies (gitignored)
 ├── admin.css                # Administration interface styles
 ├── composer.json            # Composer dependencies
@@ -161,9 +162,19 @@ french-typo/
 ├── french-typo.php          # Main plugin file
 ├── readme.txt               # WordPress.org documentation
 ├── README.md                # Project overview
-├── CHANGELOG.md             # Version history
-└── TODO.md                  # Task list
+└── CHANGELOG.md             # Version history
 ```
+
+### Regenerating strings (`POT` / `PO`)
+
+From the repository root (requires [WP-CLI](https://wp-cli.org/) and `wp-cli/i18n-command`):
+
+```bash
+wp i18n make-pot . languages/french-typo.pot --domain=french-typo --exclude=vendor,node_modules,.git,tests
+wp i18n update-po languages/french-typo.pot languages
+```
+
+Then fill new empty `msgstr` entries in `languages/french-typo-fr_FR.po` (and run `wp i18n make-mo languages` locally if you need compiled `*.mo` files; they remain gitignored).
 
 ## Release Process
 

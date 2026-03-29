@@ -6,9 +6,11 @@ This guide explains how to install the French Typo plugin on your WordPress site
 
 Before installing the plugin, ensure your environment meets the following requirements:
 
-- **WordPress**: version 6.0 or higher
-- **PHP**: version 8.3 or higher
+- **WordPress**: version 6.0 or higher (matches the plugin header)
+- **PHP**: version 7.4 or higher (matches the plugin header)
 - **MySQL/MariaDB**: version 5.6 or higher (or equivalent)
+
+For local development or CI, the repository often uses PHP 8.3 (see `.github/workflows/ci.yml`); that is a toolchain choice, not the minimum required to run the plugin on a site.
 
 ## Installation Methods
 
@@ -87,16 +89,17 @@ After activation, it is recommended to configure the plugin:
    - Content areas to process
 3. Click **Save Changes**
 
-By default, the plugin is configured to process all content areas with regular non-breaking spaces and special characters enabled.
+Until you save settings once, the plugin merges **default options**: special-character replacement and most content areas are on, but **non-breaking spaces stay off** until you choose “regular” or “thin” under Non-breaking spaces. After the first save, stored values apply.
 
 ## Installation Verification
 
 To verify that the plugin works correctly:
 
-1. **Create or edit** a post/page with text containing French punctuation marks (`:`, `;`, `!`, `?`, etc.)
-2. **View** the post/page on the front-end
-3. **Verify** that non-breaking spaces are present before punctuation marks
-4. **Test** special characters: `(c)` should become `©` and `(r)` should become `®`
+1. In **Settings > French Typo**, enable non-breaking spaces (regular or thin) and save if you want punctuation spacing; otherwise skip step 4 for spacing.
+2. **Create or edit** a post/page with text containing French punctuation marks (`:`, `;`, `!`, `?`, etc.)
+3. **View** the post/page on the front-end
+4. **Verify** non-breaking spaces before punctuation if that option is on
+5. **Test** special characters: `(c)` should become `©` and `(r)` should become `®`
 
 ## Uninstallation
 
