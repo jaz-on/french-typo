@@ -18,7 +18,7 @@ Les règles s'appliquent à tous vos contenus : articles, pages, extraits, taxon
 
 ## Questions fréquentes
 
-**L'extension modifie-t-ekke mon contenu existant ?**
+**L'extension modifie-t-elle mon contenu existant ?**
 
 Non. Les règles typographiques sont appliquées à la volée lors de l'affichage, sans modifier le contenu dans la base de données.
 

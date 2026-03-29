@@ -56,8 +56,10 @@ Yes. You can disable non-breaking spaces or character replacements, and choose p
 
 = 1.2.0 =
 * Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, and `<style>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
+* Added: Documentation refresh (`README.md`) and `docs/test-post-content.md` with copy-paste blocks for manual checks in the editor.
 * Fixed: No narrow spaces or `(c)` / `(r)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
 * Fixed: Cache key includes typography options to avoid stale output after a settings change.
+* Credits: Julio Potier (juliobox) added to the Contributors header.
 * Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
 
 = 1.1.0 =
