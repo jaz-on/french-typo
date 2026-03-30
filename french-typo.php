@@ -957,6 +957,71 @@ function french_typo_admin_init() {
 }
 
 /**
+ * HTML fragment listing raw markup regions where typography does not run (settings UI). Not translated.
+ *
+ * @since 1.2.1
+ *
+ * @return string Markup fragment using encoded angle brackets.
+ */
+function french_typo_settings_raw_markup_exclusions_html() {
+	return '&lt;script&gt;, &lt;style&gt;, nested &lt;pre&gt;/&lt;code&gt;, and &lt;textarea&gt;';
+}
+
+/**
+ * Gutenberg Verse vs Code block markup tokens for settings UI. Not translated.
+ *
+ * @since 1.2.1
+ *
+ * @return string Comma-separated terms wrapped in code tags.
+ */
+function french_typo_settings_gutenberg_verse_code_terms_html() {
+	return implode(
+		', ',
+		array(
+			'<code>pre</code>',
+			'<code>wp-block-verse</code>',
+			'<code>wp-block-code</code>',
+		)
+	);
+}
+
+/**
+ * Character replacement examples for settings UI. Not translated.
+ *
+ * @since 1.2.1
+ *
+ * @return string HTML summary of (c)/(r)/(tm) mappings.
+ */
+function french_typo_settings_character_replacements_html() {
+	return implode(
+		'; ',
+		array(
+			'<code>(c)</code> &rarr; <code>&#169;</code>',
+			'<code>(r)</code> &rarr; <code>&#174;</code>',
+			'<code>(tm)</code> / <code>(TM)</code> &rarr; <code>&#8482;</code>',
+		)
+	);
+}
+
+/**
+ * Ordinal abbreviation examples for settings UI. Not translated.
+ *
+ * @since 1.2.1
+ *
+ * @return string HTML summary of normalized forms.
+ */
+function french_typo_settings_ordinal_examples_html() {
+	return implode(
+		'; ',
+		array(
+			'<code>1ère</code> &rarr; <code>1re</code>',
+			'<code>3ème</code> &rarr; <code>3e</code>',
+			'<code>n-ième</code> &rarr; <code>nième</code>',
+		)
+	);
+}
+
+/**
  * Display description text for the non-breaking spaces section.
  *
  * @since 1.0.0
@@ -980,16 +1045,23 @@ function french_typo_narrow_space_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
-				__( 'Narrow spaces are <strong>not</strong> inserted inside raw markup: &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, and &lt;%5$s&gt;. Gutenberg Verse (<code>pre</code> with <code>wp-block-verse</code>) is still typographed unless <code>wp-block-code</code> is on the same <code>pre</code>.', 'french-typo' ),
-				'script',
-				'style',
-				'pre',
-				'code',
-				'textarea'
+				/* translators: %s: list of raw markup regions where narrow spaces are not inserted (encoded tag names, not translated). */
+				__( 'Narrow spaces are <strong>not</strong> inserted inside raw markup: %s', 'french-typo' ),
+				french_typo_settings_raw_markup_exclusions_html()
 			)
 		);
 		?>
+	</p>
+	<p>
+		<?php
+		esc_html_e(
+			'In the block editor, Verse blocks still receive typography unless the same paragraph is also treated as a Code block.',
+			'french-typo'
+		);
+		?>
+	</p>
+	<p>
+		<?php echo wp_kses_post( french_typo_settings_gutenberg_verse_code_terms_html() ); ?>
 	</p>
 	<?php
 }
@@ -1049,15 +1121,9 @@ function french_typo_special_characters_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-			/* translators: %1$s–%7$s are character or entity codes shown in the settings UI */
-				__( 'Replaces %1$s with %2$s, %3$s with %4$s, and %5$s or %6$s with %7$s.', 'french-typo' ),
-				'<code>(c)</code>',
-				'<code>&#169;</code>',
-				'<code>(r)</code>',
-				'<code>&#174;</code>',
-				'<code>(tm)</code>',
-				'<code>(TM)</code>',
-				'<code>&#8482;</code>'
+				/* translators: %s: HTML list of character-to-symbol mappings built in PHP (not translated). */
+				__( 'The following character sequences are replaced: %s', 'french-typo' ),
+				french_typo_settings_character_replacements_html()
 			)
 		);
 		?>
@@ -1066,13 +1132,9 @@ function french_typo_special_characters_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
-				__( 'These replacements use the same raw-markup rules as narrow spaces: they do not run inside &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, or &lt;%5$s&gt;.', 'french-typo' ),
-				'script',
-				'style',
-				'pre',
-				'code',
-				'textarea'
+				/* translators: %s: list of raw markup regions (encoded tag names, not translated). */
+				__( 'These replacements use the same raw-markup rules as narrow spaces: they do not run inside %s.', 'french-typo' ),
+				french_typo_settings_raw_markup_exclusions_html()
 			)
 		);
 		?>
@@ -1106,18 +1168,20 @@ function french_typo_ordinal_abbreviations_text() {
 	?>
 	<p>
 		<?php
-		echo wp_kses_post(
-			sprintf(
-				/* translators: %1$s–%7$s: code examples (ordinal forms). */
-				__( 'Normalizes common French ordinal abbreviations in running text (for example %1$s becomes %2$s, %3$s becomes %4$s, %5$s becomes %6$s). English forms such as 1st and 2nd are left as-is; non-standard %7$s is unchanged.', 'french-typo' ),
-				'<code>1ère</code>',
-				'<code>1re</code>',
-				'<code>3ème</code>',
-				'<code>3e</code>',
-				'<code>n-ième</code>',
-				'<code>nième</code>',
-				'<code>1ème</code>'
-			)
+		esc_html_e(
+			'Normalizes common French ordinal abbreviations in running text. Typical normalizations:',
+			'french-typo'
+		);
+		?>
+	</p>
+	<p>
+		<?php echo wp_kses_post( french_typo_settings_ordinal_examples_html() ); ?>
+	</p>
+	<p>
+		<?php
+		esc_html_e(
+			'English forms such as 1st and 2nd are left as-is; non-standard 1ème is unchanged.',
+			'french-typo'
 		);
 		?>
 	</p>
@@ -1125,13 +1189,9 @@ function french_typo_ordinal_abbreviations_text() {
 		<?php
 		echo wp_kses_post(
 			sprintf(
-			/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
-				__( 'These rules use the same raw-markup boundaries as narrow spaces and special characters: they do not run inside &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, or &lt;%5$s&gt;.', 'french-typo' ),
-				'script',
-				'style',
-				'pre',
-				'code',
-				'textarea'
+				/* translators: %s: list of raw markup regions (encoded tag names, not translated). */
+				__( 'These rules use the same raw-markup boundaries as narrow spaces and special characters: they do not run inside %s.', 'french-typo' ),
+				french_typo_settings_raw_markup_exclusions_html()
 			)
 		);
 		?>
@@ -1225,7 +1285,8 @@ function french_typo_content_types_text() {
 function french_typo_advanced_text() {
 	?>
 	<p><?php esc_html_e( 'Typography rules also apply to many other areas: widgets, menus, excerpts, custom fields, taxonomies, archives, comments, RSS feeds, REST API, user profiles, and breadcrumbs.', 'french-typo' ); ?></p>
-	<p><?php esc_html_e( 'RSS feeds only run typography when RSS is enabled plus the matching area: titles (RSS + titles), full content (RSS + post content), excerpts (RSS + excerpts), comments (RSS + comments). REST API responses require REST API enabled plus titles/content/excerpts as appropriate for each field.', 'french-typo' ); ?></p>
+	<p><?php esc_html_e( 'RSS feeds only run typography when RSS is enabled plus the matching area: titles (RSS + titles), full content (RSS + post content), excerpts (RSS + excerpts), comments (RSS + comments).', 'french-typo' ); ?></p>
+	<p><?php esc_html_e( 'REST API responses require REST API enabled plus titles/content/excerpts as appropriate for each field.', 'french-typo' ); ?></p>
 	<p><?php esc_html_e( 'Meta descriptions and social tags (Open Graph, Twitter Cards) from SEO plugins (Yoast SEO, Rank Math, SEOPress) are processed automatically when those integrations are enabled.', 'french-typo' ); ?></p>
 	<p>
 		<?php

@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - i18n: regenerated [`languages/french-typo.pot`](languages/french-typo.pot) for the updated admin strings; removed committed `languages/french-typo-fr_FR.po` — locale files are maintained on [translate.wordpress.org](https://translate.wordpress.org/) only.
+- i18n: settings help text refactored for translate.wordpress.org (raw-markup and Gutenberg snippets built in PHP; shorter translatable strings; RSS and REST guidance split into separate paragraphs), with [`languages/french-typo.pot`](languages/french-typo.pot) updated for the new msgids.
 - Documentation: WordPress **Tested up to** messaging aligned with 7.0 for this release (see PR [#7](https://github.com/jaz-on/french-typo/pull/7)); development docs and Cursor i18n rule describe POT-only tracking in `languages/`.
 
 ### Compatibility
