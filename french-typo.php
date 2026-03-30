@@ -981,7 +981,7 @@ function french_typo_narrow_space_text() {
 		echo wp_kses_post(
 			sprintf(
 				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
-				__( 'Narrow spaces are <strong>not</strong> inserted inside raw markup: <%1$s>, <%2$s>, nested <%3$s>/<%4$s>, and <%5$s>. Gutenberg Verse (<code>pre</code> with <code>wp-block-verse</code>) is still typographed unless <code>wp-block-code</code> is on the same <code>pre</code>.', 'french-typo' ),
+				__( 'Narrow spaces are <strong>not</strong> inserted inside raw markup: &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, and &lt;%5$s&gt;. Gutenberg Verse (<code>pre</code> with <code>wp-block-verse</code>) is still typographed unless <code>wp-block-code</code> is on the same <code>pre</code>.', 'french-typo' ),
 				'script',
 				'style',
 				'pre',
@@ -1067,7 +1067,7 @@ function french_typo_special_characters_text() {
 		echo wp_kses_post(
 			sprintf(
 				/* translators: %1$s–%5$s are lowercase HTML tag names (script, style, pre, code, textarea). */
-				__( 'These replacements use the same raw-markup rules as narrow spaces: they do not run inside <%1$s>, <%2$s>, nested <%3$s>/<%4$s>, or <%5$s>.', 'french-typo' ),
+				__( 'These replacements use the same raw-markup rules as narrow spaces: they do not run inside &lt;%1$s&gt;, &lt;%2$s&gt;, nested &lt;%3$s&gt;/&lt;%4$s&gt;, or &lt;%5$s&gt;.', 'french-typo' ),
 				'script',
 				'style',
 				'pre',
