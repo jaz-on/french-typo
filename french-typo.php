@@ -3,7 +3,7 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « »), optional French ordinal abbreviations (e.g. 1ère → 1re, 3ème → 3e), and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
- * Version: 1.2.0
+ * Version: 1.2.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Tested up to: 7.0
@@ -25,7 +25,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-define( 'FRENCH_TYPO_VERSION', '1.2.0' );
+define( 'FRENCH_TYPO_VERSION', '1.2.1' );
 
 /**
  * Load plugin text domain for translations.
