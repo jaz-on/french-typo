@@ -1,0 +1,15 @@
+---
+description: readme.txt changelog mirrors CHANGELOG.md (2 versions max); no duplicate source
+globs: readme.txt,CHANGELOG.md
+alwaysApply: false
+---
+
+# Releases — `CHANGELOG.md` is the only source of truth
+
+- **`CHANGELOG.md`**: single canonical changelog. Every release is authored here first ([Keep a Changelog](https://keepachangelog.com/)).
+  - **Do not modify released versions.** Once a `## [X.Y.Z]` section is published (e.g. on `main`, a release tag, or WordPress.org), treat it as **immutable history**. Do **not** change its bullets, compatibility lines (e.g. 1.1.0 stays “Tested up to WordPress 6.9”), ordering, or wording to “refresh” them for a newer WordPress line — that belongs only in **`## [Unreleased]`** or a **new** `## [new.version]` block. Retroactive edits blur what shipped when and break release archaeology.
+  - **Exception:** an undeniable factual fix only (broken URL, wrong issue number, typo in a proper noun). Not “re-aligning” compatibility for old releases.
+- **`readme.txt`**, section `== Changelog ==`: **do not invent or maintain a separate changelog.** Copy or tightly mirror the corresponding entries from `CHANGELOG.md` for WordPress.org visibility only. After the section title, keep the link to `CHANGELOG.md` on GitHub for the full history.
+  - **At most the two most recent** `= X.Y.Z =` blocks (newest first). When you ship a new version, add it here by aligning with `CHANGELOG.md`, then drop the oldest block if that exceeds two.
+
+If `readme.txt` and `CHANGELOG.md` disagree, **`CHANGELOG.md` wins** — fix `readme.txt`.

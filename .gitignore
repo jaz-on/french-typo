@@ -6,7 +6,10 @@
 *~
 .vscode/
 .idea/
-.cursor/
+# Cursor IDE: ignore local state; version shared rules (excluded from WP.org via .distignore)
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 
 # Exclude compiled translation files (.mo files are generated from .po files)
 languages/*.mo

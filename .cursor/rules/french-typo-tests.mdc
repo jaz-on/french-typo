@@ -1,0 +1,17 @@
+---
+description: Standalone PHP tests — bootstrap, replace() cases, CI commands
+globs: tests/**
+alwaysApply: false
+---
+
+# Tests
+
+- **Runner**: plain `php` CLI (no PHPUnit suite in CI yet). From repo root, CI runs:
+
+  - `php tests/french-typo-replace-test.php`
+  - `php tests/french-typo-replace-ordinal-off-test.php`
+  - `php tests/french-typo-replace-ordinal-only-test.php`
+
+- **Setup**: `tests/bootstrap.php` loads stubs and options; `wp-html-split-wpstub.php` supplies minimal WP HTML helpers.
+- **When changing `french_typo_replace()` or related filters**: add or extend scenarios in the appropriate test file; run all three scripts locally before pushing.
+- **PHPCS**: the `tests/` directory is excluded from the main PHPCS run — keep test files readable; use minimal `phpcs:ignore` only where stubs require it.

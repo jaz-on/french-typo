@@ -1,0 +1,13 @@
+---
+description: Do not hand-edit gettext catalogs; regenerate .pot/.po/.mo with WP-CLI
+globs: languages/**/*.pot,languages/**/*.po,languages/**/*.mo
+alwaysApply: false
+---
+
+# i18n — `languages/` gettext files
+
+- **Do not manually edit** in the editor:
+  - **`*.pot`**: only regenerate with `wp i18n make-pot` (never paste or rewrite `msgid`/headers/refs by hand).
+  - **`*.mo`**: binary output — only build with `wp i18n make-mo` (or equivalent); never “edit” or commit ad-hoc binary patches unless the project explicitly tracks `.mo` (here they are usually gitignored).
+- **`*.po`**: after changing translatable strings in PHP, **do not** manually realign `msgid`, comments, or `#:` lines to match source — run `wp i18n make-pot` then `wp i18n update-po` so the catalog stays consistent. **Allowed:** filling or adjusting **`msgstr`** (human translations) once the `.po` has been updated by tooling.
+- **Commands and prerequisites** live in [`docs/development.md`](docs/development.md) (WP-CLI + `wp-cli/i18n-command`).

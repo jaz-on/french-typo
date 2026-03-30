@@ -1,0 +1,12 @@
+---
+description: Typography behavior — French rules, raw HTML boundaries, docs
+globs: french-typo.php,tests/**,docs/**
+alwaysApply: false
+---
+
+# French Typo — behavior and scope
+
+- **Goal**: French typography rules (NBSP before `; : ! ? % « »`, optional ordinal abbreviations, `(c)` / `(r)` / `(tm)` → symbols) applied **on output**, not by rewriting stored post content.
+- **Leave unchanged** (by design): English ordinals (`1st`, `2nd`), non-standard `1ème`, unless product requirements explicitly change — see settings and existing tests.
+- **Raw / code regions**: typography must stay disabled inside nested `<pre>`, `<code>`, `<script>`, `<style>`, `<textarea>` per stack-based logic; Gutenberg Verse vs Code block rules as documented. Do not “fix” literals inside those regions.
+- **Source of truth for architecture**: `docs/architecture.md`, `docs/configuration.md`, `docs/faq.md`. Align code changes and new tests with those docs.
