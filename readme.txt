@@ -4,7 +4,7 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://ko-fi.com/jasonrouet
@@ -63,6 +63,14 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 
 == Changelog ==
 
+Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
+
+= 1.2.1 =
+* Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).
+* Changed: Regenerated `languages/french-typo.pot` for those admin strings; dropped bundled `fr_FR` PO from the repo (translations on translate.wordpress.org).
+* Documentation: WordPress compatibility note for this release; see GitHub PR [#7](https://github.com/jaz-on/french-typo/pull/7).
+* Compatibility: Tested up to WordPress 7.0
+
 = 1.2.0 =
 * Added: Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`, etc.); see GitHub [issue #3](https://github.com/jaz-on/french-typo/issues/3) (idea from [Beryl](https://github.com/beryl-dlg) on [WordPress.org](https://profiles.wordpress.org/beryldlg/)). Included in PR [#6](https://github.com/jaz-on/french-typo/pull/6).
 * Added: Plugins admin screen — row meta links for French Typo (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review).
@@ -77,40 +85,6 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 * Credits: Julio Potier (`juliobox`) and Beryl (`beryldlg`, [profile](https://profiles.wordpress.org/beryldlg/)) added to plugin contributors on WordPress.org; reflected in the Contributors header above.
 * Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
 * Compatibility: Tested up to WordPress 7.0
-
-= 1.1.0 =
-* Added: Generic wrapper `french_typo_replace_wrapper()` for optimized filter processing; enhanced static cache and comprehensive hook mapping
-* Changed: Consolidated wrapper functions; improved code organization, maintainability, and hook handling
-* Performance: Fewer function calls; optimized static cache and hook processing (static mapping array)
-* Compatibility: Tested up to WordPress 6.9; PHP 7.4 through 8.3; backward compatible with existing functionality
-* Code quality: Architecture documentation updated for the new optimizations
-
-= 1.0.0 =
-* Initial release
-* Complete rewrite from the original French Typo plugin
-* Support for non-breaking spaces (regular and thin)
-* Support for special character replacements
-* Configurable settings page with granular options
-* Full Custom Post Types support
-* Custom Fields support (ACF, Meta Box)
-* Taxonomies support (categories, tags, custom taxonomies)
-* Archives support (all types)
-* Excerpts support
-* Comments support (text and author names)
-* Widgets and menus support
-* RSS feeds support (titles, content, excerpts, comments)
-* REST API support (posts, pages, attachments)
-* User profiles support
-* Breadcrumbs support (Yoast SEO, Rank Math, SEOPress)
-* SEO meta descriptions support (Yoast SEO, Rank Math, SEOPress)
-* Social tags support (Open Graph, Twitter Cards)
-* Developer API: filter hook `french_typo_process_text` for custom content processing
-* Performance optimizations: static cache for plugin options to reduce database queries
-* Code quality: optimized regex patterns and early returns for better performance
-* Admin interface: modern CSS with custom properties and simplified interactions
-* Accessibility: improved color contrast (WCAG 2.1 AA compliance)
-* Security: proper data sanitization and validation throughout
-* WordPress Coding Standards: full compliance with WordPress-Extra standards
 
 == Author & Credits ==
 

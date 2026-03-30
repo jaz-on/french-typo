@@ -1,0 +1,13 @@
+---
+description: WordPress plugin PHP — security, WPCS, hooks naming
+globs: "**/*.php"
+alwaysApply: false
+---
+
+# PHP / WordPress conventions
+
+- **Bootstrap**: keep `defined( 'ABSPATH' ) || die( ... );` (or equivalent) at the top of the main plugin file; do not allow direct web access to plugin PHP.
+- **Coding standard**: CI runs PHPCS with `WordPress-Extra` on project PHP, excluding `vendor/` and `tests/` (`composer install` then `vendor/bin/phpcs`). Match that style in new code; do not widen `phpcs:ignore` without cause.
+- **Naming**: use the existing `french_typo_*` prefix for functions, hooks, and option keys unless there is a strong local reason not to.
+- **Admin / user input**: use WordPress APIs — sanitize on save, escape on output, nonces and capabilities where appropriate; no raw `$_GET` / `$_POST` in logic without validation.
+- **Performance**: preserve existing patterns (static caches, early returns, hook registration style) — see `docs/architecture.md` before restructuring.

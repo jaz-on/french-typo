@@ -1,0 +1,13 @@
+---
+description: Release hygiene — readme.txt, versions, CI validators
+globs: readme.txt,french-typo.php,.github/workflows/*
+alwaysApply: false
+---
+
+# Release and CI alignment
+
+- **`readme.txt`**: must keep required header lines (`Contributors`, `Tags`, `Requires at least`, `Tested up to`, `Requires PHP`, `Stable tag`, `License`, …) and sections `== Description ==`, `== Installation ==`, `== Frequently Asked Questions ==`, `== Changelog ==` — see `.github/workflows/ci.yml` `validate-readme`.
+- **Versions**: keep `Version` in the plugin header, `FRENCH_TYPO_VERSION` in `french-typo.php`, and `Stable tag:` in `readme.txt` consistent for a release (plus deploy ZIP verification in workflows).
+- **Changelog**: follow `readme-changelog-releases.mdc` — `CHANGELOG.md` is canonical; `readme.txt` mirrors at most two recent versions + link to GitHub.
+- **i18n job**: changing strings without updating `languages/french-typo.pot` will fail the `i18n-pot` CI job.
+- **Distribution**: `.cursor/` is listed in [`.distignore`](.distignore); agent rules are not shipped to WordPress.org or release ZIPs.

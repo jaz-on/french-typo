@@ -1,0 +1,10 @@
+---
+description: Regenerate languages/french-typo.pot with WP-CLI; do not hand-edit POT
+globs: languages/**/*.pot
+alwaysApply: false
+---
+
+# i18n — `languages/french-typo.pot`
+
+- The repo tracks **only** [`languages/french-typo.pot`](languages/french-typo.pot). Locales (e.g. `fr_FR`) are maintained on [translate.wordpress.org](https://translate.wordpress.org/), not as committed `.po`/`.mo` here.
+- **Do not manually edit** the `.pot`. Regenerate with `wp i18n make-pot` (see [`docs/development.md`](docs/development.md)).

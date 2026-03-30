@@ -152,9 +152,8 @@ french-typo/
 │       ├── ci.yml          # Tests and validation
 │       └── create-release-zip.yml  # Release creation
 ├── docs/                    # Documentation (this folder)
-├── languages/               # Translation files
-│   ├── french-typo.pot      # Translation template (commit)
-│   └── french-typo-fr_FR.po # French strings (commit); compile locally with `wp i18n make-mo languages` (produces `*.mo`, gitignored)
+├── languages/               # Translation template only (commit)
+│   └── french-typo.pot      # Regenerate with `wp i18n make-pot`; locales live on translate.wordpress.org
 ├── vendor/                  # Composer dependencies (gitignored)
 ├── admin.css                # Administration interface styles
 ├── composer.json            # Composer dependencies
@@ -165,16 +164,15 @@ french-typo/
 └── CHANGELOG.md             # Version history
 ```
 
-### Regenerating strings (`POT` / `PO`)
+### Regenerating the translation template (`POT`)
 
 From the repository root (requires [WP-CLI](https://wp-cli.org/) and `wp-cli/i18n-command`):
 
 ```bash
 wp i18n make-pot . languages/french-typo.pot --domain=french-typo --exclude=vendor,node_modules,.git,tests
-wp i18n update-po languages/french-typo.pot languages
 ```
 
-Then fill new empty `msgstr` entries in `languages/french-typo-fr_FR.po` (and run `wp i18n make-mo languages` locally if you need compiled `*.mo` files; they remain gitignored).
+French and other locales are translated on [translate.wordpress.org](https://translate.wordpress.org/); this repository only tracks `languages/french-typo.pot` for developers and release archaeology.
 
 ## Release Process
 

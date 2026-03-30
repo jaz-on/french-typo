@@ -1,0 +1,11 @@
+---
+description: Translatable strings in PHP — text domain, then regenerating catalogs
+globs: "**/*.php"
+alwaysApply: false
+---
+
+# i18n in PHP source
+
+- **Text domain**: `french-typo` (must match plugin header `Text Domain`). Use `__()`, `_e()`, `_n()`, `esc_html__()`, etc. with that domain for user-facing strings.
+- **Do not** add user-visible strings without the correct domain or duplicate the same English string under different domains.
+- After changing translatable strings, regenerate and update catalogs per [`docs/development.md`](docs/development.md) — do **not** hand-edit `.pot` or mechanically sync `.po` headers; for `languages/*` file workflow see `languages-i18n.mdc`.
