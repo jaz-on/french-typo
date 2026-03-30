@@ -67,11 +67,9 @@ bin
 scripts
 dist
 
-# Translation source files (WordPress.org generates these from GlotPress)
+# Translation files (WordPress.org: GlotPress + language packs; repo keeps POT template only)
 languages/*.po
 languages/*.pot
-
-# Compiled translation files (generated automatically)
 languages/*.mo
 
 # This file itself
