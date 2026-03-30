@@ -82,7 +82,7 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 * Added: Generic wrapper `french_typo_replace_wrapper()` for optimized filter processing; enhanced static cache and comprehensive hook mapping
 * Changed: Consolidated wrapper functions; improved code organization, maintainability, and hook handling
 * Performance: Fewer function calls; optimized static cache and hook processing (static mapping array)
-* Compatibility: Tested up to WordPress 6.9; PHP 7.4 through 8.3; backward compatible with existing functionality
+* Compatibility: Tested up to WordPress 7.0; PHP 7.4 through 8.3; backward compatible with existing functionality
 * Code quality: Architecture documentation updated for the new optimizations
 
 = 1.0.0 =

@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved overall plugin performance and resource utilization
 
 ### Compatibility
-- Tested up to WordPress 6.9
+- Tested up to WordPress 7.0
 - Maintained backward compatibility with all existing functionality
 - Confirmed compatibility with PHP 7.4 through 8.3
 
