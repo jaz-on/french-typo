@@ -151,6 +151,9 @@ jobs:
 
       - name: Generate release notes
         id: relnotes
+        env:
+          # Never interpolate release body into the script: multiline Markdown breaks `[ -n "…" ]` and backticks run command substitution.
+          RELEASE_BODY: ${{ github.event_name == 'release' && github.event.release.body || '' }}
         run: |
           TAG="${{ steps.tag.outputs.tag }}"
           TAG_CLEAN="${TAG#v}"
@@ -159,9 +162,9 @@ jobs:
           # Check if Release Drafter has already generated notes (from release body)
           # If Release Drafter notes exist, we'll enhance them with missing contributors/stats
           HAS_RELEASE_DRAFTER_NOTES=false
-          if [ "${{ github.event_name }}" = "release" ] && [ -n "${{ github.event.release.body }}" ]; then
-            echo "✅ Release Drafter notes found, will enhance if needed"
-            echo "${{ github.event.release.body }}" > RELEASE_NOTES.md
+          if [ "${{ github.event_name }}" = "release" ] && [ -n "$RELEASE_BODY" ]; then
+            echo "✅ Release notes from GitHub release body, will enhance if needed"
+            printf '%s' "$RELEASE_BODY" > RELEASE_NOTES.md
             HAS_RELEASE_DRAFTER_NOTES=true
           fi
           
