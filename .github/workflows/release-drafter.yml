@@ -1,11 +1,14 @@
 name: Release Drafter
 
+# Merge triggers both `pull_request: closed` and `push` to main; running Release Drafter
+# on both can create duplicate draft releases. `closed` is omitted so only `push` refreshes
+# the draft after merge; other PR events still update the draft during review.
 on:
   push:
     branches:
       - main
   pull_request:
-    types: [opened, reopened, synchronize, edited, labeled, unlabeled, closed]
+    types: [opened, reopened, synchronize, edited, labeled, unlabeled]
     branches:
       - main
 

@@ -1,5 +1,6 @@
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+# No "v" prefix: aligns with plugin header / Stable tag / existing tags like 1.2.0
+name-template: '$RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
 change-template: '- $TITLE (#$NUMBER) by @$AUTHOR'
 categories:
   - title: '### Added'
@@ -27,5 +28,5 @@ template: |
   
   $CONTRIBUTORS
   
-  **Full Changelog**: $PREVIOUS_TAG...v$RESOLVED_VERSION
+  **Full Changelog**: $PREVIOUS_TAG...$RESOLVED_VERSION
 
