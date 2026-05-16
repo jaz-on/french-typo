@@ -18,8 +18,9 @@
 *.log
 .vscode/
 .idea/
-# IDE agent rules (tracked in Git for contributors; not shipped in plugin ZIP / SVN)
+# Agent / IDE rules (tracked in Git for contributors; not shipped in plugin ZIP / SVN)
 .cursor/
+AGENTS.md
 
 # WP.org assets folder should not go in plugin ZIP
 .wordpress-org
