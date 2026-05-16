@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - (Placeholder for future changes)
 
+## [1.2.2]
+
+### Fixed
+- (À compléter) Compatibilité Elementor Pro + Advanced Editor Tools : espaces insécables dupliquées avant la ponctuation. Voir [issue #8](https://github.com/jaz-on/french-typo/issues/8).
+
+### Compatibility
+- Tested up to WordPress 7.0
+
 ## [1.2.1]
 
 ### Fixed

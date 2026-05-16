@@ -4,7 +4,7 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://ko-fi.com/jasonrouet
@@ -64,6 +64,9 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 == Changelog ==
 
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
+
+= 1.2.2 =
+* (En préparation — voir CHANGELOG.md sur GitHub pour le détail.)
 
 = 1.2.1 =
 * Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).

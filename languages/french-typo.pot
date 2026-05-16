@@ -2,7 +2,7 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: French Typo 1.2.1\n"
+"Project-Id-Version: French Typo 1.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/french-typo\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
