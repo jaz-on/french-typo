@@ -25,8 +25,8 @@ Conventions du projet à respecter par tout agent (Claude Code, Cursor, Codex, e
 ## i18n
 
 - **Text domain** : `french-typo` (doit matcher le `Text Domain:` du header). Toujours `__()`, `_e()`, `esc_html__()`, etc. avec ce domaine pour les chaînes user-facing.
-- **`.pot` jamais édité à la main.** Le repo ne suit **que** [`languages/french-typo.pot`](languages/french-typo.pot). Les locales (`fr_FR`, etc.) vivent sur [translate.wordpress.org](https://translate.wordpress.org/), pas comme `.po`/`.mo` commités.
-- Après modification de chaînes traduisibles : régénérer avec `wp i18n make-pot` (voir [`docs/development.md`](docs/development.md)). La CI échoue (`i18n-pot` job) si le POT n'est pas à jour.
+- **`.pot` jamais édité à la main.** Régénération obligatoire via `wp i18n make-pot . languages/french-typo.pot --slug=french-typo --domain=french-typo --exclude=vendor,.git` à **chaque commit qui touche aux chaînes traduisibles** (PHP `__()`, `_e()`, commentaires `translators:`, etc.). La CI a un job `i18n POT up to date` qui régénère et diff — il échoue le PR si le POT du repo dévie. L'outillage local doit suivre la version wp-cli utilisée par la CI (`brew install wp-cli` → 2.12.0).
+- **Locale `.po`** : le repo embarque `languages/french-typo-fr_FR.po` comme traduction de référence. La traduction suit le skill [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) (glossaire Polyglots FR + règles typographiques officielles). Le `.mo` compilé est ignoré par Git (`languages/*.mo` dans [`.gitignore`](.gitignore)) — régénération locale via `msgfmt languages/french-typo-fr_FR.po -o languages/french-typo-fr_FR.mo`. `.po` et `.mo` restent **exclus du ZIP WordPress.org** via [`.distignore`](.distignore) ; les language packs officiels sont servis par translate.wordpress.org.
 
 ## Tests
 

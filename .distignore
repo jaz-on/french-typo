@@ -68,7 +68,9 @@ bin
 scripts
 dist
 
-# Translation files (WordPress.org: GlotPress + language packs; repo keeps POT template only)
+# Translation files — repo tracks the POT template + reference fr_FR locale (.po/.mo)
+# for translators, but the WordPress.org ZIP keeps POT only: language packs are served
+# by translate.wordpress.org for all locales.
 languages/*.po
 languages/*.pot
 languages/*.mo

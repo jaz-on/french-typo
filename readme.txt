@@ -67,6 +67,7 @@ Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-t
 
 = 1.2.2 =
 * Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()` when no multilingual plugin is active. The new section lives at the bottom of Settings > French Typo. Mode "Disabled" is the default so existing sites behave as before; an admin notice surfaces the feature when Polylang or WPML is detected. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+* Added: Reference French translation (`languages/french-typo-fr_FR.po`) following the [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) skill — Polyglots FR glossary and typography rules. Compiled `.mo` is generated locally via `msgfmt` and not committed. Locale files are excluded from the WordPress.org ZIP; official language packs are still distributed via translate.wordpress.org.
 * Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) in README, readme.txt, the Plugins row meta link, and the Settings page footer. `FUNDING.yml` was already on Buy Me a Coffee.
 * Changed: README — `http://fr.wordpress.org/` upgraded to HTTPS.
 
