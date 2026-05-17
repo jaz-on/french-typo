@@ -4,10 +4,10 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://ko-fi.com/jasonrouet
+Donate link: https://buymeacoffee.com/jasonrouet
 
 Apply French typography rules to your WordPress content automatically.
 
@@ -65,6 +65,12 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
+= 1.2.2 =
+* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()` when no multilingual plugin is active. The new section lives at the bottom of Settings > French Typo. Mode "Disabled" is the default so existing sites behave as before; an admin notice surfaces the feature when Polylang or WPML is detected. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+* Added: Reference French translation (`languages/french-typo-fr_FR.po`) following the [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) skill — Polyglots FR glossary and typography rules. Compiled `.mo` is generated locally via `msgfmt` and not committed. Locale files are excluded from the WordPress.org ZIP; official language packs are still distributed via translate.wordpress.org.
+* Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) in README, readme.txt, the Plugins row meta link, and the Settings page footer. `FUNDING.yml` was already on Buy Me a Coffee.
+* Changed: README — `http://fr.wordpress.org/` upgraded to HTTPS.
+
 = 1.2.1 =
 * Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).
 * Changed: Regenerated `languages/french-typo.pot` for those admin strings; dropped bundled `fr_FR` PO from the repo (translations on translate.wordpress.org).
@@ -93,6 +99,6 @@ Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-t
 * Email: [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com)
 * WordPress.org: [profiles.wordpress.org/jaz_on/](https://profiles.wordpress.org/jaz_on/)
 
-You can support this project on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+You can support this project on [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 This plugin is a fork of **French Typo** created by Gilles Marchand (master_shiva), completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Inspired by [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/), and [Consistency](https://wordpress.org/plugins/consistency/).

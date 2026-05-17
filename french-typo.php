@@ -3,7 +3,7 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « »), optional French ordinal abbreviations (e.g. 1ère → 1re, 3ème → 3e), and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
- * Version: 1.2.1
+ * Version: 1.2.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Tested up to: 7.0
@@ -14,10 +14,8 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: french-typo
  * Domain Path: /languages
- * GitHub Plugin URI: jaz-on/french-typo
- * GitHub Branch: main
- * Primary Branch: main
- * Release Asset: false
+ * GitHub Plugin URI: https://github.com/jaz-on/french-typo
+ * Primary Branch: 1.2.2
  *
  * @package French_Typo
  */
@@ -25,7 +23,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-define( 'FRENCH_TYPO_VERSION', '1.2.1' );
+define( 'FRENCH_TYPO_VERSION', '1.2.2' );
 
 /**
  * Load plugin text domain for translations.
@@ -154,6 +152,8 @@ function french_typo_hooks() {
 	if ( is_admin() ) {
 		add_action( 'admin_menu', 'french_typo_admin_menu' );
 		add_action( 'admin_init', 'french_typo_admin_init' );
+		add_action( 'admin_init', 'french_typo_handle_mlp_notice_dismiss' );
+		add_action( 'admin_notices', 'french_typo_mlp_notice' );
 		add_action( 'admin_enqueue_scripts', 'french_typo_admin_enqueue_scripts' );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'french_typo_action_links' );
 		add_filter( 'plugin_row_meta', 'french_typo_plugin_row_meta', 10, 2 );
@@ -174,28 +174,37 @@ add_action( 'init', 'french_typo_hooks' );
 function french_typo_get_options() {
 	static $cached_processed_options = null;
 
+	// Test seam: force a fresh read when the test suite needs to mutate options between assertions.
+	if ( defined( 'FRENCH_TYPO_TEST_NO_OPTIONS_CACHE' ) && FRENCH_TYPO_TEST_NO_OPTIONS_CACHE ) {
+		$cached_processed_options = null;
+	}
+
 	// If cache is empty, load and process options.
 	if ( null === $cached_processed_options ) {
 		$raw_options = get_option( 'french_typo_options', array() );
 
 		// Default values for all options.
 		$defaults = array(
-			'narrow_space'           => false,
-			'special_characters'     => true,
-			'apply_to_titles'        => true,
-			'apply_to_content'       => true,
-			'apply_to_excerpts'      => true,
-			'apply_to_widgets'       => true,
-			'apply_to_menus'         => true,
-			'apply_to_custom_fields' => true,
-			'apply_to_taxonomies'    => true,
-			'apply_to_archives'      => true,
-			'apply_to_comments'      => true,
-			'apply_to_rss'           => true,
-			'apply_to_rest_api'      => true,
-			'apply_to_user_profiles' => true,
-			'apply_to_breadcrumbs'   => true,
-			'ordinal_abbreviations'  => true,
+			'narrow_space'                 => false,
+			'special_characters'           => true,
+			'apply_to_titles'              => true,
+			'apply_to_content'             => true,
+			'apply_to_excerpts'            => true,
+			'apply_to_widgets'             => true,
+			'apply_to_menus'               => true,
+			'apply_to_custom_fields'       => true,
+			'apply_to_taxonomies'          => true,
+			'apply_to_archives'            => true,
+			'apply_to_comments'            => true,
+			'apply_to_rss'                 => true,
+			'apply_to_rest_api'            => true,
+			'apply_to_user_profiles'       => true,
+			'apply_to_breadcrumbs'         => true,
+			'ordinal_abbreviations'        => true,
+			// Language restriction (1.2.2).
+			'language_restriction_mode'    => 'off',  // One of: off, auto_fr, custom.
+			'language_restriction_locales' => array(),
+			'mlp_notice_dismissed'         => false,
 		);
 
 		// Merge raw options with defaults using wp_parse_args().
@@ -361,13 +370,29 @@ function french_typo_replace_wrapper( $text ) {
 		'get_comment_author'             => 'apply_to_comments',
 		'get_the_author_description'     => 'apply_to_user_profiles',
 	);
+	// Filters where get_the_ID() reliably yields the current post.
+	static $post_level_filters = array(
+		'the_title'   => true,
+		'the_content' => true,
+		'the_excerpt' => true,
+	);
+
+	$current = current_filter();
+
 	// Get the option key for this hook.
-	$option_key = $hook_option_map[ current_filter() ] ?? null;
+	$option_key = $hook_option_map[ $current ] ?? null;
 
 	// Check if processing is enabled for this content type.
 	$options = french_typo_get_options();
 	if ( $options[ $option_key ] ) {
-		return french_typo_replace( $text );
+		$post_id = null;
+		if ( isset( $post_level_filters[ $current ] ) && function_exists( 'get_the_ID' ) ) {
+			$resolved = get_the_ID();
+			if ( is_int( $resolved ) && $resolved > 0 ) {
+				$post_id = $resolved;
+			}
+		}
+		return french_typo_replace( $text, $post_id );
 	}
 
 	return $text;
@@ -480,7 +505,6 @@ function french_typo_replace_rss_comment( $text ) {
  * @return WP_REST_Response Modified response object.
  */
 function french_typo_rest_api_post( $response ) {
-	// Parameters $_post and $_request are required by filter hooks but not used.
 	$options = french_typo_get_options();
 
 	if ( $options['apply_to_rest_api'] ) {
@@ -629,6 +653,174 @@ function french_typo_apply_ordinal_abbreviations( $segment ) {
 }
 
 /**
+ * Whether a multilingual plugin is currently active (Polylang or WPML).
+ *
+ * @since 1.2.2
+ *
+ * @return bool
+ */
+function french_typo_multilingual_plugin_detected() {
+	return function_exists( 'pll_current_language' ) || defined( 'ICL_LANGUAGE_CODE' );
+}
+
+/**
+ * Return the list of locales the admin can pick from in the "Custom" restriction mode.
+ *
+ * Union of:
+ * - WordPress installed locales (get_available_languages())
+ * - Site locale + en_US
+ * - Polylang configured locales (when Polylang is active)
+ * - WPML configured locales (when WPML is active)
+ * - Common French locales (so admins can opt-in before installing a language pack)
+ *
+ * @since 1.2.2
+ *
+ * @return array<int, string> Locales (e.g. 'fr_FR', 'en_US'), unique, indexed from 0.
+ */
+function french_typo_get_known_locales() {
+	$list = array( 'fr_FR', 'fr_BE', 'fr_CA', 'fr_CH', 'fr_LU', 'en_US' );
+
+	if ( function_exists( 'get_locale' ) ) {
+		$list[] = get_locale();
+	}
+	if ( function_exists( 'get_available_languages' ) ) {
+		$installed = get_available_languages();
+		if ( is_array( $installed ) ) {
+			$list = array_merge( $list, $installed );
+		}
+	}
+	if ( function_exists( 'pll_languages_list' ) ) {
+		$pll = pll_languages_list( array( 'fields' => 'locale' ) );
+		if ( is_array( $pll ) ) {
+			$list = array_merge( $list, $pll );
+		}
+	}
+	if ( function_exists( 'apply_filters' ) ) {
+		$wpml = apply_filters( 'wpml_active_languages', null );
+		if ( is_array( $wpml ) ) {
+			foreach ( $wpml as $lang ) {
+				if ( is_array( $lang ) && ! empty( $lang['default_locale'] ) ) {
+					$list[] = (string) $lang['default_locale'];
+				}
+			}
+		}
+	}
+
+	$list = array_filter(
+		array_map( 'strval', $list ),
+		static function ( $loc ) {
+			return '' !== $loc;
+		}
+	);
+
+	return array_values( array_unique( $list ) );
+}
+
+/**
+ * Resolve the locale for the current filter context.
+ *
+ * Priority chain:
+ *   1. Polylang per-post (when a post id is available and Polylang is active)
+ *   2. WPML per-post (when a post id is available and WPML is active)
+ *   3. Polylang current language (no post context)
+ *   4. WPML current language (via ICL_LANGUAGE_CODE + wpml_active_languages mapping)
+ *   5. Site locale (get_locale())
+ *
+ * The fallback site-locale result is memoized statically per-request; per-post
+ * results are not memoized because different posts in the same request can have
+ * different locales (REST list endpoints, RSS feeds, etc.).
+ *
+ * @since 1.2.2
+ *
+ * @param int|null $post_id Optional post id when known by the caller.
+ * @return string Locale string (e.g. 'fr_FR'). Falls back to get_locale().
+ */
+function french_typo_get_current_locale( $post_id = null ) {
+	static $site_locale_cache = null;
+
+	// Test seam: force fresh site-locale read between assertions.
+	if ( defined( 'FRENCH_TYPO_TEST_NO_LOCALE_CACHE' ) && FRENCH_TYPO_TEST_NO_LOCALE_CACHE ) {
+		$site_locale_cache = null;
+	}
+
+	if ( null === $post_id && function_exists( 'get_the_ID' ) ) {
+		$resolved = get_the_ID();
+		if ( is_int( $resolved ) && $resolved > 0 ) {
+			$post_id = $resolved;
+		}
+	}
+
+	if ( $post_id ) {
+		if ( function_exists( 'pll_get_post_language' ) ) {
+			$loc = pll_get_post_language( $post_id, 'locale' );
+			if ( is_string( $loc ) && '' !== $loc ) {
+				return $loc;
+			}
+		}
+		if ( function_exists( 'apply_filters' ) ) {
+			$wpml_post = apply_filters( 'wpml_post_language_details', null, $post_id );
+			if ( is_array( $wpml_post ) && ! empty( $wpml_post['locale'] ) ) {
+				return (string) $wpml_post['locale'];
+			}
+		}
+	}
+
+	if ( function_exists( 'pll_current_language' ) ) {
+		$loc = pll_current_language( 'locale' );
+		if ( is_string( $loc ) && '' !== $loc ) {
+			return $loc;
+		}
+	}
+
+	if ( defined( 'ICL_LANGUAGE_CODE' ) && function_exists( 'apply_filters' ) ) {
+		$wpml_active = apply_filters( 'wpml_active_languages', null );
+		if ( is_array( $wpml_active ) && isset( $wpml_active[ ICL_LANGUAGE_CODE ]['default_locale'] ) ) {
+			return (string) $wpml_active[ ICL_LANGUAGE_CODE ]['default_locale'];
+		}
+	}
+
+	if ( null === $site_locale_cache ) {
+		$site_locale_cache = function_exists( 'get_locale' ) ? (string) get_locale() : '';
+	}
+	return $site_locale_cache;
+}
+
+/**
+ * Whether typography should run for the given locale, given the current restriction settings.
+ *
+ * @since 1.2.2
+ *
+ * @param string $locale  Locale string (e.g. 'fr_FR', 'en_US'). Empty string treated as "unknown".
+ * @param array  $options Processed plugin options array (from french_typo_get_options()).
+ * @return bool True when typography should run.
+ */
+function french_typo_locale_is_allowed( $locale, $options ) {
+	$mode = isset( $options['language_restriction_mode'] ) ? $options['language_restriction_mode'] : 'off';
+
+	if ( 'off' === $mode ) {
+		return true;
+	}
+
+	if ( '' === (string) $locale ) {
+		// Unknown locale: when restriction is on, do not apply (safer default for non-French sites).
+		return false;
+	}
+
+	if ( 'auto_fr' === $mode ) {
+		return 'fr' === $locale || 0 === strpos( $locale, 'fr_' );
+	}
+
+	if ( 'custom' === $mode ) {
+		$locales = isset( $options['language_restriction_locales'] ) && is_array( $options['language_restriction_locales'] )
+			? $options['language_restriction_locales']
+			: array();
+		return in_array( $locale, $locales, true );
+	}
+
+	return true;
+}
+
+/**
  * Apply French typography rules to text content.
  *
  * Processes text to add non-breaking spaces before/after punctuation and replaces
@@ -638,10 +830,11 @@ function french_typo_apply_ordinal_abbreviations( $segment ) {
  *
  * @since 1.0.0
  *
- * @param string $text The text content to process.
+ * @param string   $text    The text content to process.
+ * @param int|null $post_id Optional post id used for per-post language detection (Polylang / WPML).
  * @return string The processed text with French typography rules applied.
  */
-function french_typo_replace( $text ) {
+function french_typo_replace( $text, $post_id = null ) {
 	static $cache = array();
 
 	// Early return for empty or very short text to avoid unnecessary processing.
@@ -659,6 +852,16 @@ function french_typo_replace( $text ) {
 	// Get processed plugin options (already cached and ready to use).
 	$options = french_typo_get_options();
 
+	// Language restriction guard: short-circuit when the current locale is not allowed.
+	// Covers both wrapper-routed filters and direct callers (SEO meta hooks, custom code).
+	$lang_mode = isset( $options['language_restriction_mode'] ) ? $options['language_restriction_mode'] : 'off';
+	if ( 'off' !== $lang_mode ) {
+		$current_locale = french_typo_get_current_locale( $post_id );
+		if ( ! french_typo_locale_is_allowed( $current_locale, $options ) ) {
+			return $text;
+		}
+	}
+
 	$has_typo = $options['narrow_space'] || $options['special_characters'] || ! empty( $options['ordinal_abbreviations'] );
 	if ( ! $has_typo ) {
 		return $text;
@@ -667,9 +870,10 @@ function french_typo_replace( $text ) {
 	$narrow_key  = $options['narrow_space'] ? (string) crc32( (string) $options['narrow_space'] ) : '0';
 	$special_key = $options['special_characters'] ? '1' : '0';
 	$ordinal_key = ! empty( $options['ordinal_abbreviations'] ) ? '1' : '0';
+	$lang_key    = 'off' === $lang_mode ? 'a' : 'b';
 
 	if ( $use_cache ) {
-		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key . '_' . $ordinal_key;
+		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key . '_' . $ordinal_key . '_' . $lang_key;
 
 		if ( isset( $cache[ $cache_key ] ) ) {
 			return $cache[ $cache_key ];
@@ -759,6 +963,78 @@ function french_typo_replace( $text ) {
 	}
 
 	return $text;
+}
+
+/**
+ * Display an admin notice on the French Typo settings page when a multilingual
+ * plugin (Polylang or WPML) is detected and the language-restriction mode is
+ * still "off". Lets the admin discover the new feature without forcing any
+ * change of behavior.
+ *
+ * @since 1.2.2
+ */
+function french_typo_mlp_notice() {
+	if ( ! is_admin() || ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen || 'settings_page_french-typo' !== $screen->id ) {
+		return;
+	}
+	if ( ! french_typo_multilingual_plugin_detected() ) {
+		return;
+	}
+	$options = french_typo_get_options();
+	if ( 'off' !== ( $options['language_restriction_mode'] ?? 'off' ) ) {
+		return;
+	}
+	if ( ! empty( $options['mlp_notice_dismissed'] ) ) {
+		return;
+	}
+
+	$dismiss_url = wp_nonce_url(
+		add_query_arg( 'french_typo_dismiss_mlp_notice', '1' ),
+		'french_typo_dismiss_mlp_notice'
+	);
+	?>
+	<div class="notice notice-info is-dismissible">
+		<p>
+			<?php
+			esc_html_e(
+				'French Typo detected a multilingual plugin (Polylang or WPML). You can restrict the typography rules to specific languages in the "Language restriction" section below.',
+				'french-typo'
+			);
+			?>
+		</p>
+		<p>
+			<a href="<?php echo esc_url( $dismiss_url ); ?>" class="button button-secondary">
+				<?php esc_html_e( 'Dismiss this notice', 'french-typo' ); ?>
+			</a>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * Handle the "dismiss" action for the multilingual-plugin admin notice.
+ *
+ * @since 1.2.2
+ */
+function french_typo_handle_mlp_notice_dismiss() {
+	if ( ! is_admin() ) {
+		return;
+	}
+	if ( empty( $_GET['french_typo_dismiss_mlp_notice'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+	if ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	check_admin_referer( 'french_typo_dismiss_mlp_notice' );
+
+	$options                         = get_option( 'french_typo_options', array() );
+	$options['mlp_notice_dismissed'] = true;
+	update_option( 'french_typo_options', $options );
 }
 
 /**
@@ -858,7 +1134,7 @@ function french_typo_plugin_row_meta( $plugin_meta, $plugin_file ) {
 		),
 		sprintf(
 			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url( 'https://ko-fi.com/jasonrouet' ),
+			esc_url( 'https://buymeacoffee.com/jasonrouet' ),
 			esc_html__( 'Donate', 'french-typo' )
 		),
 		sprintf(
@@ -953,6 +1229,27 @@ function french_typo_admin_init() {
 		'french_typo_advanced',
 		'admin_options',
 		'advanced_section'
+	);
+
+	add_settings_section(
+		'language_restriction_section',
+		__( 'Language restriction', 'french-typo' ),
+		'french_typo_language_restriction_text',
+		'admin_options'
+	);
+	add_settings_field(
+		'language_restriction_mode_field',
+		__( 'Restriction mode', 'french-typo' ),
+		'french_typo_language_restriction_mode',
+		'admin_options',
+		'language_restriction_section'
+	);
+	add_settings_field(
+		'language_restriction_locales_field',
+		__( 'Allowed locales', 'french-typo' ),
+		'french_typo_language_restriction_locales',
+		'admin_options',
+		'language_restriction_section'
 	);
 }
 
@@ -1246,6 +1543,7 @@ function french_typo_options_validate( $input ) {
 		'apply_to_rest_api'      => false,
 		'apply_to_user_profiles' => false,
 		'apply_to_breadcrumbs'   => false,
+		'mlp_notice_dismissed'   => false,
 	);
 
 	// Merge input with defaults using wp_parse_args().
@@ -1255,13 +1553,44 @@ function french_typo_options_validate( $input ) {
 	$narrow_space_value = $validated['narrow_space'];
 	unset( $validated['narrow_space'] );
 
-	// Convert all values to booleans.
+	// Remove language restriction fields before the boolean coercion loop.
+	$mode_value    = isset( $validated['language_restriction_mode'] ) ? $validated['language_restriction_mode'] : 'off';
+	$locales_value = isset( $validated['language_restriction_locales'] ) && is_array( $validated['language_restriction_locales'] )
+		? $validated['language_restriction_locales']
+		: array();
+	unset( $validated['language_restriction_mode'], $validated['language_restriction_locales'] );
+
+	// Convert all remaining values to booleans.
 	foreach ( $validated as $key => $value ) {
 		$validated[ $key ] = (bool) $value;
 	}
 
 	// Validate and restore narrow_space as integer (must be 0, 1, or 2).
 	$validated['narrow_space'] = min( 2, max( 0, absint( $narrow_space_value ) ) );
+
+	// Validate language_restriction_mode against allowed enum.
+	$valid_modes                            = array( 'off', 'auto_fr', 'custom' );
+	$validated['language_restriction_mode'] = in_array( (string) $mode_value, $valid_modes, true )
+		? (string) $mode_value
+		: 'off';
+
+	// Validate language_restriction_locales: sanitize each entry, keep only known locales.
+	$known_locales = french_typo_get_known_locales();
+	$clean_locales = array();
+	foreach ( $locales_value as $loc ) {
+		$loc = sanitize_text_field( (string) $loc );
+		if ( '' === $loc ) {
+			continue;
+		}
+		if ( ! preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $loc ) ) {
+			continue;
+		}
+		if ( ! in_array( $loc, $known_locales, true ) ) {
+			continue;
+		}
+		$clean_locales[] = $loc;
+	}
+	$validated['language_restriction_locales'] = array_values( array_unique( $clean_locales ) );
 
 	return $validated;
 }
@@ -1413,6 +1742,77 @@ function french_typo_content_types() {
 }
 
 /**
+ * Display description text for the language restriction section.
+ *
+ * @since 1.2.2
+ */
+function french_typo_language_restriction_text() {
+	?>
+	<p class="description">
+		<?php
+		esc_html_e(
+			'By default, French Typo is applied to every piece of content. Pick a restriction here to only apply the typography rules to content in selected languages. Polylang and WPML are detected automatically; otherwise the site locale (get_locale()) is used.',
+			'french-typo'
+		);
+		?>
+	</p>
+	<?php
+}
+
+/**
+ * Render the language-restriction mode radio group.
+ *
+ * @since 1.2.2
+ */
+function french_typo_language_restriction_mode() {
+	$options = french_typo_get_options();
+	$mode    = isset( $options['language_restriction_mode'] ) ? $options['language_restriction_mode'] : 'off';
+	?>
+	<div class="french-typo-checkbox-group">
+		<label>
+			<input type="radio" name="french_typo_options[language_restriction_mode]" value="off" <?php checked( $mode, 'off' ); ?> />
+			<?php esc_html_e( 'Disabled (apply to all content)', 'french-typo' ); ?>
+		</label>
+		<label>
+			<input type="radio" name="french_typo_options[language_restriction_mode]" value="auto_fr" <?php checked( $mode, 'auto_fr' ); ?> />
+			<?php esc_html_e( 'Auto (French content only — fr_FR, fr_BE, fr_CA, etc.)', 'french-typo' ); ?>
+		</label>
+		<label>
+			<input type="radio" name="french_typo_options[language_restriction_mode]" value="custom" <?php checked( $mode, 'custom' ); ?> />
+			<?php esc_html_e( 'Custom (pick locales below)', 'french-typo' ); ?>
+		</label>
+	</div>
+	<?php
+}
+
+/**
+ * Render the language-restriction locales checkbox list.
+ *
+ * @since 1.2.2
+ */
+function french_typo_language_restriction_locales() {
+	$options  = french_typo_get_options();
+	$selected = isset( $options['language_restriction_locales'] ) && is_array( $options['language_restriction_locales'] )
+		? $options['language_restriction_locales']
+		: array();
+	$known    = french_typo_get_known_locales();
+	sort( $known );
+	?>
+	<div class="french-typo-checkbox-group">
+		<?php foreach ( $known as $locale ) : ?>
+			<label>
+				<input type="checkbox" name="french_typo_options[language_restriction_locales][]" value="<?php echo esc_attr( $locale ); ?>" <?php checked( in_array( $locale, $selected, true ), true ); ?> />
+				<?php echo esc_html( $locale ); ?>
+			</label>
+		<?php endforeach; ?>
+	</div>
+	<p class="description">
+		<?php esc_html_e( 'Only used when the restriction mode is set to "Custom". Selections outside this list are ignored on save.', 'french-typo' ); ?>
+	</p>
+	<?php
+}
+
+/**
  * Render the main settings page.
  *
  * @since 1.0.0
@@ -1432,10 +1832,10 @@ function french_typo_admin_options() {
 				<?php
 				echo wp_kses_post(
 					sprintf(
-					/* translators: %1$s is a link to GitHub, %2$s is a link to Ko-fi */
+					/* translators: %1$s is a link to GitHub, %2$s is a link to Buy Me a Coffee */
 						__( 'Find the source code on %1$s. If this plugin is useful to you, you can support its author and help make further developments on %2$s.', 'french-typo' ),
 						'<a href="' . esc_url( 'https://github.com/jaz-on/french-typo' ) . '" target="_blank" rel="noopener noreferrer">GitHub</a>',
-						'<a href="' . esc_url( 'https://ko-fi.com/jasonrouet' ) . '" target="_blank" rel="noopener noreferrer">Ko-fi</a>'
+						'<a href="' . esc_url( 'https://buymeacoffee.com/jasonrouet' ) . '" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a>'
 					)
 				);
 				?>
@@ -1470,6 +1870,13 @@ function french_typo_admin_options() {
 					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Advanced options', 'french-typo' ); ?></legend>
 					<?php french_typo_advanced_text(); ?>
 					<?php french_typo_advanced(); ?>
+				</fieldset>
+
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Language restriction', 'french-typo' ); ?></legend>
+					<?php french_typo_language_restriction_text(); ?>
+					<?php french_typo_language_restriction_mode(); ?>
+					<?php french_typo_language_restriction_locales(); ?>
 				</fieldset>
 
 				<div class="french-typo-save-wrapper">

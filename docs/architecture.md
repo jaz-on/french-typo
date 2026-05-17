@@ -80,6 +80,16 @@ When there is no HTML/shortcode signal, processing uses a simpler path with the 
 
 No separate “options version” option or invalidation hook is used.
 
+## Language restriction guard (since 1.2.2)
+
+`french_typo_replace()` accepts an optional `$post_id` second parameter and short-circuits at the top of the function when the active **Language restriction** mode (`off` / `auto_fr` / `custom`) excludes the resolved locale. Detection lives in three pure helpers:
+
+- `french_typo_get_known_locales()` — locales offered to the admin in the "Custom" mode UI (union of `get_available_languages()`, Polylang's `pll_languages_list()`, WPML's `wpml_active_languages`, plus common French locales).
+- `french_typo_get_current_locale( $post_id )` — priority chain: Polylang per-post → WPML per-post → Polylang current language → WPML current language → `get_locale()`. The site-locale fallback is memoized statically per-request; per-post results are not, because different posts in the same request can have different locales (REST list endpoints, RSS).
+- `french_typo_locale_is_allowed( $locale, $options )` — pure decision function.
+
+The wrapper (`french_typo_replace_wrapper()`) resolves `get_the_ID()` only for the post-level filters (`the_title`, `the_content`, `the_excerpt`) and passes it as the second argument. Other filters (widgets, menus, taxonomies, RSS, REST) call `french_typo_replace()` with `$post_id = null`, letting the helper fall through to the request-level signals.
+
 ## Design decisions
 
 ### Monolithic file

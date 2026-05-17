@@ -2,7 +2,7 @@
 
 > <small>*English? [See section below](#english)*</small>
 
-Extension WordPress qui applique automatiquement les règles typographiques françaises aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
+Extension WordPress qui applique automatiquement les règles typographiques françaises aux contenus que vous publiez sur un site propulsé par [WordPress](https://fr.wordpress.org/).
 
 Le plugin peut ajouter des espaces insécables avant la ponctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`) : choisissez un mode normal ou fin dans `Réglages > French Typo` et enregistrez ; sans ce choix, la ponctuation n'est pas espacée. Il remplace aussi `(c)` par `©` et `(r)` par `®`. La typo ne s'applique pas au code brut (`script`, `style`, `pre`/`code`, `textarea`) ni au CSS embarqué ; le bloc Vers reste traité sauf s'il est aussi bloc Code.
 
@@ -34,7 +34,7 @@ Oui. Vous pouvez désactiver les espaces insécables ou les remplacements de car
 
 **Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-Vous pouvez soutenir ce projet sur [Ko-fi](https://ko-fi.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+Vous pouvez soutenir ce projet sur [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 Cette extension est un fork de **French Typo** créé par Gilles Marchand (master_shiva), entièrement refondu depuis mars 2024 avec l'aide de [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/).
 Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) et [Consistency](https://wordpress.org/plugins/consistency/).
@@ -83,7 +83,7 @@ Yes. You can disable non-breaking spaces or character replacements, and choose w
 
 **Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-You can support this project on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+You can support this project on [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 This plugin is a fork of **French Typo** created by Gilles Marchand (master_shiva), completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Inspired by [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/), and [Consistency](https://wordpress.org/plugins/consistency/).
 
