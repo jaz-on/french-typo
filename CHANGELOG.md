@@ -26,9 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Donations : remplacement du lien Ko-fi par Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) dans le README, le `readme.txt` WordPress.org, le menu *row meta* des extensions et le pied de la page Réglages. [`FUNDING.yml`](.github/FUNDING.yml) était déjà sur Buy Me a Coffee.
 - README : passage de `http://fr.wordpress.org/` en HTTPS.
 
-### Fixed
-- (À compléter) Compatibilité Elementor Pro + Advanced Editor Tools : espaces insécables dupliquées avant la ponctuation. Voir [issue #8](https://github.com/jaz-on/french-typo/issues/8).
-
 ### Compatibility
 - Tested up to WordPress 7.0
 

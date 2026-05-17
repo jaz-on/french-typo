@@ -505,7 +505,6 @@ function french_typo_replace_rss_comment( $text ) {
  * @return WP_REST_Response Modified response object.
  */
 function french_typo_rest_api_post( $response ) {
-	// Parameters $_post and $_request are required by filter hooks but not used.
 	$options = french_typo_get_options();
 
 	if ( $options['apply_to_rest_api'] ) {
