@@ -185,24 +185,24 @@ function french_typo_get_options() {
 
 		// Default values for all options.
 		$defaults = array(
-			'narrow_space'           => false,
-			'special_characters'     => true,
-			'apply_to_titles'        => true,
-			'apply_to_content'       => true,
-			'apply_to_excerpts'      => true,
-			'apply_to_widgets'       => true,
-			'apply_to_menus'         => true,
-			'apply_to_custom_fields' => true,
-			'apply_to_taxonomies'    => true,
-			'apply_to_archives'      => true,
-			'apply_to_comments'      => true,
-			'apply_to_rss'           => true,
-			'apply_to_rest_api'      => true,
-			'apply_to_user_profiles' => true,
-			'apply_to_breadcrumbs'   => true,
-			'ordinal_abbreviations'  => true,
+			'narrow_space'                 => false,
+			'special_characters'           => true,
+			'apply_to_titles'              => true,
+			'apply_to_content'             => true,
+			'apply_to_excerpts'            => true,
+			'apply_to_widgets'             => true,
+			'apply_to_menus'               => true,
+			'apply_to_custom_fields'       => true,
+			'apply_to_taxonomies'          => true,
+			'apply_to_archives'            => true,
+			'apply_to_comments'            => true,
+			'apply_to_rss'                 => true,
+			'apply_to_rest_api'            => true,
+			'apply_to_user_profiles'       => true,
+			'apply_to_breadcrumbs'         => true,
+			'ordinal_abbreviations'        => true,
 			// Language restriction (1.2.2).
-			'language_restriction_mode'    => 'off',  // 'off' | 'auto_fr' | 'custom'.
+			'language_restriction_mode'    => 'off',  // One of: off, auto_fr, custom.
 			'language_restriction_locales' => array(),
 			'mlp_notice_dismissed'         => false,
 		);
@@ -1033,8 +1033,8 @@ function french_typo_handle_mlp_notice_dismiss() {
 	}
 	check_admin_referer( 'french_typo_dismiss_mlp_notice' );
 
-	$options                          = get_option( 'french_typo_options', array() );
-	$options['mlp_notice_dismissed']  = true;
+	$options                         = get_option( 'french_typo_options', array() );
+	$options['mlp_notice_dismissed'] = true;
 	update_option( 'french_typo_options', $options );
 }
 
