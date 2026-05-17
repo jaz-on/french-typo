@@ -858,7 +858,7 @@ function french_typo_plugin_row_meta( $plugin_meta, $plugin_file ) {
 		),
 		sprintf(
 			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url( 'https://ko-fi.com/jasonrouet' ),
+			esc_url( 'https://buymeacoffee.com/jasonrouet' ),
 			esc_html__( 'Donate', 'french-typo' )
 		),
 		sprintf(
@@ -1432,10 +1432,10 @@ function french_typo_admin_options() {
 				<?php
 				echo wp_kses_post(
 					sprintf(
-					/* translators: %1$s is a link to GitHub, %2$s is a link to Ko-fi */
+					/* translators: %1$s is a link to GitHub, %2$s is a link to Buy Me a Coffee */
 						__( 'Find the source code on %1$s. If this plugin is useful to you, you can support its author and help make further developments on %2$s.', 'french-typo' ),
 						'<a href="' . esc_url( 'https://github.com/jaz-on/french-typo' ) . '" target="_blank" rel="noopener noreferrer">GitHub</a>',
-						'<a href="' . esc_url( 'https://ko-fi.com/jasonrouet' ) . '" target="_blank" rel="noopener noreferrer">Ko-fi</a>'
+						'<a href="' . esc_url( 'https://buymeacoffee.com/jasonrouet' ) . '" target="_blank" rel="noopener noreferrer">Buy Me a Coffee</a>'
 					)
 				);
 				?>
