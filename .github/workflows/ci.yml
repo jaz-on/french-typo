@@ -30,6 +30,8 @@ jobs:
           php tests/french-typo-replace-test.php
           php tests/french-typo-replace-ordinal-off-test.php
           php tests/french-typo-replace-ordinal-only-test.php
+          php tests/french-typo-polylang-test.php
+          php tests/french-typo-site-locale-test.php
 
   wpcs:
     name: WordPress Coding Standards

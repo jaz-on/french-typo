@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.2]
 
+### Added
+- Restriction par langue : nouveaux modes **Désactivé** (par défaut, compat ascendante), **Auto** (locales `fr_*` uniquement) et **Personnalisé** (choisir les locales autorisées). Détection prioritaire de Polylang (par post puis langue courante), puis WPML, avec fallback sur `get_locale()`. Le guard se trouve en tête de `french_typo_replace()`, donc couvre aussi les filtres SEO (Yoast, Rank Math, SEOPress) qui appellent la fonction directement. Une notice admin s'affiche sur la page Réglages quand un plugin multilingue est détecté et que le mode est resté **Désactivé** ; elle est ignorable de façon permanente. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+
 ### Changed
 - Donations : remplacement du lien Ko-fi par Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) dans le README, le `readme.txt` WordPress.org, le menu *row meta* des extensions et le pied de la page Réglages. [`FUNDING.yml`](.github/FUNDING.yml) était déjà sur Buy Me a Coffee.
 - README : passage de `http://fr.wordpress.org/` en HTTPS.

@@ -66,6 +66,7 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
 = 1.2.2 =
+* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()` when no multilingual plugin is active. The new section lives at the bottom of Settings > French Typo. Mode "Disabled" is the default so existing sites behave as before; an admin notice surfaces the feature when Polylang or WPML is detected. ([#5](https://github.com/jaz-on/french-typo/issues/5))
 * Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) in README, readme.txt, the Plugins row meta link, and the Settings page footer. `FUNDING.yml` was already on Buy Me a Coffee.
 * Changed: README — `http://fr.wordpress.org/` upgraded to HTTPS.
 
