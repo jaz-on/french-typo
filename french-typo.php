@@ -888,7 +888,19 @@ function french_typo_replace( $text, $post_id = null ) {
 	);
 
 	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
-	$nbs_quoted = $options['narrow_space'] ? preg_quote( $options['narrow_space'], '#' ) : '';
+	$nbs_marker = '___FT_NBSP___';
+	// Matches every NBSP variant we may encounter: U+00A0 / U+202F literals,
+	// named entity, and decimal / hex numeric entities with optional zero padding.
+	$nbs_any = '(?:\x{00A0}|\x{202F}|&nbsp;|&\#0*160;|&\#0*8239;|&\#[xX]0*[aA]0;|&\#[xX]0*202[fF];)';
+
+	if ( $options['narrow_space'] ) {
+		// Canonicalize every NBSP variant to a single dedicated marker. The marker is not an HTML
+		// entity, so the entity-protection step below leaves it intact; the punctuation regex can
+		// then detect "NBSP already present" reliably and stays idempotent across repeated calls
+		// (e.g. when Elementor pipes content through both widget_text and the_content filters).
+		$text = preg_replace( '#' . $nbs_any . '#u', $nbs_marker, $text );
+	}
+	$nbs_marker_quoted = preg_quote( $nbs_marker, '#' );
 
 	$has_markup = ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) );
 
@@ -925,9 +937,9 @@ function french_typo_replace( $text, $post_id = null ) {
 					}
 					if ( $options['narrow_space'] ) {
 						// Add non-breaking space before punctuation (avoid if already exists).
-						$segment = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $segment );
+						$segment = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $segment );
 						// Add non-breaking space after « (avoid if already exists).
-						$segment = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $segment );
+						$segment = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $segment );
 					}
 				}
 			}
@@ -948,10 +960,16 @@ function french_typo_replace( $text, $post_id = null ) {
 		if ( $options['narrow_space'] ) {
 			// Plain text: process directly without splitting.
 			// Add non-breaking space before punctuation (avoid if already exists).
-			$text = preg_replace( '#(?<!' . $nbs_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs . '$1', $text );
+			$text = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $text );
 			// Add non-breaking space after « (avoid if already exists).
-			$text = preg_replace( '#([«])(?!' . $nbs_quoted . ')\s*#u', '$1' . $nbs, $text );
+			$text = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $text );
 		}
+	}
+
+	if ( $options['narrow_space'] ) {
+		// Restore the marker as the configured NBSP form, collapsing accidental runs (e.g. double
+		// insertion from layered filters) to a single canonical NBSP.
+		$text = preg_replace( '#(?:' . $nbs_marker_quoted . ')+#u', $nbs, $text );
 	}
 
 	if ( $use_cache ) {

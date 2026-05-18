@@ -34,8 +34,9 @@ This is the core function. In order:
 1. **Guards** — Ignore non-strings and very short strings.
 2. **Options** — Read processed options (see caching below). If narrow spaces, special-character replacement, and ordinal abbreviations are all off, return unchanged.
 3. **Caching** — For longer texts, a small static request-level cache may short-circuit repeated work; keys incorporate typography-related settings.
-4. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
-5. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
+4. **NBSP canonicalization** — Before any regex runs, every NBSP variant present in the input (named `&nbsp;`, decimal `&#160;` / `&#8239;` with optional zero padding, hex `&#xA0;` / `&#x202F;` in either case, and literal U+00A0 / U+202F) is collapsed to a dedicated marker. The marker is not an HTML entity, so the entity-protection step below leaves it intact, and the punctuation regex can reliably detect "NBSP already present" via lookbehind. At the end of processing, the marker (or any run of consecutive markers, which can happen when layered filters call the function twice — e.g. Elementor's `widget_text` + `the_content`) is restored as a single canonical `$nbs`, guaranteeing idempotence across repeated invocations.
+5. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
+6. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
 
 When there is no HTML/shortcode signal, processing uses a simpler path with the same punctuation rules.
 
