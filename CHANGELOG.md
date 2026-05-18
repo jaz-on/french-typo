@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README : passage de `http://fr.wordpress.org/` en HTTPS.
 
 ### Fixed
-- Idempotence des espaces insécables : `french_typo_replace()` détecte désormais toutes les variantes NBSP déjà présentes dans le contenu (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;` et leurs équivalents littéraux U+00A0 / U+202F) avant d'insérer la sienne, et collapse les séquences multiples en une seule. Corrige la duplication observée avec **Elementor + Advanced Editor Tools** (TinyMCE normalise les espaces insécables saisis par l'utilisateur en U+00A0 littéral, qui n'était pas reconnu par le lookbehind), ainsi que les cas de double passe du filtre via la chaîne `widget_text` + `the_content`. ([#8](https://github.com/jaz-on/french-typo/issues/8))
+- Idempotence des espaces insécables : `french_typo_replace()` détecte désormais toutes les variantes NBSP déjà présentes dans le contenu (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;` et leurs équivalents littéraux U+00A0 / U+202F) avant d'insérer la sienne, et collapse les séquences multiples en une seule. Corrige la duplication observée avec **Elementor + Advanced Editor Tools** (TinyMCE normalise les espaces insécables saisis par l'utilisateur en U+00A0 littéral, qui n'était pas reconnu par le lookbehind), ainsi que les cas de double passe du filtre via la chaîne `widget_text` + `the_content`. Signalement initial par Guy Declercq (mai 2026) — merci à lui pour le rapport détaillé et la capture d'écran. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
 ### Compatibility
 - Tested up to WordPress 7.0
