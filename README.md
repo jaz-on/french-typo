@@ -1,40 +1,57 @@
-# French Typo (typographie française)
+# French Typo
 
-> <small>*English? [See section below](#english)*</small>
+> Typographie française automatique pour WordPress. [English below](#english).
 
-Extension WordPress qui applique automatiquement les règles typographiques françaises aux contenus que vous publiez sur un site propulsé par [WordPress](http://fr.wordpress.org/).
+French Typo applique les règles typographiques françaises **à l'affichage** de votre contenu. Votre texte reste exactement tel que vous l'avez écrit dans l'éditeur — seul le rendu visible est enrichi.
 
-Le plugin peut ajouter des espaces insécables avant la ponctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`) : choisissez un mode normal ou fin dans `Réglages > French Typo` et enregistrez ; sans ce choix, la ponctuation n'est pas espacée. Il remplace aussi `(c)` par `©` et `(r)` par `®`. La typo ne s'applique pas au code brut (`script`, `style`, `pre`/`code`, `textarea`) ni au CSS embarqué ; le bloc Vers reste traité sauf s'il est aussi bloc Code.
+## Ce que fait l'extension
 
-Les règles couvrent articles, pages, extraits, taxonomies, archives, commentaires, widgets, menus, RSS, API REST, champs personnalisés, fil d'Ariane et SEO. La plupart des zones s'activent ou se désactivent au cas par cas dans les réglages. Les titres et méta SEO / balises sociales produits par Yoast SEO, Rank Math ou SEOPress ne suivent pas les mêmes cases que le titre ou le contenu d'article ; le fil d'Ariane SEO a une option dédiée.
+- Ajoute des espaces insécables avant `: ; ! ? %` et autour de `« »`
+- Remplace `(c)` par `©`, `(r)` par `®`, `(tm)` / `(TM)` par `™`
+- Convertit (en option) les ordinaux français : `1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`
+- S'applique aux articles, pages, widgets, menus, commentaires, RSS, API REST, champs ACF / Meta Box, et au SEO (Yoast, Rank Math, SEOPress)
+- Sur un site multilingue, peut ne traiter que les contenus français (Polylang et WPML détectés automatiquement)
 
-> **Note** : Compatible avec Git Updater pour les mises à jour automatiques depuis GitHub.
+## Ce qu'elle ne fait pas
+
+- Toucher au HTML brut, au code, aux scripts, aux styles, ou aux `<textarea>`
+- Modifier le contenu en base
 
 ## Installation
 
-1. Téléchargez et décompressez le plugin dans `/wp-content/plugins/french-typo`.
-2. Activez l'extension depuis le menu Extensions.
-3. Configurez les options dans `Réglages > French Typo`.
+1. Téléchargez et décompressez dans `/wp-content/plugins/french-typo` (ou installez via le menu Extensions).
+2. Activez l'extension.
+3. Configurez dans **Réglages > French Typo**.
+
+> **Note** : Compatible avec Git Updater pour les mises à jour automatiques depuis GitHub.
 
 ## Questions fréquentes
 
-**L'extension modifie-t-elle mon contenu existant ?**
+**L'extension modifie-t-elle mon contenu ?**
 
-Non. Les règles typographiques sont appliquées à la volée lors de l'affichage, sans modifier le contenu dans la base de données.
+Non. Le texte enregistré en base n'est jamais altéré. French Typo intercepte la sortie juste avant l'affichage et ajoute les règles typographiques à cet endroit. Désactivez l'extension et votre contenu revient à l'identique.
 
-**Quelle est la différence entre espaces insécables normales et fines ?**
+**Espaces insécables normales ou fines ?**
 
-Les espaces normales (`&nbsp;`) sont standards et empêchent les retours à la ligne. Les espaces fines (`&#8239;`) sont plus étroites et peuvent ne pas s'afficher correctement selon la fonte ou le navigateur.
+Normales (`&nbsp;`) : compatibilité maximale. Fines (`&#8239;`) : plus juste typographiquement pour `: ;`, mais peut s'afficher trop étroit ou comme glyphe manquant sur certaines polices anciennes ou navigateurs.
 
-**Puis-je désactiver certaines fonctionnalités ?**
+**Puis-je limiter les règles aux contenus français uniquement ?**
 
-Oui. Vous pouvez désactiver les espaces insécables ou les remplacements de caractères, et choisir précisément quelles zones de contenu doivent être traitées (sauf sorties SEO des extensions citées ci-dessus, qui ne sont pas liées aux mêmes cases que le contenu affiché).
+Oui. Dans **Réglages > French Typo > Restriction par langue**, choisissez **Auto** (locales `fr_*`) ou **Personnalisé** (sélectionner des locales précises). Polylang et WPML sont détectés par post ; sinon la locale du site est utilisée.
+
+**La typographie s'applique-t-elle dans le code, les scripts ou les `<textarea>` ?**
+
+Non. La typo n'est pas appliquée à l'intérieur de `<script>`, `<style>`, `<pre>`, `<code>` (imbriqués), `<textarea>`, ni au CSS embarqué (par exemple SVG inline). Le bloc Vers de Gutenberg reste traité sauf s'il est aussi bloc Code.
+
+**Mon thème ou éditeur insère déjà des insécables. L'extension va-t-elle les doubler ?**
+
+Non depuis la 1.2.2. Toutes les variantes (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;`, U+00A0 / U+202F littéraux) sont détectées et fusionnées en une seule.
 
 ## Auteur et crédits
 
 **Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-Vous pouvez soutenir ce projet sur [Ko-fi](https://ko-fi.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+Vous pouvez soutenir ce projet sur [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 Cette extension est un fork de **French Typo** créé par Gilles Marchand (master_shiva), entièrement refondu depuis mars 2024 avec l'aide de [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/).
 Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/) et [Consistency](https://wordpress.org/plugins/consistency/).
@@ -53,45 +70,62 @@ Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https:
 <a name="english"></a>
 ## English
 
-WordPress plugin that automatically applies French typography rules to your content.
+French Typo applies French typography rules to your content **as it is displayed**. Your text stays exactly as you wrote it in the editor — only the rendered output is enriched.
 
-The plugin can add non-breaking spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`): pick regular or thin in `Settings > French Typo` and save; until you do, punctuation is not spaced. It also replaces `(c)` with `©` and `(r)` with `®`. Typography does not run inside raw `script`, `style`, `pre`/`code`, or `textarea` (or embedded CSS); the Verse block stays typographic unless it is also a Code block.
+### What it does
 
-Rules cover posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS, REST API, custom fields, breadcrumbs, and SEO. Most areas can be toggled in settings. SEO titles, meta descriptions, and social tags from Yoast SEO, Rank Math, or SEOPress are not controlled by the same switches as visible post title and content; SEO breadcrumbs have their own setting.
+- Adds non-breaking spaces before `: ; ! ? %` and around `« »`
+- Replaces `(c)` with `©`, `(r)` with `®`, `(tm)` / `(TM)` with `™`
+- Optionally normalizes French ordinals: `1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`
+- Works across posts, pages, widgets, menus, comments, RSS, REST, ACF / Meta Box fields, and SEO output (Yoast, Rank Math, SEOPress)
+- On multilingual sites, can apply rules to French content only (Polylang and WPML auto-detected)
 
-## Installation
+### What it does not do
 
-1. Download and extract the plugin to `/wp-content/plugins/french-typo`.
-2. Activate the plugin from the Plugins menu.
-3. Configure options in `Settings > French Typo`.
+- Touch your raw HTML, code blocks, scripts, styles, or `<textarea>` content
+- Modify what's stored in the database
 
-## Frequently Asked Questions
+### Installation
 
-**Does this plugin modify existing content?**
+1. Download and extract to `/wp-content/plugins/french-typo` (or install through the WordPress plugins screen).
+2. Activate the plugin.
+3. Configure in **Settings > French Typo**.
 
-No. Typography rules are applied on-the-fly when content is displayed, without modifying the original content in the database.
+### Frequently Asked Questions
 
-**What's the difference between regular and thin non-breaking spaces?**
+**Does this plugin modify my content?**
 
-Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#8239;`) are narrower and may not display correctly depending on the font or browser.
+No. The text saved in the database is never altered. French Typo intercepts the output just before display and adds the typography rules there. Deactivate the plugin and your content comes back unchanged.
 
-**Can I disable certain features?**
+**Regular or thin non-breaking spaces?**
 
-Yes. You can disable non-breaking spaces or character replacements, and choose which content areas to process (SEO plugin title/meta/social output is separate from those toggles, as above).
+Regular (`&nbsp;`) is universally supported. Thin (`&#8239;`) is typographically purer for `: ;` but may render too narrow or as a missing glyph on older fonts and browsers.
 
-## Author & Credits
+**Can I limit rules to French content only?**
+
+Yes. In **Settings > French Typo > Language restriction**, choose **Auto** to apply only to `fr_*` locales, or **Custom** to pick specific locales. Polylang and WPML are detected per post; otherwise the site locale is used.
+
+**Will it run inside code blocks, scripts, or `<textarea>`?**
+
+No. Typography is skipped inside `<script>`, `<style>`, `<pre>`, `<code>` (nested), `<textarea>`, and embedded CSS (e.g. inline SVG). Gutenberg's Verse block stays typographic unless it is also a Code block.
+
+**My theme or editor already inserts non-breaking spaces. Will French Typo duplicate them?**
+
+No (since 1.2.2). All non-breaking space variants — `&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;`, and literal U+00A0 / U+202F — are detected and collapsed to a single canonical entity.
+
+### Author & Credits
 
 **Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
-You can support this project on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+You can support this project on [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 This plugin is a fork of **French Typo** created by Gilles Marchand (master_shiva), completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Inspired by [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/), and [Consistency](https://wordpress.org/plugins/consistency/).
 
-## Documentation
+### Documentation
 
 * [Changelog](CHANGELOG.md) — Version history
 * [Developer documentation](docs/README.md) — Detailed technical documentation
 
-## License
+### License
 
 [GPLv2 or later](https://www.gnu.org/licenses/gpl-2.0.html)

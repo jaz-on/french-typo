@@ -4,58 +4,67 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://ko-fi.com/jasonrouet
+Donate link: https://buymeacoffee.com/jasonrouet
 
 Apply French typography rules to your WordPress content automatically.
 
 == Description ==
 
-French Typo automatically applies French typography rules to your content. Choose regular or thin non-breaking spaces in Settings > French Typo and save to add spaces before punctuation (`;`, `:`, `!`, `?`, `%`, `«`, `»`); until you do, punctuation spacing stays off. It replaces `(c)` with `©`, `(r)` with `®`, and `(tm)` / `(TM)` with `™`. It can normalize common French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, etc.) when that option is enabled (on by default until you save settings without it).
+French Typo applies French typography rules to your content **as it is displayed**. Your text stays exactly as you wrote it in the editor — only the rendered output is enriched.
 
-Rules apply to posts, pages, excerpts, taxonomies, archives, comments, widgets, menus, RSS feeds, REST API, custom fields, breadcrumbs, and SEO metadata. Most areas can be enabled or disabled in settings. SEO titles, meta descriptions, and Open Graph/Twitter strings from Yoast SEO, Rank Math, or SEOPress are not gated by the same toggles as post title and content; breadcrumbs use their own option.
+**What it does:**
 
-= Features =
+* Adds non-breaking spaces before `: ; ! ? %` and around `« »`
+* Replaces `(c)` with `©`, `(r)` with `®`, `(tm)` / `(TM)` with `™`
+* Optionally normalizes French ordinals: `1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`
+* Works across posts, pages, widgets, menus, comments, RSS, REST, ACF / Meta Box fields, and SEO output (Yoast, Rank Math, SEOPress)
+* On multilingual sites, can apply rules to French content only (Polylang and WPML auto-detected)
 
-* Non-breaking spaces before punctuation marks
-* Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, hyphenated “n-ième” → `nième`, etc.), with the same raw HTML boundaries as other rules
-* Special character replacements (`(c)` → `©`, `(r)` → `®`)
-* Configurable: regular or thin non-breaking spaces
-* Comprehensive coverage: all WordPress content areas
-* Granular control: enable or disable each area individually
-* SEO integration: Yoast SEO, Rank Math, SEOPress
-* Custom fields support: ACF and Meta Box
-* Respects HTML and shortcodes
+**What it does not do:**
+
+* Touch your raw HTML, code blocks, scripts, styles, or `<textarea>` content
+* Modify what's stored in the database
+
+= Settings highlights =
+
+* Regular (`&nbsp;`) or thin (`&#8239;`) non-breaking spaces
+* Enable / disable each content area (title, content, excerpt, widgets, RSS, REST, etc.)
+* Language restriction: off (default), auto French, or pick specific locales
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/french-typo`, or install through the WordPress plugins screen.
+1. Install through the WordPress plugins screen, or upload to `/wp-content/plugins/french-typo`.
 2. Activate the plugin.
-3. Configure options in `Settings > French Typo`.
+3. Configure in **Settings > French Typo**.
 
 == Frequently Asked Questions ==
 
-= Does this plugin modify existing content? =
+= Does this plugin modify my content? =
 
-No. Typography rules are applied on-the-fly when content is displayed, without modifying the original content in the database.
+No. The text saved in the database is never altered. French Typo intercepts the output just before display and adds the typography rules there. Deactivate the plugin and your content comes back unchanged.
 
-= What's the difference between regular and thin non-breaking spaces? =
+= Regular or thin non-breaking spaces? =
 
-Regular spaces (`&nbsp;`) are standard and prevent line breaks. Thin spaces (`&#8239;`) are narrower and may not display correctly depending on the font or browser.
+Regular (`&nbsp;`) is universally supported. Thin (`&#8239;`) is typographically purer for `: ;` but may render too narrow or as a missing glyph on older fonts and browsers.
 
-= Can I disable certain features? =
+= Can I limit rules to French content only? =
 
-Yes. You can disable non-breaking spaces or character replacements, and choose which content areas to process (SEO plugin title/meta/social strings are separate from those checkboxes; see description).
+Yes. In **Settings > French Typo > Language restriction**, choose **Auto** to apply only to `fr_*` locales, or **Custom** to pick specific locales. Polylang and WPML are detected per post; otherwise the site locale is used.
 
-= Does typography run inside code, scripts, or textareas? =
+= Will it run inside code blocks, scripts, or `<textarea>`? =
 
-No. Narrow spaces, (c)/(r)/(tm) replacements, and optional ordinal abbreviations are skipped inside script, style, pre/code (nested), and textarea, and in embedded CSS (e.g. SVG). The Verse block stays typographic unless it is also a Code block. See the plugin documentation on GitHub for details.
+No. Typography is skipped inside `<script>`, `<style>`, `<pre>`, `<code>` (nested), `<textarea>`, and embedded CSS (e.g. inline SVG). Gutenberg's Verse block stays typographic unless it is also a Code block.
 
-= Does the plugin change English ordinals (1st, 2nd) or “1ème”? =
+= Does it change English ordinals (`1st`, `2nd`) or non-standard forms like `1ème`? =
 
-No. English-style ordinals and non-standard `1ème` are left as typed. Disable **Ordinal abbreviations** under Settings > French Typo if you prefer to keep forms like `3ème` in French text.
+No. Only the French forms listed in the description are converted.
+
+= My theme or editor already inserts non-breaking spaces. Will French Typo duplicate them? =
+
+No (since 1.2.2). All non-breaking space variants — `&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;`, and literal U+00A0 / U+202F — are detected and collapsed to a single canonical entity.
 
 == Screenshots ==
 
@@ -65,26 +74,12 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
-= 1.2.1 =
-* Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).
-* Changed: Regenerated `languages/french-typo.pot` for those admin strings; dropped bundled `fr_FR` PO from the repo (translations on translate.wordpress.org).
-* Documentation: WordPress compatibility note for this release; see GitHub PR [#7](https://github.com/jaz-on/french-typo/pull/7).
-* Compatibility: Tested up to WordPress 7.0
-
-= 1.2.0 =
-* Added: Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`, etc.); see GitHub [issue #3](https://github.com/jaz-on/french-typo/issues/3) (idea from [Beryl](https://github.com/beryl-dlg) on [WordPress.org](https://profiles.wordpress.org/beryldlg/)). Included in PR [#6](https://github.com/jaz-on/french-typo/pull/6).
-* Added: Plugins admin screen — row meta links for French Typo (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review).
-* Added: Regenerated `languages/french-typo.pot` and French (`fr_FR`) translations for those meta link labels and settings strings.
-* Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
-* Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
-* Added: Documentation — streamlined root `README.md`; `docs/test-post-content.md` for manual QA; `docs/configuration.md` (legacy `sanitized` option), `docs/faq.md` (where typography runs), `docs/architecture.md` (`textarea` in raw markup); admin copy aligned for Posts and pages, RSS/REST toggles, and raw HTML regions.
-* Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
-* Fixed: Cache key includes typography options to avoid stale output after a settings change.
-* Fixed: Options sanitization no longer adds a stray `sanitized` flag or reuses a static cache across validate calls.
-* Improved: Settings labels and help text (Posts and pages section, raw markup, RSS/REST combined toggles).
-* Credits: Julio Potier (`juliobox`) and Beryl (`beryldlg`, [profile](https://profiles.wordpress.org/beryldlg/)) added to plugin contributors on WordPress.org; reflected in the Contributors header above.
-* Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
-* Compatibility: Tested up to WordPress 7.0
+= 1.2.2 =
+* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+* Added: Reference French translation (`languages/french-typo-fr_FR.po`).
+* Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`).
+* Changed: README — `fr.wordpress.org` upgraded to HTTPS.
+* Fixed: Duplicate non-breaking spaces with **Elementor + Advanced Editor Tools** — detects every NBSP variant (named/numeric/hex entities, literal U+00A0 / U+202F) and collapses runs into a single canonical NBSP. Idempotent across layered filters (`widget_text` + `the_content`). Thanks to Guy Declercq for the report. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
 == Author & Credits ==
 
@@ -93,6 +88,6 @@ Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-t
 * Email: [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com)
 * WordPress.org: [profiles.wordpress.org/jaz_on/](https://profiles.wordpress.org/jaz_on/)
 
-You can support this project on [Ko-fi](https://ko-fi.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
+You can support this project on [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) or [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
 This plugin is a fork of **French Typo** created by Gilles Marchand (master_shiva), completely rebuilt since March 2024 with the help of [Jean-Baptiste Audras](https://profiles.wordpress.org/audrasjb/). Inspired by [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https://wordpress.org/plugins/orthotypo-orthotypographie-automatique/), and [Consistency](https://wordpress.org/plugins/consistency/).

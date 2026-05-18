@@ -34,8 +34,9 @@ This is the core function. In order:
 1. **Guards** — Ignore non-strings and very short strings.
 2. **Options** — Read processed options (see caching below). If narrow spaces, special-character replacement, and ordinal abbreviations are all off, return unchanged.
 3. **Caching** — For longer texts, a small static request-level cache may short-circuit repeated work; keys incorporate typography-related settings.
-4. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
-5. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
+4. **NBSP canonicalization** — Before any regex runs, every NBSP variant present in the input (named `&nbsp;`, decimal `&#160;` / `&#8239;` with optional zero padding, hex `&#xA0;` / `&#x202F;` in either case, and literal U+00A0 / U+202F) is collapsed to a dedicated marker. The marker is not an HTML entity, so the entity-protection step below leaves it intact, and the punctuation regex can reliably detect "NBSP already present" via lookbehind. At the end of processing, the marker (or any run of consecutive markers, which can happen when layered filters call the function twice — e.g. Elementor's `widget_text` + `the_content`) is restored as a single canonical `$nbs`, guaranteeing idempotence across repeated invocations.
+5. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
+6. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
 
 When there is no HTML/shortcode signal, processing uses a simpler path with the same punctuation rules.
 
@@ -79,6 +80,16 @@ When there is no HTML/shortcode signal, processing uses a simpler path with the 
 - **`french_typo_replace()`** — Optional small static cache for long strings; keys include settings that affect output so results stay consistent after option changes.
 
 No separate “options version” option or invalidation hook is used.
+
+## Language restriction guard (since 1.2.2)
+
+`french_typo_replace()` accepts an optional `$post_id` second parameter and short-circuits at the top of the function when the active **Language restriction** mode (`off` / `auto_fr` / `custom`) excludes the resolved locale. Detection lives in three pure helpers:
+
+- `french_typo_get_known_locales()` — locales offered to the admin in the "Custom" mode UI (union of `get_available_languages()`, Polylang's `pll_languages_list()`, WPML's `wpml_active_languages`, plus common French locales).
+- `french_typo_get_current_locale( $post_id )` — priority chain: Polylang per-post → WPML per-post → Polylang current language → WPML current language → `get_locale()`. The site-locale fallback is memoized statically per-request; per-post results are not, because different posts in the same request can have different locales (REST list endpoints, RSS).
+- `french_typo_locale_is_allowed( $locale, $options )` — pure decision function.
+
+The wrapper (`french_typo_replace_wrapper()`) resolves `get_the_ID()` only for the post-level filters (`the_title`, `the_content`, `the_excerpt`) and passes it as the second argument. Other filters (widgets, menus, taxonomies, RSS, REST) call `french_typo_replace()` with `$post_id = null`, letting the helper fall through to the request-level signals.
 
 ## Design decisions
 

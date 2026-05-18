@@ -16,6 +16,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - (Placeholder for future changes)
 
+## [1.2.2]
+
+### Added
+- Restriction par langue : modes **Désactivé** (défaut), **Auto** (locales `fr_*`) et **Personnalisé**. Détection Polylang puis WPML, fallback `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+- Traduction française de référence ([`languages/french-typo-fr_FR.po`](languages/french-typo-fr_FR.po)) — glossaire Polyglots FR.
+
+### Changed
+- Donations : Ko-fi → Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`).
+- README : `fr.wordpress.org` passé en HTTPS.
+
+### Fixed
+- Espaces insécables dupliquées avec **Elementor + Advanced Editor Tools** : détection de toutes les variantes NBSP (entités nommées/numériques/hex, U+00A0 / U+202F littéraux) et collapse des séquences multiples. Idempotence garantie même en cas de double passe du filtre. Merci à Guy Declercq pour le signalement. ([#8](https://github.com/jaz-on/french-typo/issues/8))
+
+### Compatibility
+- Tested up to WordPress 7.0
+
 ## [1.2.1]
 
 ### Fixed

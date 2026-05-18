@@ -160,13 +160,15 @@ This configuration applies non-breaking spaces only to main titles and content.
 
 ### Configuration for Multilingual Site
 
-If your site contains content in multiple languages:
+If your site contains content in multiple languages, use the **Language restriction** section (since 1.2.2):
 
-- **Non-breaking spaces**: Disabled (or enabled only for French content)
-- **Special characters**: Enabled
-- **Areas**: Select only areas containing French content
+- **Disabled** — typography rules apply to every content regardless of language (default; matches the historic behavior).
+- **Auto** — rules apply only when the current content's locale starts with `fr_*` (or is exactly `fr`). Detection priority: Polylang per-post → WPML per-post → Polylang current language → WPML current language → site locale (`get_locale()`).
+- **Custom** — pick the locales you want to restrict to from the list. The list combines installed WordPress locales (`get_available_languages()`), the languages configured in Polylang or WPML when present, and the common French locales (`fr_FR`, `fr_BE`, `fr_CA`, `fr_CH`, `fr_LU`).
 
-> **Note**: The plugin currently processes all content the same way. For language-specific processing, you will need to use custom filters (see [API Documentation](api.md)).
+When a multilingual plugin is detected and the restriction mode is still **Disabled**, an admin notice appears on the settings page suggesting the new options. The notice can be dismissed permanently per site.
+
+The guard short-circuits at the top of `french_typo_replace()`, so it also covers SEO meta hooks (Yoast, Rank Math, SEOPress) that call the function directly.
 
 ### Configuration for High-Content Site
 

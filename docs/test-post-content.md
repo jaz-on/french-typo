@@ -474,3 +474,39 @@ Titre : Cas pratiques pour tester French Typo
 <!-- /wp:paragraph -->
 
  
+
+## QA manuel — Restriction par langue (depuis 1.2.2)
+
+Pré-requis : un site WordPress avec **Polylang** (ou WPML) activé, configuré avec au moins deux langues dont une non française (par exemple FR + EN).
+
+### Scénario 1 — Mode "Disabled" (compat ascendante)
+
+1. Page **Réglages > French Typo** → section **Language restriction** → cocher **Disabled**.
+2. Publier un post FR contenant « Bonjour : monde » et un post EN contenant « Hello: world ».
+3. **Résultat attendu** : les deux posts reçoivent un NBSP avant `:` (comportement antérieur préservé).
+
+### Scénario 2 — Mode "Auto"
+
+1. Réglage : **Auto (French content only)**.
+2. **Résultat attendu** : le post FR a un NBSP avant `:`, le post EN reste tel quel (`Hello: world`).
+
+### Scénario 3 — Mode "Custom"
+
+1. Réglage : **Custom**, cocher seulement `fr_BE` (et **pas** `fr_FR`).
+2. Charger le post FR (langue `fr_FR` dans Polylang).
+3. **Résultat attendu** : pas de NBSP injecté (la locale n'est pas dans la liste).
+4. Recocher `fr_FR` en plus, recharger.
+5. **Résultat attendu** : NBSP réinjecté.
+
+### Scénario 4 — Notice admin
+
+1. Avec Polylang actif et le mode **Disabled**, visiter **Réglages > French Typo**.
+2. **Résultat attendu** : une notice info apparaît au-dessus du formulaire, expliquant la fonctionnalité avec un bouton **Dismiss this notice**.
+3. Cliquer le bouton, recharger.
+4. **Résultat attendu** : la notice ne revient pas.
+
+### Scénario 5 — Site sans plugin multilingue
+
+1. Désactiver Polylang/WPML. Mode **Auto**.
+2. Si la locale du site est `fr_FR` → la typo s'applique (fallback `get_locale()`).
+3. Si la locale du site est `en_US` → la typo ne s'applique pas.
