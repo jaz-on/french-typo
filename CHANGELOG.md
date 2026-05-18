@@ -19,15 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.2]
 
 ### Added
-- Restriction par langue : nouveaux modes **Désactivé** (par défaut, compat ascendante), **Auto** (locales `fr_*` uniquement) et **Personnalisé** (choisir les locales autorisées). Détection prioritaire de Polylang (par post puis langue courante), puis WPML, avec fallback sur `get_locale()`. Le guard se trouve en tête de `french_typo_replace()`, donc couvre aussi les filtres SEO (Yoast, Rank Math, SEOPress) qui appellent la fonction directement. Une notice admin s'affiche sur la page Réglages quand un plugin multilingue est détecté et que le mode est resté **Désactivé** ; elle est ignorable de façon permanente. ([#5](https://github.com/jaz-on/french-typo/issues/5))
-- Traduction française de référence : ajout de [`languages/french-typo-fr_FR.po`](languages/french-typo-fr_FR.po), produit selon le skill [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) (glossaire officiel Polyglots FR + règles typographiques : espaces insécables, apostrophes courbes, guillemets français, vouvoiement). Le `.mo` compilé est régénéré localement via `msgfmt` (ignoré par Git, exclu du ZIP). `.po`/`.mo` restent exclus du ZIP WordPress.org via [`.distignore`](.distignore) — les language packs officiels sont distribués par translate.wordpress.org.
+- Restriction par langue : modes **Désactivé** (défaut), **Auto** (locales `fr_*`) et **Personnalisé**. Détection Polylang puis WPML, fallback `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+- Traduction française de référence ([`languages/french-typo-fr_FR.po`](languages/french-typo-fr_FR.po)) — glossaire Polyglots FR.
 
 ### Changed
-- Donations : remplacement du lien Ko-fi par Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) dans le README, le `readme.txt` WordPress.org, le menu *row meta* des extensions et le pied de la page Réglages. [`FUNDING.yml`](.github/FUNDING.yml) était déjà sur Buy Me a Coffee.
-- README : passage de `http://fr.wordpress.org/` en HTTPS.
+- Donations : Ko-fi → Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`).
+- README : `fr.wordpress.org` passé en HTTPS.
 
 ### Fixed
-- Idempotence des espaces insécables : `french_typo_replace()` détecte désormais toutes les variantes NBSP déjà présentes dans le contenu (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;` et leurs équivalents littéraux U+00A0 / U+202F) avant d'insérer la sienne, et collapse les séquences multiples en une seule. Corrige la duplication observée avec **Elementor + Advanced Editor Tools** (TinyMCE normalise les espaces insécables saisis par l'utilisateur en U+00A0 littéral, qui n'était pas reconnu par le lookbehind), ainsi que les cas de double passe du filtre via la chaîne `widget_text` + `the_content`. Signalement initial par Guy Declercq (mai 2026) — merci à lui pour le rapport détaillé et la capture d'écran. ([#8](https://github.com/jaz-on/french-typo/issues/8))
+- Espaces insécables dupliquées avec **Elementor + Advanced Editor Tools** : détection de toutes les variantes NBSP (entités nommées/numériques/hex, U+00A0 / U+202F littéraux) et collapse des séquences multiples. Idempotence garantie même en cas de double passe du filtre. Merci à Guy Declercq pour le signalement. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
 ### Compatibility
 - Tested up to WordPress 7.0

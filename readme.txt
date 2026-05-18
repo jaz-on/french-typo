@@ -66,11 +66,11 @@ No. English-style ordinals and non-standard `1ème` are left as typed. Disable *
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
 = 1.2.2 =
-* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()` when no multilingual plugin is active. The new section lives at the bottom of Settings > French Typo. Mode "Disabled" is the default so existing sites behave as before; an admin notice surfaces the feature when Polylang or WPML is detected. ([#5](https://github.com/jaz-on/french-typo/issues/5))
-* Added: Reference French translation (`languages/french-typo-fr_FR.po`) following the [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) skill — Polyglots FR glossary and typography rules. Compiled `.mo` is generated locally via `msgfmt` and not committed. Locale files are excluded from the WordPress.org ZIP; official language packs are still distributed via translate.wordpress.org.
-* Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`) in README, readme.txt, the Plugins row meta link, and the Settings page footer. `FUNDING.yml` was already on Buy Me a Coffee.
-* Changed: README — `http://fr.wordpress.org/` upgraded to HTTPS.
-* Fixed: Non-breaking spaces are now idempotent — `french_typo_replace()` detects every NBSP variant already present in the content (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239;`, `&#x202F;`, plus literal U+00A0 / U+202F) before inserting its own, and collapses consecutive NBSPs into a single canonical entity. Fixes the duplicate `&nbsp;&nbsp;` before French punctuation observed with **Elementor + Advanced Editor Tools** (TinyMCE normalises user-typed NBSPs to literal U+00A0, which the previous lookbehind missed) and the double-pass scenario where Elementor pipes widget content through both `widget_text` and `the_content`. Initial report by Guy Declercq (May 2026) — thanks for the detailed write-up and screenshot. ([#8](https://github.com/jaz-on/french-typo/issues/8))
+* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
+* Added: Reference French translation (`languages/french-typo-fr_FR.po`).
+* Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`).
+* Changed: README — `fr.wordpress.org` upgraded to HTTPS.
+* Fixed: Duplicate non-breaking spaces with **Elementor + Advanced Editor Tools** — detects every NBSP variant (named/numeric/hex entities, literal U+00A0 / U+202F) and collapses runs into a single canonical NBSP. Idempotent across layered filters (`widget_text` + `the_content`). Thanks to Guy Declercq for the report. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
 = 1.2.1 =
 * Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).
