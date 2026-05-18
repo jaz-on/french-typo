@@ -72,27 +72,6 @@ Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-t
 * Changed: README — `fr.wordpress.org` upgraded to HTTPS.
 * Fixed: Duplicate non-breaking spaces with **Elementor + Advanced Editor Tools** — detects every NBSP variant (named/numeric/hex entities, literal U+00A0 / U+202F) and collapses runs into a single canonical NBSP. Idempotent across layered filters (`widget_text` + `the_content`). Thanks to Guy Declercq for the report. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
-= 1.2.1 =
-* Fixed: Settings page HTML for narrow-space and special-character help — tag names in angle brackets are escaped so the form and save button render correctly (browsers no longer interpret `script` / `textarea` / etc. as live tags).
-* Changed: Regenerated `languages/french-typo.pot` for those admin strings; dropped bundled `fr_FR` PO from the repo (translations on translate.wordpress.org).
-* Documentation: WordPress compatibility note for this release; see GitHub PR [#7](https://github.com/jaz-on/french-typo/pull/7).
-* Compatibility: Tested up to WordPress 7.0
-
-= 1.2.0 =
-* Added: Optional French ordinal abbreviations (`1ère` → `1re`, `3ème` → `3e`, `n-ième` → `nième`, etc.); see GitHub [issue #3](https://github.com/jaz-on/french-typo/issues/3) (idea from [Beryl](https://github.com/beryl-dlg) on [WordPress.org](https://profiles.wordpress.org/beryldlg/)). Included in PR [#6](https://github.com/jaz-on/french-typo/pull/6).
-* Added: Plugins admin screen — row meta links for French Typo (GitHub, WordPress.org support, Ko-fi, documentation on GitHub, 5-star review).
-* Added: Regenerated `languages/french-typo.pot` and French (`fr_FR`) translations for those meta link labels and settings strings.
-* Added: Stack-based raw regions — typography skipped inside `<pre>`, `<code>`, `<script>`, `<style>`, and `<textarea>` (nested-safe). Gutenberg Verse stays typographic unless `wp-block-code` is on the same `<pre>`.
-* Added: `(tm)` / `(TM)` → ™ with the same special-characters option as `(c)` / `(r)`.
-* Added: Documentation — streamlined root `README.md`; `docs/test-post-content.md` for manual QA; `docs/configuration.md` (legacy `sanitized` option), `docs/faq.md` (where typography runs), `docs/architecture.md` (`textarea` in raw markup); admin copy aligned for Posts and pages, RSS/REST toggles, and raw HTML regions.
-* Fixed: No narrow spaces or `(c)` / `(r)` / `(tm)` / `(TM)` replacements inside those raw regions (e.g. Elementor SVG `<style>`, code samples).
-* Fixed: Cache key includes typography options to avoid stale output after a settings change.
-* Fixed: Options sanitization no longer adds a stray `sanitized` flag or reuses a static cache across validate calls.
-* Improved: Settings labels and help text (Posts and pages section, raw markup, RSS/REST combined toggles).
-* Credits: Julio Potier (`juliobox`) and Beryl (`beryldlg`, [profile](https://profiles.wordpress.org/beryldlg/)) added to plugin contributors on WordPress.org; reflected in the Contributors header above.
-* Removed: Obsolete root `TODO.md` (task tracking moved to other locations).
-* Compatibility: Tested up to WordPress 7.0
-
 == Author & Credits ==
 
 **Jason Rouet**
