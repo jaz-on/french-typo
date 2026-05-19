@@ -83,5 +83,30 @@ if ( false === strpos( $out_svg_ord, '<p>2e</p>' ) ) {
 	french_typo_test_fail( 'Ordinal SVG: expected 2ème → 2e in <p> after SVG.' );
 }
 
+// HTML entities in plain text (no tags, no shortcodes): the trailing `;`
+// of an entity must NOT trigger the nbsp-before-`;` rule. Regression for
+// titles like "Foo &#038; Bar" produced by core `convert_chars` filter.
+$plain_entity = 'You Got Me (feat. Erykah Badu &#038; Eve)';
+$out_entity   = french_typo_replace( $plain_entity );
+if ( $out_entity !== $plain_entity ) {
+	french_typo_test_fail( 'Entity plain: expected ' . $plain_entity . ' got: ' . $out_entity );
+}
+
+// Same entity rule, with mixed plain text containing real French punctuation:
+// nbsp must appear before "?" but the entity stays intact.
+$mixed_entity = 'Vraiment ? Earth &amp; Fire';
+$out_mixed    = french_typo_replace( $mixed_entity );
+$exp_mixed    = 'Vraiment' . $nbsp . '? Earth &amp; Fire';
+if ( $out_mixed !== $exp_mixed ) {
+	french_typo_test_fail( 'Entity mixed: expected ' . $exp_mixed . ' got: ' . $out_mixed );
+}
+
+// Named & numeric entities mixed.
+$multi_entity = 'A &amp; B &#038; C &#x26; D';
+$out_multi    = french_typo_replace( $multi_entity );
+if ( $out_multi !== $multi_entity ) {
+	french_typo_test_fail( 'Entity multi: expected ' . $multi_entity . ' got: ' . $out_multi );
+}
+
 fwrite( STDERR, "french_typo_replace() tests OK\n" );
 exit( 0 );

@@ -904,21 +904,26 @@ function french_typo_replace( $text, $post_id = null ) {
 
 	$has_markup = ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) );
 
-	if ( $has_markup ) {
-		// Protect HTML entities before narrow-space regexes (unchanged; only when NBSP rules run).
-		$entities     = array();
-		$placeholders = array();
-		if ( $options['narrow_space'] && false !== strpos( $text, '&' ) ) {
-			preg_match_all( '/&#?[a-zA-Z0-9]{1,31};/', $text, $matches );
-			if ( ! empty( $matches[0] ) ) {
-				$entities = array_unique( $matches[0] );
-				foreach ( $entities as $index => $entity ) {
-					$placeholders[] = '___FT_ENT_' . $index . '___';
-				}
-				$text = str_replace( $entities, $placeholders, $text );
+	// Protect HTML entities before narrow-space regexes. The trailing `;` of an
+	// entity (e.g. `&#038;`, `&amp;`, `&#160;`) is NOT French punctuation and
+	// must not trigger the nbsp-before-`;` rule. This protection runs whenever
+	// the text contains `&`, regardless of whether tags / shortcodes are also
+	// present — plain titles like "Foo &amp; Bar" (post `convert_chars`) take
+	// the plain-text path and were previously unprotected.
+	$entities     = array();
+	$placeholders = array();
+	if ( $options['narrow_space'] && false !== strpos( $text, '&' ) ) {
+		preg_match_all( '/&#?[a-zA-Z0-9]{1,31};/', $text, $matches );
+		if ( ! empty( $matches[0] ) ) {
+			$entities = array_unique( $matches[0] );
+			foreach ( $entities as $index => $entity ) {
+				$placeholders[] = '___FT_ENT_' . $index . '___';
 			}
+			$text = str_replace( $entities, $placeholders, $text );
 		}
+	}
 
+	if ( $has_markup ) {
 		$segments  = wp_html_split( $text );
 		$processed = '';
 		$stack     = array();
@@ -946,10 +951,6 @@ function french_typo_replace( $text, $post_id = null ) {
 			$processed .= $segment;
 		}
 		$text = $processed;
-
-		if ( ! empty( $entities ) ) {
-			$text = str_replace( $placeholders, $entities, $text );
-		}
 	} else {
 		if ( $options['special_characters'] ) {
 			$text = strtr( $text, $static_replacements );
@@ -964,6 +965,10 @@ function french_typo_replace( $text, $post_id = null ) {
 			// Add non-breaking space after « (avoid if already exists).
 			$text = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $text );
 		}
+	}
+
+	if ( ! empty( $entities ) ) {
+		$text = str_replace( $placeholders, $entities, $text );
 	}
 
 	if ( $options['narrow_space'] ) {
