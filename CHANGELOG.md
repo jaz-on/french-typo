@@ -16,6 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - (Placeholder for future changes)
 
+## [1.2.3]
+
+### Fixed
+- Entités HTML cassées dans les titres en texte pur : la protection des entités (placeholder pré-pass qui remplace `&xxx;` avant les regex de ponctuation) ne tournait que dans la branche `if ( $has_markup )` de `french_typo_replace()`, donc uniquement quand le texte contenait `<` ou `[`. Les titres en texte pur (typiquement après le filtre core `convert_chars` qui convertit `&` en `&#038;`) tombaient dans la branche `else` non protégée — la regex `nbsp avant ; ! ? :` cassait l'entité (`&#038;` → `&#038\xa0;`), puis `esc_html()` aval ré-encodait le `&` orphelin, produisant le double encodage visible `&#038;#038 ;` (notamment dans les fils d'Ariane Yoast SEO). La protection est maintenant appliquée dès que `narrow_space` est actif ET que le texte contient un `&`, peu importe la présence de tags. ([#10](https://github.com/jaz-on/french-typo/issues/10))
+
+### Compatibility
+- Tested up to WordPress 7.0
+
 ## [1.2.2]
 
 ### Added

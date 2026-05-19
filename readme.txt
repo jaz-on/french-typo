@@ -4,7 +4,7 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://buymeacoffee.com/jasonrouet
@@ -73,6 +73,9 @@ No (since 1.2.2). All non-breaking space variants — `&nbsp;`, `&#160;`, `&#xA0
 == Changelog ==
 
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
+
+= 1.2.3 =
+* Fixed: HTML entities were broken in plain-text titles. The entity-protection pre-pass only ran when the text contained tags or shortcodes, so plain titles like `Foo &#038; Bar` (produced by core's `convert_chars` filter on `the_title`) had the trailing `;` of their entities treated as French punctuation — a narrow no-break space was inserted, turning `&#038;` into `&#038 ;` and downstream `esc_html()` re-encoded the orphan `&`, producing visible `&#038;#038 ;` double-encoding (e.g. in Yoast breadcrumbs). Protection is now applied whenever the text contains `&`, regardless of markup presence. ([#10](https://github.com/jaz-on/french-typo/issues/10))
 
 = 1.2.2 =
 * Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
