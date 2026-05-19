@@ -1,8 +1,8 @@
 # French Typo
 
-> Typographie française automatique pour WordPress. [English below](#english).
+[English below](#english).
 
-French Typo applique les règles typographiques françaises **à l'affichage** de votre contenu. Votre texte reste exactement tel que vous l'avez écrit dans l'éditeur — seul le rendu visible est enrichi.
+> French Typo applique les règles typographiques françaises **à l'affichage** de votre contenu. Votre texte reste exactement tel que vous l'avez écrit dans l'éditeur, seul le rendu visible est enrichi.
 
 ## Ce que fait l'extension
 
@@ -49,7 +49,7 @@ Non depuis la 1.2.2. Toutes les variantes (`&nbsp;`, `&#160;`, `&#xA0;`, `&#8239
 
 ## Auteur et crédits
 
-**Jason Rouet** — [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
+**Jason Rouet** - [jasonrouet.com](https://jasonrouet.com) | [bonjour@jasonrouet.com](mailto:bonjour@jasonrouet.com) | [WordPress.org](https://profiles.wordpress.org/jaz_on/)
 
 Vous pouvez soutenir ce projet sur [Buy Me a Coffee](https://buymeacoffee.com/jasonrouet) ou [GitHub Sponsors](https://github.com/sponsors/jaz-on).
 
@@ -58,8 +58,8 @@ Inspiré par [TypoFR](https://wordpress.org/plugins/typofr/), [Orthotypo](https:
 
 ## Documentation
 
-* [Changelog](CHANGELOG.md) — Historique des versions
-* [Documentation détaillée](docs/README.md) — Tutoriels d'utilisation et documentation technique
+* [Changelog](CHANGELOG.md) - Historique des versions
+* [Documentation détaillée](docs/README.md) - Tutoriels d'utilisation et documentation technique
 
 ## Licence
 
