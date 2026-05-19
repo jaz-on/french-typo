@@ -15,7 +15,7 @@
  * Text Domain: french-typo
  * Domain Path: /languages
  * GitHub Plugin URI: https://github.com/jaz-on/french-typo
- * Primary Branch: 1.2.2
+ * Primary Branch: main
  *
  * @package French_Typo
  */
