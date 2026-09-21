@@ -20,6 +20,7 @@
 .idea/
 # Agent / IDE rules (tracked in Git for contributors; not shipped in plugin ZIP / SVN)
 .cursor/
+.claude/
 CLAUDE.md
 
 # WP.org assets folder should not go in plugin ZIP
