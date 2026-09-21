@@ -57,6 +57,6 @@ global pour la règle complète). Pas de règle issue-first ici (repo public).
 - **Skills** (à la demande) : aucune pour l'instant — en ajouter ici au fur
   et à mesure qu'elles sont écrites, sans dupliquer leur contenu dans ce
   fichier.
-- **Historique** : `AGENTS.md` (racine) porte encore les conventions
-  détaillées héritées (Cursor/Codex) — voir la note dans
-  `.claude/ARCHITECTURE.md` sur la duplication temporaire avec ce fichier.
+- **Historique** : `CLAUDE.md` (racine, ex-`AGENTS.md`) porte encore les
+  conventions détaillées héritées (Cursor/Codex) — voir la note dans
+  `.claude/ARCHITECTURE.md` sur la duplication avec ce fichier.

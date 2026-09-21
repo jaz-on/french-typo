@@ -14,7 +14,7 @@ voir `.claude/CLAUDE.md`.
 │   ├── hooks/                   # session-banner.sh, lint-edited.sh
 │   ├── skills/                  # À la demande — aucune pour l'instant
 │   └── settings.json            # Permissions allow/deny + wiring des hooks
-├── AGENTS.md                    # Conventions détaillées (miroir historique,
+├── CLAUDE.md                    # Conventions détaillées (miroir historique,
 │                                 # voir « Note historique » ci-dessous)
 ├── french-typo.php              # Runtime du plugin — quasi tout vit ici
 ├── admin.css                    # Styles de la page de réglages admin
@@ -122,20 +122,18 @@ voir `.claude/CLAUDE.md`.
 ## Distribution
 
 - `.distignore` exclut `.git`, `.github`, `.cursor/`, `.claude/`,
-  `AGENTS.md`, `docs/`, `vendor/`, `tests/`, etc. du ZIP/SVN WordPress.org.
+  `CLAUDE.md`, `docs/`, `vendor/`, `tests/`, etc. du ZIP/SVN WordPress.org.
   Les règles d'agent ne sont jamais shippées au public.
 
-## Note historique — `AGENTS.md` vs `.claude/`
+## Note historique — `CLAUDE.md` racine vs `.claude/`
 
-Ce dépôt a un `AGENTS.md` à la racine (conventions partagées Claude Code /
-Cursor / Codex), avec une PR ouverte (#20) qui le renomme en `CLAUDE.md` à
-la racine — non fusionnée au moment où cette structure `.claude/` a été
-ajoutée. Le pattern wpfr-2026 veut `CLAUDE.md` **dans** `.claude/`, pas à la
-racine, d'où une duplication temporaire de contenu entre `AGENTS.md`
-(racine) et `.claude/CLAUDE.md` + `.claude/ARCHITECTURE.md`. À trancher une
-fois PR #20 mergée : soit `AGENTS.md` racine devient un pointeur court vers
-`.claude/`, soit il est supprimé si les autres outils (Cursor, Codex)
-acceptent de lire `.claude/CLAUDE.md` directement.
+Ce dépôt a un `CLAUDE.md` à la racine (ex-`AGENTS.md`, renommé par PR #20 —
+conventions partagées Claude Code / Cursor / Codex). Le pattern wpfr-2026
+veut `CLAUDE.md` **dans** `.claude/`, pas à la racine, d'où une duplication
+de contenu entre `CLAUDE.md` (racine) et `.claude/CLAUDE.md` +
+`.claude/ARCHITECTURE.md`. À trancher : soit le `CLAUDE.md` racine devient
+un pointeur court vers `.claude/`, soit il est supprimé si les autres
+outils (Cursor, Codex) acceptent de lire `.claude/CLAUDE.md` directement.
 
 ## Known pitfalls
 
