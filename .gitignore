@@ -33,4 +33,3 @@ phpunit.xml.dist
 # Dossier local (notes, plans hors dépôt)
 _local/
 _todo/
-/.claude/
