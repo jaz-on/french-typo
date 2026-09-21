@@ -887,6 +887,9 @@ function french_typo_replace( $text, $post_id = null ) {
 		'(tm)' => '&#8482;',
 	);
 
+	// Règles issues du guide du traducteur WP FR (source de référence commune avec SPTE,
+	// l'extension de vérif typo pour translate.wordpress.org) :
+	// https://fr.wordpress.org/team/handbook/guide-du-traducteur/les-regles-typographiques-utilisees-pour-la-traduction-de-wp-en-francais/
 	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
 	$nbs_marker = '___FT_NBSP___';
 	// Matches every NBSP variant we may encounter: U+00A0 / U+202F literals,
