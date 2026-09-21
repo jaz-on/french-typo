@@ -937,6 +937,23 @@ function french_typo_replace( $text, $post_id = null ) {
 			}
 			if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
 				if ( empty( $stack ) ) {
+					// Protect shortcode tags (e.g. [gallery caption="Merci !"]) before typography
+					// runs: wp_html_split() only knows HTML tags, not shortcodes, so a segment can
+					// contain one untouched — its attributes must not be rewritten before
+					// do_shortcode() parses them.
+					$shortcodes             = array();
+					$shortcode_placeholders = array();
+					if ( false !== strpos( $segment, '[' ) ) {
+						preg_match_all( '/\[[^\[\]]*\]/', $segment, $sc_matches );
+						if ( ! empty( $sc_matches[0] ) ) {
+							$shortcodes = array_unique( $sc_matches[0] );
+							foreach ( $shortcodes as $sc_index => $shortcode ) {
+								$shortcode_placeholders[] = '___FT_SC_' . $sc_index . '___';
+							}
+							$segment = str_replace( $shortcodes, $shortcode_placeholders, $segment );
+						}
+					}
+
 					if ( $options['special_characters'] ) {
 						$segment = strtr( $segment, $static_replacements );
 					}
@@ -948,6 +965,10 @@ function french_typo_replace( $text, $post_id = null ) {
 						$segment = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $segment );
 						// Add non-breaking space after « (avoid if already exists).
 						$segment = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $segment );
+					}
+
+					if ( ! empty( $shortcode_placeholders ) ) {
+						$segment = str_replace( $shortcode_placeholders, $shortcodes, $segment );
 					}
 				}
 			}

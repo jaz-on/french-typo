@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Settings page: the "Ordinal abbreviations" section (registered but never rendered) is now displayed as a fieldset, so the option can actually be toggled from the admin
 - Settings page: the "Language restriction" section now shows a title above each sub-field ("Restriction mode" / "Allowed locales") instead of two unlabeled radio/checkbox groups running together
+- Shortcode attributes (e.g. `[gallery caption="Merci !"]`) are no longer rewritten by narrow-space/special-character/ordinal typography before `do_shortcode()` parses them — `wp_html_split()` only knows HTML tags, not shortcodes, so a shortcode appearing mid-segment was previously treated as plain text
 
 ## [1.2.3]
 
