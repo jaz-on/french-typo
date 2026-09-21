@@ -1882,6 +1882,12 @@ function french_typo_admin_options() {
 					<?php french_typo_special_characters(); ?>
 				</fieldset>
 
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Ordinal abbreviations', 'french-typo' ); ?></legend>
+					<?php french_typo_ordinal_abbreviations_text(); ?>
+					<?php french_typo_ordinal_abbreviations(); ?>
+				</fieldset>
+
 				<!-- Application Zones -->
 				<fieldset class="french-typo-fieldset-group">
 					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Posts and pages', 'french-typo' ); ?></legend>
@@ -1898,7 +1904,9 @@ function french_typo_admin_options() {
 				<fieldset class="french-typo-fieldset-group">
 					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Language restriction', 'french-typo' ); ?></legend>
 					<?php french_typo_language_restriction_text(); ?>
+					<h4 class="french-typo-field-title"><?php esc_html_e( 'Restriction mode', 'french-typo' ); ?></h4>
 					<?php french_typo_language_restriction_mode(); ?>
+					<h4 class="french-typo-field-title"><?php esc_html_e( 'Allowed locales', 'french-typo' ); ?></h4>
 					<?php french_typo_language_restriction_locales(); ?>
 				</fieldset>
 

@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Placeholder for future changes)
 
 ### Fixed
-- (Placeholder for future changes)
+- Settings page: the "Ordinal abbreviations" section (registered but never rendered) is now displayed as a fieldset, so the option can actually be toggled from the admin
+- Settings page: the "Language restriction" section now shows a title above each sub-field ("Restriction mode" / "Allowed locales") instead of two unlabeled radio/checkbox groups running together
 
 ## [1.2.3]
 

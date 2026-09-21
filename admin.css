@@ -85,6 +85,18 @@
 	padding: 0 var(--french-typo-space-sm);
 }
 
+.french-typo-field-title {
+	font-size: 1rem;
+	line-height: 1.4;
+	font-weight: 600;
+	color: var(--french-typo-color-text);
+	margin: var(--french-typo-space-md) 0 var(--french-typo-space-sm) 0;
+}
+
+.french-typo-field-title:first-child {
+	margin-top: 0;
+}
+
 /* ==========================================================================
    Forms
    ========================================================================== */
