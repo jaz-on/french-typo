@@ -108,5 +108,23 @@ if ( $out_multi !== $multi_entity ) {
 	french_typo_test_fail( 'Entity multi: expected ' . $multi_entity . ' got: ' . $out_multi );
 }
 
+// Shortcode (issue #11): attributes must not be typographed before do_shortcode()
+// parses them — wp_html_split() only knows HTML tags, not shortcodes.
+$plain_shortcode = 'Prix : 10€ [gallery caption="Merci !"] Fin.';
+$out_shortcode   = french_typo_replace( $plain_shortcode );
+$exp_shortcode   = 'Prix' . $nbsp . ': 10€ [gallery caption="Merci !"] Fin.';
+if ( $out_shortcode !== $exp_shortcode ) {
+	french_typo_test_fail( 'Shortcode plain: expected ' . $exp_shortcode . ' got: ' . $out_shortcode );
+}
+
+// Same shortcode, but inside an HTML segment (forces the wp_html_split() branch
+// rather than the plain-text branch).
+$html_shortcode = '<p>Prix : 10€ [gallery caption="Merci !"] Fin.</p>';
+$out_html_sc    = french_typo_replace( $html_shortcode );
+$exp_html_sc    = '<p>Prix' . $nbsp . ': 10€ [gallery caption="Merci !"] Fin.</p>';
+if ( $out_html_sc !== $exp_html_sc ) {
+	french_typo_test_fail( 'Shortcode HTML: expected ' . $exp_html_sc . ' got: ' . $out_html_sc );
+}
+
 fwrite( STDERR, "french_typo_replace() tests OK\n" );
 exit( 0 );

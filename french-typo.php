@@ -887,6 +887,9 @@ function french_typo_replace( $text, $post_id = null ) {
 		'(tm)' => '&#8482;',
 	);
 
+	// Règles issues du guide du traducteur WP FR (source de référence commune avec SPTE,
+	// l'extension de vérif typo pour translate.wordpress.org) :
+	// https://fr.wordpress.org/team/handbook/guide-du-traducteur/les-regles-typographiques-utilisees-pour-la-traduction-de-wp-en-francais/
 	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
 	$nbs_marker = '___FT_NBSP___';
 	// Matches every NBSP variant we may encounter: U+00A0 / U+202F literals,
@@ -934,6 +937,23 @@ function french_typo_replace( $text, $post_id = null ) {
 			}
 			if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
 				if ( empty( $stack ) ) {
+					// Protect shortcode tags (e.g. [gallery caption="Merci !"]) before typography
+					// runs: wp_html_split() only knows HTML tags, not shortcodes, so a segment can
+					// contain one untouched — its attributes must not be rewritten before
+					// do_shortcode() parses them.
+					$shortcodes             = array();
+					$shortcode_placeholders = array();
+					if ( false !== strpos( $segment, '[' ) ) {
+						preg_match_all( '/\[[^\[\]]*\]/', $segment, $sc_matches );
+						if ( ! empty( $sc_matches[0] ) ) {
+							$shortcodes = array_unique( $sc_matches[0] );
+							foreach ( $shortcodes as $sc_index => $shortcode ) {
+								$shortcode_placeholders[] = '___FT_SC_' . $sc_index . '___';
+							}
+							$segment = str_replace( $shortcodes, $shortcode_placeholders, $segment );
+						}
+					}
+
 					if ( $options['special_characters'] ) {
 						$segment = strtr( $segment, $static_replacements );
 					}
@@ -945,6 +965,10 @@ function french_typo_replace( $text, $post_id = null ) {
 						$segment = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $segment );
 						// Add non-breaking space after « (avoid if already exists).
 						$segment = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $segment );
+					}
+
+					if ( ! empty( $shortcode_placeholders ) ) {
+						$segment = str_replace( $shortcode_placeholders, $shortcodes, $segment );
 					}
 				}
 			}
@@ -1882,6 +1906,12 @@ function french_typo_admin_options() {
 					<?php french_typo_special_characters(); ?>
 				</fieldset>
 
+				<fieldset class="french-typo-fieldset-group">
+					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Ordinal abbreviations', 'french-typo' ); ?></legend>
+					<?php french_typo_ordinal_abbreviations_text(); ?>
+					<?php french_typo_ordinal_abbreviations(); ?>
+				</fieldset>
+
 				<!-- Application Zones -->
 				<fieldset class="french-typo-fieldset-group">
 					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Posts and pages', 'french-typo' ); ?></legend>
@@ -1898,7 +1928,9 @@ function french_typo_admin_options() {
 				<fieldset class="french-typo-fieldset-group">
 					<legend class="french-typo-fieldset-title"><?php esc_html_e( 'Language restriction', 'french-typo' ); ?></legend>
 					<?php french_typo_language_restriction_text(); ?>
+					<h4 class="french-typo-field-title"><?php esc_html_e( 'Restriction mode', 'french-typo' ); ?></h4>
 					<?php french_typo_language_restriction_mode(); ?>
+					<h4 class="french-typo-field-title"><?php esc_html_e( 'Allowed locales', 'french-typo' ); ?></h4>
 					<?php french_typo_language_restriction_locales(); ?>
 				</fieldset>
 
