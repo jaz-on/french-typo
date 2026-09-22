@@ -6,7 +6,7 @@
  * Version: 1.2.4
  * Requires at least: 6.0
  * Requires PHP: 7.4
- * Tested up to: 7.0
+ * Tested up to: 7.1.2
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
  * Contributors: jaz_on, audrasjb, juliobox, beryldlg

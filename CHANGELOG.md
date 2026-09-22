@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Settings page: clearer labels for the "Language restriction" fields
 - Shortcode attributes (e.g. `[gallery caption="Merci !"]`) are no longer altered by typography rules before the shortcode runs
 
+### Compatibility
+- Tested up to WordPress 7.1.2
+
 ## [1.2.3]
 
 ### Fixed
