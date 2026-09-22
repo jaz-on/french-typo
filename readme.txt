@@ -4,7 +4,7 @@ Tags: typography, french, typographie, francais, text-formatting
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://buymeacoffee.com/jasonrouet
@@ -74,15 +74,13 @@ No (since 1.2.2). All non-breaking space variants — `&nbsp;`, `&#160;`, `&#xA0
 
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
+= 1.2.4 =
+* Fixed: Settings page — the "Ordinal abbreviations" section (registered but never rendered) is now displayed as a fieldset, so the option can actually be toggled from the admin.
+* Fixed: Settings page — the "Language restriction" section now shows a title above each sub-field ("Restriction mode" / "Allowed locales") instead of two unlabeled radio/checkbox groups running together.
+* Fixed: Shortcode attributes (e.g. `[gallery caption="Merci !"]`) are no longer rewritten by narrow-space/special-character/ordinal typography before `do_shortcode()` parses them.
+
 = 1.2.3 =
 * Fixed: HTML entities in plain-text titles (e.g. `Foo &#038; Bar`) had a narrow no-break space inserted before their trailing `;`, which downstream `esc_html()` then re-encoded into visible `&#038;#038 ;` (e.g. in Yoast breadcrumbs). Entity protection now runs on any text containing `&`, not only on text containing tags. ([#10](https://github.com/jaz-on/french-typo/issues/10))
-
-= 1.2.2 =
-* Added: Language restriction modes (Disabled / Auto French / Custom) with Polylang and WPML auto-detection, falling back to `get_locale()`. ([#5](https://github.com/jaz-on/french-typo/issues/5))
-* Added: Reference French translation (`languages/french-typo-fr_FR.po`).
-* Changed: Donate link migrated from Ko-fi to Buy Me a Coffee (`https://buymeacoffee.com/jasonrouet`).
-* Changed: README — `fr.wordpress.org` upgraded to HTTPS.
-* Fixed: Duplicate non-breaking spaces with **Elementor + Advanced Editor Tools** — detects every NBSP variant (named/numeric/hex entities, literal U+00A0 / U+202F) and collapses runs into a single canonical NBSP. Idempotent across layered filters (`widget_text` + `the_content`). Thanks to Guy Declercq for the report. ([#8](https://github.com/jaz-on/french-typo/issues/8))
 
 == Author & Credits ==
 
