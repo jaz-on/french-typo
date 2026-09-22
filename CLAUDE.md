@@ -1,6 +1,6 @@
-# AGENTS.md — French Typo
+# CLAUDE.md — French Typo
 
-Conventions du projet à respecter par tout agent (Claude Code, Cursor, Codex, etc.) ou contributeur humain. Ce fichier est la source unique ; il est exclu de la distribution WordPress.org via [`.distignore`](.distignore).
+Conventions du projet à respecter par tout agent (Claude Code, ou tout autre outil lisant CLAUDE.md) ou contributeur humain. Ce fichier est la source unique ; il est exclu de la distribution WordPress.org via [`.distignore`](.distignore).
 
 ## Architecture
 
@@ -52,4 +52,4 @@ Conventions du projet à respecter par tout agent (Claude Code, Cursor, Codex, e
 
 ## Distribution
 
-- `.distignore` exclut `.git`, `.github`, `.cursor/`, `AGENTS.md` (à ajouter), docs, vendor, tests, etc. du ZIP/SVN WordPress.org. Les règles d'agent ne sont jamais shippées au public.
+- `.distignore` exclut `.git`, `.github`, `.cursor/`, `CLAUDE.md`, docs, vendor, tests, etc. du ZIP/SVN WordPress.org. Les règles d'agent ne sont jamais shippées au public.
