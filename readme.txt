@@ -75,9 +75,9 @@ No (since 1.2.2). All non-breaking space variants — `&nbsp;`, `&#160;`, `&#xA0
 Full history for all versions: [CHANGELOG.md](https://github.com/jaz-on/french-typo/blob/main/CHANGELOG.md) on GitHub.
 
 = 1.2.4 =
-* Fixed: Settings page — the "Ordinal abbreviations" section (registered but never rendered) is now displayed as a fieldset, so the option can actually be toggled from the admin.
-* Fixed: Settings page — the "Language restriction" section now shows a title above each sub-field ("Restriction mode" / "Allowed locales") instead of two unlabeled radio/checkbox groups running together.
-* Fixed: Shortcode attributes (e.g. `[gallery caption="Merci !"]`) are no longer rewritten by narrow-space/special-character/ordinal typography before `do_shortcode()` parses them.
+* Fixed: Settings page — the "Ordinal abbreviations" option is visible and can be toggled again.
+* Fixed: Settings page — clearer labels for the "Language restriction" fields.
+* Fixed: Shortcode attributes (e.g. `[gallery caption="Merci !"]`) are no longer altered by typography rules before the shortcode runs.
 
 = 1.2.3 =
 * Fixed: HTML entities in plain-text titles (e.g. `Foo &#038; Bar`) had a narrow no-break space inserted before their trailing `;`, which downstream `esc_html()` then re-encoded into visible `&#038;#038 ;` (e.g. in Yoast breadcrumbs). Entity protection now runs on any text containing `&`, not only on text containing tags. ([#10](https://github.com/jaz-on/french-typo/issues/10))
