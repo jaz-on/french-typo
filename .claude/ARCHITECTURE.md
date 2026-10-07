@@ -11,9 +11,9 @@ voir `.claude/CLAUDE.md`.
 │   ├── CLAUDE.md                # Contexte de session (auto-chargé)
 │   ├── ARCHITECTURE.md          # Ce fichier
 │   ├── rules/                   # Toujours chargées : security, a11y
-│   ├── hooks/                   # session-banner.sh, lint-edited.sh
+│   ├── guardrails.json          # Piloté par `.claude/guardrails.json` (plugin guardrails de jaz-ai) : bannière, lint
 │   ├── skills/                  # À la demande — aucune pour l'instant
-│   └── settings.json            # Permissions allow/deny + wiring des hooks
+│   └── settings.json            # Permissions allow/deny
 ├── CLAUDE.md                    # Conventions détaillées (miroir historique,
 │                                 # voir « Note historique » ci-dessous)
 ├── french-typo.php              # Runtime du plugin — quasi tout vit ici
