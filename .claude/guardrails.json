@@ -1,0 +1,13 @@
+{
+  "banner": {
+    "title": "French Typo",
+    "runtimes": ["php"],
+    "commits": 3
+  },
+  "lint": {
+    "abspath": ["inc/*.php", "includes/*.php", "french-typo.php"],
+    "rules": [
+      { "match": ["*.php"], "run": "vendor/bin/phpcs {file}", "requires": "vendor/bin/phpcs" }
+    ]
+  }
+}
