@@ -1035,7 +1035,7 @@ function french_typo_mlp_notice() {
 	if ( 'off' !== ( $options['language_restriction_mode'] ?? 'off' ) ) {
 		return;
 	}
-	if ( ! empty( $options['mlp_notice_dismissed'] ) ) {
+	if ( french_typo_mlp_notice_dismissed( $options ) ) {
 		return;
 	}
 
@@ -1063,6 +1063,22 @@ function french_typo_mlp_notice() {
 }
 
 /**
+ * Whether the multilingual-plugin notice was dismissed.
+ *
+ * The flag lives in its own option so dismissing never rewrites the settings array
+ * (which, on a site that never saved its settings, would write every rule as off).
+ * Before 1.2.5 the flag was stored inside french_typo_options, so that location still counts.
+ *
+ * @since 1.2.5
+ *
+ * @param array $options Processed plugin options from french_typo_get_options().
+ * @return bool
+ */
+function french_typo_mlp_notice_dismissed( $options ) {
+	return (bool) get_option( 'french_typo_mlp_notice_dismissed', false ) || ! empty( $options['mlp_notice_dismissed'] );
+}
+
+/**
  * Handle the "dismiss" action for the multilingual-plugin admin notice.
  *
  * @since 1.2.2
@@ -1079,9 +1095,7 @@ function french_typo_handle_mlp_notice_dismiss() {
 	}
 	check_admin_referer( 'french_typo_dismiss_mlp_notice' );
 
-	$options                         = get_option( 'french_typo_options', array() );
-	$options['mlp_notice_dismissed'] = true;
-	update_option( 'french_typo_options', $options );
+	update_option( 'french_typo_mlp_notice_dismissed', true, false );
 }
 
 /**
@@ -1572,6 +1586,9 @@ function french_typo_ordinal_abbreviations() {
  * @return array Sanitized options array.
  */
 function french_typo_options_validate( $input ) {
+	// The settings form has no field for the notice flag: keep the value stored before 1.2.5, do not reset it.
+	$existing = get_option( 'french_typo_options', array() );
+
 	// Default values for all options.
 	$defaults = array(
 		'narrow_space'           => false,
@@ -1590,7 +1607,7 @@ function french_typo_options_validate( $input ) {
 		'apply_to_rest_api'      => false,
 		'apply_to_user_profiles' => false,
 		'apply_to_breadcrumbs'   => false,
-		'mlp_notice_dismissed'   => false,
+		'mlp_notice_dismissed'   => is_array( $existing ) && ! empty( $existing['mlp_notice_dismissed'] ),
 	);
 
 	// Merge input with defaults using wp_parse_args().

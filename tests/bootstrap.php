@@ -90,7 +90,68 @@ if ( ! function_exists( 'get_option' ) ) {
 			}
 			return $opts;
 		}
+		if ( isset( $GLOBALS['french_typo_test_store'] ) && array_key_exists( $option, $GLOBALS['french_typo_test_store'] ) ) {
+			return $GLOBALS['french_typo_test_store'][ $option ];
+		}
 		return $default;
+	}
+}
+
+if ( ! function_exists( 'update_option' ) ) {
+	/**
+	 * Records writes so tests can assert which options a handler touches.
+	 *
+	 * @param string $option   Option name.
+	 * @param mixed  $value    Value.
+	 * @param mixed  $autoload Ignored.
+	 * @return bool
+	 */
+	function update_option( $option, $value, $autoload = null ) { // phpcs:ignore
+		$GLOBALS['french_typo_test_store'][ $option ]    = $value;
+		$GLOBALS['french_typo_test_writes'][ $option ][] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'delete_option' ) ) {
+	/**
+	 * @param string $option Option name.
+	 * @return bool
+	 */
+	function delete_option( $option ) { // phpcs:ignore
+		unset( $GLOBALS['french_typo_test_store'][ $option ] );
+		$GLOBALS['french_typo_test_deleted'][] = $option;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'current_user_can' ) ) {
+	/**
+	 * @return bool
+	 */
+	function current_user_can() { // phpcs:ignore
+		return ! isset( $GLOBALS['french_typo_test_user_can'] ) || $GLOBALS['french_typo_test_user_can'];
+	}
+}
+
+if ( ! function_exists( 'check_admin_referer' ) ) {
+	/**
+	 * @param string $action Nonce action.
+	 * @return int
+	 */
+	function check_admin_referer( $action ) { // phpcs:ignore
+		$GLOBALS['french_typo_test_nonce_checked'][] = $action;
+		return 1;
+	}
+}
+
+if ( ! function_exists( 'absint' ) ) {
+	/**
+	 * @param mixed $value Value.
+	 * @return int
+	 */
+	function absint( $value ) { // phpcs:ignore
+		return abs( (int) $value );
 	}
 }
 
