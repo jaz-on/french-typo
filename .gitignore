@@ -1,5 +1,3 @@
-# Exclude files from WordPress.org releases
-.gitattributes
 .DS_Store
 *.swp
 *.swo
@@ -33,3 +31,8 @@ phpunit.xml.dist
 # Dossier local (notes, plans hors dépôt)
 _local/
 _todo/
+
+# Claude Code : config locale et worktrees d'agents (liens absolus propres à la machine, jamais portables)
+/.claude/settings.local.json
+/.claude/worktrees/
+/CLAUDE.local.md

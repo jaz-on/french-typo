@@ -1,5 +1,8 @@
 # Exclude development-only files from GitHub source exports
 .github export-ignore
+.claude export-ignore
+.cursor export-ignore
+CLAUDE.md export-ignore
 .gitignore export-ignore
 .distignore export-ignore
 .editorconfig export-ignore
