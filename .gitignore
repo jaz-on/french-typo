@@ -19,7 +19,7 @@ composer/
 # PHP CodeSniffer cache
 .phpcs-cache/
 
-# PHPUnit (suite not adopted yet; remove these ignores when committing phpunit.xml.dist)
+# PHPUnit local override (phpunit.xml.dist is tracked)
 phpunit.xml
 
 # PHPUnit cache
