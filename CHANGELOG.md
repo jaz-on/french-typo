@@ -11,10 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (Placeholder for future changes)
 
 ### Changed
-- (Placeholder for future changes)
-
-### Fixed
-- (Placeholder for future changes)
+- Development tooling, no change for site visitors: the test scripts are now a PHPUnit suite (#17), `tests/HooksTest.php` checks that every filter is really attached with the right priority and argument count (#13), PHPStan level 5 runs in CI with a baseline (#16), and PHPCS configuration lives in `phpcs.xml.dist` with PHP compatibility checks for the supported floor (#15).
+- CI runs the test suite on PHP 7.4 to 8.5, which backs the `Requires PHP: 7.4` header (#15).
 
 ## [1.2.4]
 

@@ -11,19 +11,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require __DIR__ . '/wp-html-split-wpstub.php';
 
-if ( ! function_exists( 'add_action' ) ) {
-	/**
-	 * @param mixed ...$args Ignored.
-	 */
-	function add_action( ...$args ) { // phpcs:ignore
-	}
-}
+// Cache-free runs: every test sees its own options/locale overrides.
+define( 'FRENCH_TYPO_TEST_NO_OPTIONS_CACHE', true );
+define( 'FRENCH_TYPO_TEST_NO_LOCALE_CACHE', true );
+
+require_once __DIR__ . '/FrenchTypoTestCase.php';
 
 if ( ! function_exists( 'add_filter' ) ) {
 	/**
-	 * @param mixed ...$args Ignored.
+	 * Records the registration so tests can assert hooks, priorities and argument counts.
+	 *
+	 * @param string   $hook          Hook name.
+	 * @param callable $callback      Callback.
+	 * @param int      $priority      Priority.
+	 * @param int      $accepted_args Accepted arguments.
+	 * @return true
 	 */
-	function add_filter( ...$args ) { // phpcs:ignore
+	function add_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) { // phpcs:ignore
+		$GLOBALS['french_typo_test_hooks'][] = array(
+			'hook'          => $hook,
+			'callback'      => $callback,
+			'priority'      => $priority,
+			'accepted_args' => $accepted_args,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_action' ) ) {
+	/**
+	 * Actions are filters in WordPress; same recording.
+	 *
+	 * @param string   $hook          Hook name.
+	 * @param callable $callback      Callback.
+	 * @param int      $priority      Priority.
+	 * @param int      $accepted_args Accepted arguments.
+	 * @return true
+	 */
+	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) { // phpcs:ignore
+		return add_filter( $hook, $callback, $priority, $accepted_args );
+	}
+}
+
+if ( ! function_exists( 'is_admin' ) ) {
+	/**
+	 * @return bool
+	 */
+	function is_admin() { // phpcs:ignore
+		return ! empty( $GLOBALS['french_typo_test_is_admin'] );
+	}
+}
+
+if ( ! function_exists( 'plugin_basename' ) ) {
+	/**
+	 * @param string $file File path.
+	 * @return string
+	 */
+	function plugin_basename( $file ) { // phpcs:ignore
+		return 'french-typo/' . basename( $file );
 	}
 }
 
@@ -40,14 +85,6 @@ if ( ! function_exists( 'get_option' ) ) {
 				'special_characters'    => 1,
 				'ordinal_abbreviations' => true,
 			);
-			if ( defined( 'FRENCH_TYPO_TEST_ORDINAL_ABBREV_OFF' ) && FRENCH_TYPO_TEST_ORDINAL_ABBREV_OFF ) {
-				$opts['ordinal_abbreviations'] = false;
-			}
-			if ( defined( 'FRENCH_TYPO_TEST_ORDINAL_ONLY' ) && FRENCH_TYPO_TEST_ORDINAL_ONLY ) {
-				$opts['narrow_space']          = 0;
-				$opts['special_characters']    = 0;
-				$opts['ordinal_abbreviations'] = true;
-			}
 			if ( isset( $GLOBALS['french_typo_test_options_override'] ) && is_array( $GLOBALS['french_typo_test_options_override'] ) ) {
 				$opts = array_merge( $opts, $GLOBALS['french_typo_test_options_override'] );
 			}
@@ -125,46 +162,6 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	}
 }
 
-// Polylang stubs: only registered when a test asks for them (so the absence-of-Polylang case stays clean).
-if ( defined( 'FRENCH_TYPO_TEST_STUB_POLYLANG' ) && FRENCH_TYPO_TEST_STUB_POLYLANG ) {
-	if ( ! function_exists( 'pll_get_post_language' ) ) {
-		/**
-		 * @param int    $post_id Post id (ignored by the stub).
-		 * @param string $field   'slug' | 'locale' | ...
-		 * @return string
-		 */
-		function pll_get_post_language( $post_id, $field = 'slug' ) { // phpcs:ignore
-			if ( 'locale' === $field && isset( $GLOBALS['french_typo_test_polylang_post_locale'] ) ) {
-				return (string) $GLOBALS['french_typo_test_polylang_post_locale'];
-			}
-			return '';
-		}
-	}
-	if ( ! function_exists( 'pll_current_language' ) ) {
-		/**
-		 * @param string $field 'slug' | 'locale' | ...
-		 * @return string
-		 */
-		function pll_current_language( $field = 'slug' ) { // phpcs:ignore
-			if ( 'locale' === $field && isset( $GLOBALS['french_typo_test_polylang_current_locale'] ) ) {
-				return (string) $GLOBALS['french_typo_test_polylang_current_locale'];
-			}
-			return '';
-		}
-	}
-	if ( ! function_exists( 'pll_languages_list' ) ) {
-		/**
-		 * @param array $args Polylang args.
-		 * @return array
-		 */
-		function pll_languages_list( $args = array() ) { // phpcs:ignore
-			return isset( $GLOBALS['french_typo_test_polylang_languages'] ) && is_array( $GLOBALS['french_typo_test_polylang_languages'] )
-				? $GLOBALS['french_typo_test_polylang_languages']
-				: array( 'fr_FR', 'en_US' );
-		}
-	}
-}
-
 if ( ! function_exists( 'wp_parse_args' ) ) {
 	/**
 	 * @param array|object $args    Arguments.
@@ -181,3 +178,6 @@ if ( ! function_exists( 'wp_parse_args' ) ) {
 }
 
 require dirname( __DIR__ ) . '/french-typo.php';
+
+// Hooks registered while the plugin file loads (before any test resets the recorder).
+$GLOBALS['french_typo_test_load_hooks'] = isset( $GLOBALS['french_typo_test_hooks'] ) ? $GLOBALS['french_typo_test_hooks'] : array();
