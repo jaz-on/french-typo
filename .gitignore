@@ -21,7 +21,6 @@ composer/
 
 # PHPUnit (suite not adopted yet; remove these ignores when committing phpunit.xml.dist)
 phpunit.xml
-phpunit.xml.dist
 
 # PHPUnit cache
 .phpunit.result.cache
