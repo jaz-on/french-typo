@@ -56,7 +56,7 @@ dans une chaîne de requête.
 ## Enforcement
 
 - PHPCS (`WordPress-Extra`) attrape la plupart de ces points statiquement —
-  `vendor/bin/phpcs --standard=WordPress-Extra --ignore=vendor/,tests/ .`
+  `composer lint`
   avant de committer.
-- Les scripts sous `tests/` couvrent l'idempotence et le comportement par
-  locale — les lancer localement avant de déclarer un changement terminé.
+- La suite PHPUnit sous `tests/` couvre l'idempotence et le comportement par
+  locale — lancer `composer test` avant de déclarer un changement terminé.
