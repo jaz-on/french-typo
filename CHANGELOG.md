@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- (Placeholder for future changes)
-
-### Changed
-- (Placeholder for future changes)
+- `uninstall.php`: deleting the plugin from the Plugins screen now removes its options (multisite included)
 
 ### Fixed
-- (Placeholder for future changes)
+- Multilingual-plugin notice: "Dismiss this notice" on a site that never saved its settings no longer switches every typography rule off. The flag now has its own option, and a flag stored by 1.2.2 to 1.2.4 is still honoured
+- Multilingual-plugin notice: saving the settings no longer brings a dismissed notice back
+
+### Changed
+- Development tooling, no change for site visitors: the test scripts are now a PHPUnit suite (#17), `tests/HooksTest.php` checks that every filter is really attached with the right priority and argument count (#13), PHPStan level 5 runs in CI with a baseline (#16), and PHPCS configuration lives in `phpcs.xml.dist` with PHP compatibility checks for the supported floor (#15).
+- CI runs the test suite on PHP 7.4 to 8.5, which backs the `Requires PHP: 7.4` header (#15).
 
 ## [1.2.4]
 

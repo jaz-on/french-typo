@@ -1,0 +1,31 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_array\(\) with array\<string\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: french-typo.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: french-typo.php
+
+		-
+			message: '#^Parameter \#3 \$args of function register_setting expects array\{type\?\: string, label\?\: string, description\?\: string, sanitize_callback\?\: callable\(\)\: mixed, show_in_rest\?\: array\|bool, default\?\: mixed\}, ''french_typo_options…'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: french-typo.php
+
+		-
+			message: '#^Result of && is always false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 1
+			path: french-typo.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''E'' and ''e'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: french-typo.php

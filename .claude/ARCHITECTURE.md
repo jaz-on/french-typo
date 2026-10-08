@@ -19,7 +19,7 @@ voir `.claude/CLAUDE.md`.
 ├── french-typo.php              # Runtime du plugin — quasi tout vit ici
 ├── admin.css                    # Styles de la page de réglages admin
 ├── docs/                        # architecture.md, configuration.md, faq.md, api.md, …
-├── tests/                       # Scripts PHP autonomes (pas de suite PHPUnit)
+├── tests/                       # Suite PHPUnit (*Test.php), bootstrap et stubs WordPress
 ├── languages/                   # french-typo.pot + french-typo-fr_FR.po/.mo (référence)
 ├── .wordpress-org/              # Assets de la fiche WordPress.org (screenshots, banner…)
 ├── .github/workflows/           # CI (lint, WPCS, POT, readme, release ZIP, wiki sync)
