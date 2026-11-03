@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internal cleanup, no change for site visitors: removed the settings sections and fields registered but never rendered (the settings page is drawn by hand), the shared symbols / ordinals / non-breaking-space sequence of `french_typo_replace()` now lives in one helper, `register_setting()` uses its array form, and the ordinal regexes use the `i` modifier instead of an inline `(?i)`
 - Settings validation: input that is not an array now gives the default settings, and unknown keys are dropped before saving
 - PHPStan baseline reduced from five entries to two (the other three were a false positive and a wrong argument type)
+### Compatibility - Tested up to WordPress 7.1.4
 
 ## [1.2.4]
 
