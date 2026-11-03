@@ -3,10 +3,10 @@
  * Plugin Name: French Typo
  * Plugin URI: https://github.com/jaz-on/french-typo
  * Description: Automatically applies French typography rules to your content: non-breaking spaces before punctuation marks (; : ! ? % « »), optional French ordinal abbreviations (e.g. 1ère → 1re, 3ème → 3e), and special character replacements ((c) → ©, (r) → ®, (tm)/(TM) → ™).
- * Version: 1.2.4
+ * Version: 1.2.5
  * Requires at least: 6.0
  * Requires PHP: 7.4
- * Tested up to: 7.1.2
+ * Tested up to: 7.1.4
  * Author: Jason Rouet
  * Author URI: https://profiles.wordpress.org/jaz_on/
  * Contributors: jaz_on, audrasjb, juliobox, beryldlg
@@ -23,7 +23,7 @@
 // Security check: prevent direct access to the file.
 defined( 'ABSPATH' ) || die( 'Silence is golden.' );
 
-define( 'FRENCH_TYPO_VERSION', '1.2.4' );
+define( 'FRENCH_TYPO_VERSION', '1.2.5' );
 
 /**
  * Load plugin text domain for translations.
@@ -102,7 +102,6 @@ function french_typo_hooks() {
 	add_filter( 'rest_prepare_attachment', 'french_typo_rest_api_post' );
 
 	// Apply to user profiles.
-	add_filter( 'get_the_author_description', 'french_typo_replace_wrapper' );
 	add_filter( 'get_user_metadata', 'french_typo_user_meta', 10, 5 );
 
 	// Apply to breadcrumbs (Yoast, Rank Math, SEOPress).
@@ -260,14 +259,22 @@ function french_typo_markup_pre_is_verse_not_code( $attr_region ) {
 /**
  * Update stack of raw-text elements (script, style, pre, code, textarea) from one wp_html_split() tag segment.
  *
- * Malformed HTML: closing tag pops only when it matches the stack top (strict LIFO).
+ * Rules for malformed HTML:
+ * - HTML comments are ignored: a raw tag written inside `<!-- ... -->` neither opens nor closes anything.
+ * - A closing tag pops the nearest matching open tag, discarding any raw tag left open above it
+ *   (`<pre><code>x</pre>` ends both).
+ * - A closing tag with no matching open tag is ignored.
+ * - An opening tag that is never closed is handled by the caller: french_typo_replace() ignores it
+ *   (second pass, using the segment index stored with each stack entry) so it cannot silence the rest of the text.
  *
  * @since 1.2.0
  *
- * @param array  $stack   Stack of open raw tag local names (modified by reference).
- * @param string $segment Full tag segment starting with '<'.
+ * @param array      $stack       Stack of open raw tag local names (modified by reference).
+ * @param string     $segment     Full tag segment starting with '<'.
+ * @param int        $segment_idx Index of the segment in the wp_html_split() result.
+ * @param array|null $stack_idx   Optional parallel stack of segment indexes (modified by reference).
  */
-function french_typo_markup_stack_update( array &$stack, $segment ) {
+function french_typo_markup_stack_update( array &$stack, $segment, $segment_idx = 0, &$stack_idx = null ) {
 	static $raw_flip  = null;
 	static $void_flip = null;
 
@@ -291,6 +298,17 @@ function french_typo_markup_stack_update( array &$stack, $segment ) {
 				'wbr',
 			)
 		);
+	}
+
+	// Fast reject: a segment that never mentions one of the five raw-text names (in any case, with
+	// or without a namespace prefix) cannot open or close one, so skip the regexes below.
+	if ( ! preg_match( '/script|style|pre|code|textarea/i', $segment ) ) {
+		return;
+	}
+
+	// HTML comments (and wp:* block delimiters) never open or close a raw zone.
+	if ( 0 === strncmp( $segment, '<!--', 4 ) ) {
+		return;
 	}
 
 	$events = array();
@@ -327,11 +345,20 @@ function french_typo_markup_stack_update( array &$stack, $segment ) {
 	ksort( $events, SORT_NUMERIC );
 	foreach ( $events as $ev ) {
 		if ( 'close' === $ev[0] ) {
-			if ( ! empty( $stack ) && end( $stack ) === $ev[1] ) {
-				array_pop( $stack );
+			for ( $k = count( $stack ) - 1; $k >= 0; $k-- ) {
+				if ( $stack[ $k ] === $ev[1] ) {
+					array_splice( $stack, $k );
+					if ( is_array( $stack_idx ) ) {
+						array_splice( $stack_idx, $k );
+					}
+					break;
+				}
 			}
 		} else {
 			$stack[] = $ev[1];
+			if ( is_array( $stack_idx ) ) {
+				$stack_idx[] = $segment_idx;
+			}
 		}
 	}
 }
@@ -368,7 +395,6 @@ function french_typo_replace_wrapper( $text ) {
 		'get_the_archive_description'    => 'apply_to_archives',
 		'comment_text'                   => 'apply_to_comments',
 		'get_comment_author'             => 'apply_to_comments',
-		'get_the_author_description'     => 'apply_to_user_profiles',
 	);
 	// Filters where get_the_ID() reliably yields the current post.
 	static $post_level_filters = array(
@@ -399,6 +425,41 @@ function french_typo_replace_wrapper( $text ) {
 }
 
 /**
+ * Whether a custom field value looks like data rather than prose: URL, tel:/mailto: link, CSS or JSON.
+ *
+ * Judged on the shape of the whole value, so that prose merely mentioning a URL is still typographed.
+ *
+ * @since 1.2.5
+ *
+ * @param string $value Custom field value.
+ * @return bool True when the value must be left untouched.
+ */
+function french_typo_value_is_technical( $value ) {
+	$value = trim( $value );
+	if ( '' === $value ) {
+		return false;
+	}
+
+	// URL or link scheme (single line, no markup): https://…, tel:+33…, mailto:…, //cdn…, www.…
+	if ( preg_match( '#^(?:(?:https?|ftps?|wss?|tel|sms|mailto|geo|webcal|callto|skype|whatsapp|data|file|javascript):|//|www\.)[^\r\n<>]*$#i', $value ) ) {
+		return true;
+	}
+
+	// JSON object or array.
+	$first = $value[0];
+	if ( ( '{' === $first || '[' === $first ) && is_array( json_decode( $value, true ) ) ) {
+		return true;
+	}
+
+	// CSS: declarations (`prop: value;` with the colon glued to the property, as no French prose does) or a rule set.
+	if ( preg_match( '#^[a-z-]+:[^;{}<>]*;#i', $value ) || preg_match( '#^[.\#@a-z][^{}<>]*\{[^{}<>]*:[^{}<>]*\}$#i', $value ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Apply French typography rules to custom fields.
  *
  * Wrapper function that checks if custom field processing is enabled before applying rules.
@@ -416,6 +477,9 @@ function french_typo_replace_custom_field( $value ) {
 
 	$options = french_typo_get_options();
 	if ( $options['apply_to_custom_fields'] ) {
+		if ( french_typo_value_is_technical( $value ) ) {
+			return $value;
+		}
 		return french_typo_replace( $value );
 	}
 	return $value;
@@ -536,7 +600,9 @@ function french_typo_rest_api_post( $response ) {
  * Apply French typography rules to user metadata (biography).
  *
  * Hooks `get_user_metadata`, fetches the raw value without recursion, then returns
- * the processed value when the biography (`description`) field is read.
+ * the processed value when the biography (`description`) field is read on the public
+ * site. This is the only biography path (get_the_author_description would reread the same
+ * meta and process it twice); it does nothing in the admin.
  *
  * @since 1.0.0
  *
@@ -549,6 +615,11 @@ function french_typo_rest_api_post( $response ) {
  */
 function french_typo_user_meta( $pre_value, $object_id, $meta_key, $single, $meta_type ) {
 	if ( 'user' !== $meta_type || 'description' !== $meta_key ) {
+		return $pre_value;
+	}
+
+	// Never in the admin: the Biography textarea would receive the entities and saving would store them.
+	if ( is_admin() ) {
 		return $pre_value;
 	}
 
@@ -605,25 +676,38 @@ function french_typo_breadcrumbs( $items ) {
  * @since 1.2.0
  *
  * @param string $segment Text segment (no HTML tags).
- * @return string Segment with ordinal abbreviations normalized.
+ * @return string|null Segment with ordinal abbreviations normalized, or null when a regex fails
+ *                      (invalid UTF-8): the caller must then keep the original text.
  */
 function french_typo_apply_ordinal_abbreviations( $segment ) {
-	if ( '' === $segment || mb_strlen( $segment ) < 3 ) {
+	// Fewer than 3 characters: return as is. Characters are at most 6 bytes in UTF-8 (even malformed),
+	// so from 18 bytes on there are at least 3 of them and mb_strlen() can be skipped.
+	$byte_length = strlen( $segment );
+	if ( $byte_length < 3 || ( $byte_length < 18 && mb_strlen( $segment ) < 3 ) ) {
 		return $segment;
+	}
+
+	// Safe entry gate: the three patterns below all need an è / È (UTF-8 bytes C3 A8 / C3 88). Without one,
+	// nothing can match, so skip them. Invalid UTF-8 must still give null, as the patterns' `u` flag would.
+	if ( false === strpos( $segment, "\xC3\xA8" ) && false === strpos( $segment, "\xC3\x88" ) ) {
+		return false === preg_match( '//u', $segment ) ? null : $segment;
 	}
 
 	// Indefinite ordinals: n-ième / x-ième (hyphen, non-breaking hyphen, en dash).
 	$segment = preg_replace_callback(
-		'#(?<![\p{L}\p{N}])([nNxX])([\-\x{2011}\x{2013}])(?i)ième(?![\p{L}\p{N}])#u',
+		'#(?<![\p{L}\p{N}])([nNxX])([\-\x{2011}\x{2013}])ième(?![\p{L}\p{N}])#iu',
 		static function ( $m ) {
 			return $m[1] . 'ième';
 		},
 		$segment
 	);
+	if ( null === $segment ) {
+		return null;
+	}
 
 	// Feminine first: 1ère → 1re (not 11ère, 21ère, etc.).
 	$segment = preg_replace_callback(
-		'#(?<![0-9])1(?![0-9])((?i)ère)#u',
+		'#(?<![0-9])1(?![0-9])(ère)#iu',
 		static function ( $m ) {
 			$s       = $m[1];
 			$first   = mb_substr( $s, 0, 1, 'UTF-8' );
@@ -635,10 +719,13 @@ function french_typo_apply_ordinal_abbreviations( $segment ) {
 		},
 		$segment
 	);
+	if ( null === $segment ) {
+		return null;
+	}
 
 	// Abbreviated ordinals ≥ 2: Nème → Ne for N in 2–999 (single digit 2–9 or 10–999).
 	$segment = preg_replace_callback(
-		'#(?<![0-9])((?:[2-9]|[1-9][0-9]{1,2}))(?i)(ème)(?![0-9])#u',
+		'#(?<![0-9])((?:[2-9]|[1-9][0-9]{1,2}))(ème)(?![0-9])#iu',
 		static function ( $m ) {
 			$num  = $m[1];
 			$suf  = $m[2];
@@ -649,7 +736,7 @@ function french_typo_apply_ordinal_abbreviations( $segment ) {
 		$segment
 	);
 
-	return $segment;
+	return $segment; // Null on failure, see @return.
 }
 
 /**
@@ -821,6 +908,48 @@ function french_typo_locale_is_allowed( $locale, $options ) {
 }
 
 /**
+ * Apply the enabled rules to one text run: symbols, ordinal abbreviations, then non-breaking spaces.
+ *
+ * Shared by the HTML (per text segment) and plain text branches of french_typo_replace().
+ *
+ * @since 1.2.5
+ *
+ * @param string $text               Text run, entities and shortcodes already protected.
+ * @param array  $options            Processed plugin options.
+ * @param array  $symbol_map         Symbol replacements ((c), (r), (tm)) for the current mode.
+ * @param string $nbs_marker         Marker standing for a non-breaking space.
+ * @param string $nbs_marker_quoted  The marker, preg_quote()d for use in a pattern.
+ * @return string|null Processed text, or null when a regex failed (typically invalid UTF-8).
+ */
+function french_typo_apply_rules( $text, $options, $symbol_map, $nbs_marker, $nbs_marker_quoted ) {
+	if ( $options['special_characters'] ) {
+		$text = strtr( $text, $symbol_map );
+	}
+	if ( ! empty( $options['ordinal_abbreviations'] ) ) {
+		$text = french_typo_apply_ordinal_abbreviations( $text );
+		if ( null === $text ) {
+			return null;
+		}
+	}
+	if ( $options['narrow_space'] ) {
+		// A space is any horizontal space (U+00A0 and U+202F included), an already inserted marker, or a
+		// protected NBSP entity (`&nbsp;`, `&#160;`, `&#8239;`…, see french_typo_replace()). Only the run of
+		// spaces glued to the punctuation is replaced, by one marker: NBSPs anywhere else in the text
+		// (prices, thousands, spacers) are never touched.
+		$space = '(?:\h|\x{E000}FT_NBS_\d+\x{E006}|' . $nbs_marker_quoted . ')';
+		// Add non-breaking space before punctuation (a run of spaces already there is normalised to one).
+		// Line breaks are never absorbed, and `:)` `;-)` `::` `:\` (smileys, C++, IPv6, paths) are left alone.
+		$text = preg_replace( '#(?<![\r\n\h\x{E003}\x{E006}])' . $space . '*(?![:;](?:-?[()]|:|\\\\))(?<!:)([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $text );
+		if ( null === $text ) {
+			return null;
+		}
+		// Add non-breaking space after « (a run of spaces already there is normalised to one).
+		$text = preg_replace( '#([«])' . $space . '*#u', '$1' . $nbs_marker, $text );
+	}
+	return $text;
+}
+
+/**
  * Apply French typography rules to text content.
  *
  * Processes text to add non-breaking spaces before/after punctuation and replaces
@@ -835,18 +964,27 @@ function french_typo_locale_is_allowed( $locale, $options ) {
  * @return string The processed text with French typography rules applied.
  */
 function french_typo_replace( $text, $post_id = null ) {
-	static $cache = array();
+	static $cache     = array();
+	static $hash_algo = null;
+
+	if ( null === $hash_algo ) {
+		$hash_algo = in_array( 'xxh128', hash_algos(), true ) ? 'xxh128' : '';
+	}
 
 	// Early return for empty or very short text to avoid unnecessary processing.
-	if ( ! is_string( $text ) || mb_strlen( $text ) < 3 ) {
+	// Fewer than 3 characters: characters are at most 6 bytes in UTF-8 (even malformed), so from
+	// 18 bytes on there are at least 3 of them and mb_strlen() can be skipped.
+	$byte_length = is_string( $text ) ? strlen( $text ) : 0;
+	if ( $byte_length < 3 || ( $byte_length < 18 && mb_strlen( $text ) < 3 ) ) {
 		return $text;
 	}
 
 	$cache_max_size  = 50; // Limit cache to 50 entries to prevent memory issues.
-	$cache_threshold = 100; // Only cache texts longer than this.
+	$cache_threshold = 100; // Only cache texts of at least this many bytes.
+	$cache_max_bytes = 65536; // Never cache larger texts (the cache would keep two copies of each in memory).
 
-	$text_length = mb_strlen( $text );
-	$use_cache   = ( $text_length >= $cache_threshold );
+	$text_length = $byte_length;
+	$use_cache   = ( $text_length >= $cache_threshold && $text_length <= $cache_max_bytes );
 	$cache_key   = null;
 
 	// Get processed plugin options (already cached and ready to use).
@@ -862,6 +1000,9 @@ function french_typo_replace( $text, $post_id = null ) {
 		}
 	}
 
+	// Any failing regex (null, typically invalid UTF-8) aborts with the untouched input: never empty or half-process the text.
+	$original = $text;
+
 	$has_typo = $options['narrow_space'] || $options['special_characters'] || ! empty( $options['ordinal_abbreviations'] );
 	if ( ! $has_typo ) {
 		return $text;
@@ -873,7 +1014,8 @@ function french_typo_replace( $text, $post_id = null ) {
 	$lang_key    = 'off' === $lang_mode ? 'a' : 'b';
 
 	if ( $use_cache ) {
-		$cache_key = crc32( $text ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key . '_' . $ordinal_key . '_' . $lang_key;
+		// 128-bit xxHash when available (PHP 8.1+), MD5 otherwise: far fewer collisions than crc32.
+		$cache_key = ( $hash_algo ? hash( $hash_algo, $text ) : md5( $text ) ) . '_' . $text_length . '_' . $narrow_key . '_' . $special_key . '_' . $ordinal_key . '_' . $lang_key;
 
 		if ( isset( $cache[ $cache_key ] ) ) {
 			return $cache[ $cache_key ];
@@ -887,22 +1029,26 @@ function french_typo_replace( $text, $post_id = null ) {
 		'(tm)' => '&#8482;',
 	);
 
+	// With narrow_space, the `;` of these entities would be taken for punctuation by the regexes
+	// below: swap them for inert tokens and restore the entities once the punctuation is done.
+	static $symbol_tokens = array(
+		'(TM)' => '___FT_SYM_8482___',
+		'(c)'  => '___FT_SYM_169___',
+		'(r)'  => '___FT_SYM_174___',
+		'(tm)' => '___FT_SYM_8482___',
+	);
 	// Règles issues du guide du traducteur WP FR (source de référence commune avec SPTE,
 	// l'extension de vérif typo pour translate.wordpress.org) :
 	// https://fr.wordpress.org/team/handbook/guide-du-traducteur/les-regles-typographiques-utilisees-pour-la-traduction-de-wp-en-francais/
+	$symbol_map = $options['narrow_space'] ? $symbol_tokens : $static_replacements;
 	$nbs        = $options['narrow_space'] ? $options['narrow_space'] : '';
-	$nbs_marker = '___FT_NBSP___';
-	// Matches every NBSP variant we may encounter: U+00A0 / U+202F literals,
-	// named entity, and decimal / hex numeric entities with optional zero padding.
-	$nbs_any = '(?:\x{00A0}|\x{202F}|&nbsp;|&\#0*160;|&\#0*8239;|&\#[xX]0*[aA]0;|&\#[xX]0*202[fF];)';
+	// Private-use delimiters: the marker must not start with a word character, or `?`/`!`/`%` glued to
+	// an already-present NBSP would fail the `(?!\w)` guard below.
+	$nbs_marker = "\u{E002}FT_NBSP\u{E003}";
+	// Matches every NBSP entity we may encounter: named, decimal and hex numeric, with optional zero padding.
+	// (Literal U+00A0 / U+202F are plain horizontal spaces for french_typo_apply_rules().)
+	$nbs_entity = '/^(?:&nbsp;|&#0*160;|&#0*8239;|&#[xX]0*[aA]0;|&#[xX]0*202[fF];)$/';
 
-	if ( $options['narrow_space'] ) {
-		// Canonicalize every NBSP variant to a single dedicated marker. The marker is not an HTML
-		// entity, so the entity-protection step below leaves it intact; the punctuation regex can
-		// then detect "NBSP already present" reliably and stays idempotent across repeated calls
-		// (e.g. when Elementor pipes content through both widget_text and the_content filters).
-		$text = preg_replace( '#' . $nbs_any . '#u', $nbs_marker, $text );
-	}
 	$nbs_marker_quoted = preg_quote( $nbs_marker, '#' );
 
 	$has_markup = ( false !== strpos( $text, '<' ) || false !== strpos( $text, '[' ) );
@@ -920,74 +1066,89 @@ function french_typo_replace( $text, $post_id = null ) {
 		if ( ! empty( $matches[0] ) ) {
 			$entities = array_unique( $matches[0] );
 			foreach ( $entities as $index => $entity ) {
-				$placeholders[] = '___FT_ENT_' . $index . '___';
+				// Delimited by private-use characters, not word characters: a leading `_` would defeat
+				// the `(?!\w)` guard of the punctuation regexes for `?`, `!` or `%` glued to an entity.
+				// NBSP entities get their own placeholder shape so that the punctuation regexes can
+				// recognise them as spaces and normalise only the ones glued to the punctuation.
+				if ( preg_match( $nbs_entity, $entity ) ) {
+					$placeholders[] = "\u{E000}FT_NBS_" . $index . "\u{E006}";
+				} else {
+					$placeholders[] = "\u{E000}FT_ENT_" . $index . "\u{E001}";
+				}
 			}
 			$text = str_replace( $entities, $placeholders, $text );
 		}
 	}
 
 	if ( $has_markup ) {
-		$segments  = wp_html_split( $text );
-		$processed = '';
-		$stack     = array();
+		$segments = wp_html_split( $text );
+		$ignored  = array(); // Segment indexes of raw tags that are never closed (second pass only).
 
-		foreach ( $segments as $segment ) {
-			if ( ! empty( $segment ) && '<' === $segment[0] ) {
-				french_typo_markup_stack_update( $stack, $segment );
-			}
-			if ( ! empty( $segment ) && '<' !== $segment[0] && '[' !== $segment[0] ) {
-				if ( empty( $stack ) ) {
-					// Protect shortcode tags (e.g. [gallery caption="Merci !"]) before typography
-					// runs: wp_html_split() only knows HTML tags, not shortcodes, so a segment can
-					// contain one untouched — its attributes must not be rewritten before
-					// do_shortcode() parses them.
-					$shortcodes             = array();
-					$shortcode_placeholders = array();
-					if ( false !== strpos( $segment, '[' ) ) {
-						preg_match_all( '/\[[^\[\]]*\]/', $segment, $sc_matches );
-						if ( ! empty( $sc_matches[0] ) ) {
-							$shortcodes = array_unique( $sc_matches[0] );
-							foreach ( $shortcodes as $sc_index => $shortcode ) {
-								$shortcode_placeholders[] = '___FT_SC_' . $sc_index . '___';
+		$again = true;
+		while ( $again ) {
+			$again     = false;
+			$processed = '';
+			$stack     = array();
+			$stack_idx = array();
+
+			foreach ( $segments as $seg_idx => $segment ) {
+				if ( ! empty( $segment ) && '<' === $segment[0] && ! isset( $ignored[ $seg_idx ] ) ) {
+					french_typo_markup_stack_update( $stack, $segment, $seg_idx, $stack_idx );
+				}
+				if ( ! empty( $segment ) && '<' !== $segment[0] ) {
+					if ( empty( $stack ) ) {
+						// Protect shortcode tags (e.g. [gallery caption="Merci !"]) before typography
+						// runs: wp_html_split() only knows HTML tags, not shortcodes, so a segment can
+						// contain one, or even start with one (Divi, WPBakery): its attributes must not
+						// be rewritten before do_shortcode() parses them. The placeholders hold no word
+						// character, so they never defeat the `(?!\w)` guards of the punctuation regexes.
+						$shortcodes = array();
+						if ( false !== strpos( $segment, '[' ) ) {
+							// One level of nested brackets is allowed: [chart data='[1,2]'].
+							$segment = preg_replace_callback(
+								'/\[(?:[^\[\]]++|\[[^\[\]]*+\])*+\]/',
+								static function ( $sc_match ) use ( &$shortcodes ) {
+									$shortcodes[] = $sc_match[0];
+									return "\u{E004}FT_SC_" . ( count( $shortcodes ) - 1 ) . "\u{E005}";
+								},
+								$segment
+							);
+							if ( null === $segment ) {
+								return $original;
 							}
-							$segment = str_replace( $shortcodes, $shortcode_placeholders, $segment );
+						}
+
+						$segment = french_typo_apply_rules( $segment, $options, $symbol_map, $nbs_marker, $nbs_marker_quoted );
+						if ( null === $segment ) {
+							return $original;
+						}
+
+						if ( ! empty( $shortcodes ) ) {
+							$sc_restore = array();
+							foreach ( $shortcodes as $sc_index => $shortcode ) {
+								$sc_restore[ "\u{E004}FT_SC_" . $sc_index . "\u{E005}" ] = $shortcode;
+							}
+							$segment = strtr( $segment, $sc_restore );
 						}
 					}
-
-					if ( $options['special_characters'] ) {
-						$segment = strtr( $segment, $static_replacements );
-					}
-					if ( ! empty( $options['ordinal_abbreviations'] ) ) {
-						$segment = french_typo_apply_ordinal_abbreviations( $segment );
-					}
-					if ( $options['narrow_space'] ) {
-						// Add non-breaking space before punctuation (avoid if already exists).
-						$segment = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $segment );
-						// Add non-breaking space after « (avoid if already exists).
-						$segment = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $segment );
-					}
-
-					if ( ! empty( $shortcode_placeholders ) ) {
-						$segment = str_replace( $shortcode_placeholders, $shortcodes, $segment );
-					}
 				}
+				$processed .= $segment;
 			}
-			$processed .= $segment;
+
+			// A raw tag left open at the end of the text is stray markup: ignore it and process again,
+			// so that it does not silently disable typography for everything after it.
+			if ( empty( $ignored ) && ! empty( $stack ) ) {
+				foreach ( $stack_idx as $open_idx ) {
+					$ignored[ $open_idx ] = true;
+				}
+				$again = true;
+			}
 		}
 		$text = $processed;
 	} else {
-		if ( $options['special_characters'] ) {
-			$text = strtr( $text, $static_replacements );
-		}
-		if ( ! empty( $options['ordinal_abbreviations'] ) ) {
-			$text = french_typo_apply_ordinal_abbreviations( $text );
-		}
-		if ( $options['narrow_space'] ) {
-			// Plain text: process directly without splitting.
-			// Add non-breaking space before punctuation (avoid if already exists).
-			$text = preg_replace( '#(?<!' . $nbs_marker_quoted . ')\s*([?!:;%»])(?!\w)(?!/{2})#u', $nbs_marker . '$1', $text );
-			// Add non-breaking space after « (avoid if already exists).
-			$text = preg_replace( '#([«])(?!' . $nbs_marker_quoted . ')\s*#u', '$1' . $nbs_marker, $text );
+		$text = french_typo_apply_rules( $text, $options, $symbol_map, $nbs_marker, $nbs_marker_quoted );
+		if ( null === $text ) {
+			return $original;
 		}
 	}
 
@@ -995,10 +1156,21 @@ function french_typo_replace( $text, $post_id = null ) {
 		$text = str_replace( $placeholders, $entities, $text );
 	}
 
+	if ( $options['narrow_space'] && $options['special_characters'] ) {
+		$text = str_replace(
+			array( '___FT_SYM_169___', '___FT_SYM_174___', '___FT_SYM_8482___' ),
+			array( '&#169;', '&#174;', '&#8482;' ),
+			$text
+		);
+	}
+
 	if ( $options['narrow_space'] ) {
 		// Restore the marker as the configured NBSP form, collapsing accidental runs (e.g. double
 		// insertion from layered filters) to a single canonical NBSP.
 		$text = preg_replace( '#(?:' . $nbs_marker_quoted . ')+#u', $nbs, $text );
+		if ( null === $text ) {
+			return $original;
+		}
 	}
 
 	if ( $use_cache ) {
@@ -1035,7 +1207,7 @@ function french_typo_mlp_notice() {
 	if ( 'off' !== ( $options['language_restriction_mode'] ?? 'off' ) ) {
 		return;
 	}
-	if ( ! empty( $options['mlp_notice_dismissed'] ) ) {
+	if ( french_typo_mlp_notice_dismissed( $options ) ) {
 		return;
 	}
 
@@ -1063,6 +1235,22 @@ function french_typo_mlp_notice() {
 }
 
 /**
+ * Whether the multilingual-plugin notice was dismissed.
+ *
+ * The flag lives in its own option so dismissing never rewrites the settings array
+ * (which, on a site that never saved its settings, would write every rule as off).
+ * Before 1.2.5 the flag was stored inside french_typo_options, so that location still counts.
+ *
+ * @since 1.2.5
+ *
+ * @param array $options Processed plugin options from french_typo_get_options().
+ * @return bool
+ */
+function french_typo_mlp_notice_dismissed( $options ) {
+	return (bool) get_option( 'french_typo_mlp_notice_dismissed', false ) || ! empty( $options['mlp_notice_dismissed'] );
+}
+
+/**
  * Handle the "dismiss" action for the multilingual-plugin admin notice.
  *
  * @since 1.2.2
@@ -1079,9 +1267,7 @@ function french_typo_handle_mlp_notice_dismiss() {
 	}
 	check_admin_referer( 'french_typo_dismiss_mlp_notice' );
 
-	$options                         = get_option( 'french_typo_options', array() );
-	$options['mlp_notice_dismissed'] = true;
-	update_option( 'french_typo_options', $options );
+	update_option( 'french_typo_mlp_notice_dismissed', true, false );
 }
 
 /**
@@ -1201,102 +1387,19 @@ function french_typo_plugin_row_meta( $plugin_meta, $plugin_file ) {
 }
 
 /**
- * Register plugin settings and fields.
+ * Register the plugin setting (the settings page is rendered by hand in french_typo_admin_options()).
  *
  * @since 1.0.0
  */
 function french_typo_admin_init() {
-	register_setting( 'french_typo_settings', 'french_typo_options', 'french_typo_options_validate' );
-
-	add_settings_section(
-		'narrow_space_section',
-		__( 'Non-breaking spaces', 'french-typo' ),
-		'french_typo_narrow_space_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'narrow_space_field',
-		__( 'Automatic replacement', 'french-typo' ),
-		'french_typo_narrow_space',
-		'admin_options',
-		'narrow_space_section'
-	);
-
-	add_settings_section(
-		'special_characters_section',
-		__( 'Special characters', 'french-typo' ),
-		'french_typo_special_characters_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'special_characters_field',
-		__( 'Automatic replacement', 'french-typo' ),
-		'french_typo_special_characters',
-		'admin_options',
-		'special_characters_section'
-	);
-
-	add_settings_section(
-		'ordinal_abbreviations_section',
-		__( 'Ordinal abbreviations', 'french-typo' ),
-		'french_typo_ordinal_abbreviations_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'ordinal_abbreviations_field',
-		__( 'Automatic replacement', 'french-typo' ),
-		'french_typo_ordinal_abbreviations',
-		'admin_options',
-		'ordinal_abbreviations_section'
-	);
-
-	add_settings_section(
-		'content_types_section',
-		__( 'Posts and pages', 'french-typo' ),
-		'french_typo_content_types_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'content_types_field',
-		__( 'Apply to', 'french-typo' ),
-		'french_typo_content_types',
-		'admin_options',
-		'content_types_section'
-	);
-
-	add_settings_section(
-		'advanced_section',
-		__( 'Advanced options', 'french-typo' ),
-		'french_typo_advanced_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'advanced_field',
-		__( 'Additional content', 'french-typo' ),
-		'french_typo_advanced',
-		'admin_options',
-		'advanced_section'
-	);
-
-	add_settings_section(
-		'language_restriction_section',
-		__( 'Language restriction', 'french-typo' ),
-		'french_typo_language_restriction_text',
-		'admin_options'
-	);
-	add_settings_field(
-		'language_restriction_mode_field',
-		__( 'Restriction mode', 'french-typo' ),
-		'french_typo_language_restriction_mode',
-		'admin_options',
-		'language_restriction_section'
-	);
-	add_settings_field(
-		'language_restriction_locales_field',
-		__( 'Allowed locales', 'french-typo' ),
-		'french_typo_language_restriction_locales',
-		'admin_options',
-		'language_restriction_section'
+	register_setting(
+		'french_typo_settings',
+		'french_typo_options',
+		array(
+			'type'              => 'object',
+			'sanitize_callback' => 'french_typo_options_validate',
+			'default'           => array(),
+		)
 	);
 }
 
@@ -1568,10 +1671,13 @@ function french_typo_ordinal_abbreviations() {
  *
  * @since 1.0.0
  *
- * @param array $input The input data from the form.
+ * @param mixed $input The input data from the form (anything but an array is treated as empty).
  * @return array Sanitized options array.
  */
 function french_typo_options_validate( $input ) {
+	// The settings form has no field for the notice flag: keep the value stored before 1.2.5, do not reset it.
+	$existing = get_option( 'french_typo_options', array() );
+
 	// Default values for all options.
 	$defaults = array(
 		'narrow_space'           => false,
@@ -1590,7 +1696,21 @@ function french_typo_options_validate( $input ) {
 		'apply_to_rest_api'      => false,
 		'apply_to_user_profiles' => false,
 		'apply_to_breadcrumbs'   => false,
-		'mlp_notice_dismissed'   => false,
+		'mlp_notice_dismissed'   => is_array( $existing ) && ! empty( $existing['mlp_notice_dismissed'] ),
+	);
+
+	// Anything that is not an array (string, null, ...) is treated as empty input, so it yields the defaults.
+	if ( ! is_array( $input ) ) {
+		$input = array();
+	}
+
+	// Keep only known keys: the defaults plus the two language restriction fields.
+	$input = array_intersect_key(
+		$input,
+		$defaults + array(
+			'language_restriction_mode'    => true,
+			'language_restriction_locales' => true,
+		)
 	);
 
 	// Merge input with defaults using wp_parse_args().
@@ -1687,7 +1807,7 @@ function french_typo_advanced() {
 	$options = french_typo_get_options();
 	?>
 	<details class="french-typo-advanced-details">
-		<summary class="french-typo-advanced-toggle" aria-label="<?php esc_attr_e( 'Toggle advanced options visibility', 'french-typo' ); ?>">
+		<summary class="french-typo-advanced-toggle">
 			<span class="french-typo-toggle-text"><?php esc_html_e( 'Show advanced options', 'french-typo' ); ?></span>
 		</summary>
 		<div class="french-typo-advanced-content">

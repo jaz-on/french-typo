@@ -148,8 +148,7 @@ All of the above widget hooks share the same `apply_to_widgets` flag in `french_
 
 ### User Profiles
 
-- `get_the_author_description` — Author description
-- `get_user_metadata` — User meta (only processes the `description` meta key; uses a remove/add filter guard to avoid recursion)
+- `get_user_metadata` — User meta (only processes the `description` meta key, never in the admin, and is the single biography path; uses a remove/add filter guard to avoid recursion)
 
 ### Advanced Custom Fields (ACF)
 

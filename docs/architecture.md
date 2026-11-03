@@ -22,7 +22,7 @@ The French Typo plugin follows a **monolithic** architecture: almost all runtime
 1. **Bootstrap** — `french_typo_load_textdomain`, `french_typo_hooks` (attached to `init`).
 2. **Options** — `french_typo_get_options()` merges saved values with defaults via `wp_parse_args()` and normalizes the non-breaking space setting to an HTML entity or `false`. Boolean options include special characters, optional ordinal abbreviations (`ordinal_abbreviations`), and the various `apply_to_*` gates. A static variable avoids recomputing that merge on every call in the same request.
 3. **Filtering** — `french_typo_replace_wrapper()` maps `current_filter()` to an `apply_to_*` option and calls `french_typo_replace()` only when enabled. RSS, REST, breadcrumbs, user meta, and custom fields use small dedicated functions with explicit checks.
-4. **Core typography** — `french_typo_replace()` applies special-character replacements, optional French ordinal abbreviations (`french_typo_apply_ordinal_abbreviations()` in prose segments only), and/or narrow-space rules, with optional in-memory caching for longer strings; cache keys include the active narrow-space mode, special-character toggle, and ordinal setting so output cannot go stale after a settings change.
+4. **Core typography** — `french_typo_replace()` applies special-character replacements, optional French ordinal abbreviations (`french_typo_apply_ordinal_abbreviations()` in prose segments only), and/or narrow-space rules (these three steps are shared by the HTML and plain-text branches through `french_typo_apply_rules()`), with optional in-memory caching for longer strings; cache keys include the active narrow-space mode, special-character toggle, and ordinal setting so output cannot go stale after a settings change.
 5. **Admin** — Settings API registration, validation, and `french_typo_admin_options()` output.
 
 ## Text processing flow
@@ -34,9 +34,9 @@ This is the core function. In order:
 1. **Guards** — Ignore non-strings and very short strings.
 2. **Options** — Read processed options (see caching below). If narrow spaces, special-character replacement, and ordinal abbreviations are all off, return unchanged.
 3. **Caching** — For longer texts, a small static request-level cache may short-circuit repeated work; keys incorporate typography-related settings.
-4. **NBSP canonicalization** — Before any regex runs, every NBSP variant present in the input (named `&nbsp;`, decimal `&#160;` / `&#8239;` with optional zero padding, hex `&#xA0;` / `&#x202F;` in either case, and literal U+00A0 / U+202F) is collapsed to a dedicated marker. The marker is not an HTML entity, so the entity-protection step below leaves it intact, and the punctuation regex can reliably detect "NBSP already present" via lookbehind. At the end of processing, the marker (or any run of consecutive markers, which can happen when layered filters call the function twice — e.g. Elementor's `widget_text` + `the_content`) is restored as a single canonical `$nbs`, guaranteeing idempotence across repeated invocations.
+4. **NBSP normalisation** — Only inside text segments (never in raw zones or tag attributes) and only next to the targeted punctuation: a run of spaces glued to `? ! : ; % »` (or following `«`), whether ASCII/horizontal spaces, literal U+00A0 / U+202F or NBSP entities (`&nbsp;`, `&#160;`, `&#8239;` with optional zero padding, hex in either case), is replaced by a single dedicated marker. NBSP entities are protected under their own placeholder shape (`FT_NBS_n`) so the punctuation regexes can treat them as spaces; any other NBSP (prices, thousands separators, `&nbsp;` spacers) is left exactly as written. At the end of processing the marker (or a run of markers) is restored as the single configured `$nbs`, which keeps repeated invocations idempotent (e.g. Elementor's `widget_text` + `the_content`). Line breaks are never absorbed, and smileys (`:)`), `::` and `:\` are left alone.
 5. **Plain text vs markup** — If the string contains `<` or `[`, segments come from `wp_html_split()`. Typography runs only on text segments, not on tag tokens. Shortcode-like `[` segments are skipped.
-6. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
+6. **Raw markup** — Inside HTML, `script`, `style`, `pre`, `code`, and `textarea` regions are tracked with a stack so literals and embedded CSS/JS are not altered. Gutenberg Verse (`wp-block-verse` on `pre` without `wp-block-code`) is treated as normal prose. HTML comments are ignored by the stack, a closing tag also closes raw tags left open inside it, and a raw tag never closed is ignored (a second pass) so it cannot silence the rest of the text. Shortcodes (including nested brackets) are protected by placeholders without word characters, so text starting with `[` is processed. Details: [CHANGELOG.md](../CHANGELOG.md) (v1.2.0).
 
 When there is no HTML/shortcode signal, processing uses a simpler path with the same punctuation rules.
 
@@ -60,7 +60,7 @@ When there is no HTML/shortcode signal, processing uses a simpler path with the 
 
 **REST API:** `rest_prepare_post`, `rest_prepare_page`, `rest_prepare_attachment`
 
-**User profiles:** `get_the_author_description`, `get_user_metadata` (description only; see `french_typo_user_meta()`)
+**User profiles:** `get_user_metadata` (description only, never in the admin; see `french_typo_user_meta()`)
 
 **Breadcrumbs (when SEO plugin present):** `wpseo_breadcrumb_links`, `rank_math/frontend/breadcrumb/items`, `seopress_breadcrumbs_items` — gated by `apply_to_breadcrumbs`.
 

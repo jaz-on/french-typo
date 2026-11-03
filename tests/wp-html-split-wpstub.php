@@ -71,6 +71,8 @@ if ( ! function_exists( 'wp_html_split' ) ) {
 	 * @return string[] Array of the formatted text.
 	 */
 	function wp_html_split( $input ) {
+		// Test counter: lets tests tell a computed result from a cache hit.
+		$GLOBALS['french_typo_test_split_calls'] = ( $GLOBALS['french_typo_test_split_calls'] ?? 0 ) + 1;
 		return preg_split( get_html_split_regex(), $input, -1, PREG_SPLIT_DELIM_CAPTURE );
 	}
 }

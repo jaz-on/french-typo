@@ -25,14 +25,47 @@ jobs:
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 -P4 php -l
           echo "✅ All PHP files are valid"
 
-      - name: Run french_typo_replace tests
-        run: |
-          php tests/french-typo-replace-test.php
-          php tests/french-typo-replace-ordinal-off-test.php
-          php tests/french-typo-replace-ordinal-only-test.php
-          php tests/french-typo-polylang-test.php
-          php tests/french-typo-site-locale-test.php
-          php tests/french-typo-idempotence-test.php
+  tests:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The plugin header says "Requires PHP: 7.4": this matrix is what proves it.
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Run PHPUnit
+        run: vendor/bin/phpunit
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=512M --no-progress
 
   wpcs:
     name: WordPress Coding Standards
@@ -51,8 +84,8 @@ jobs:
 
       - name: Run PHPCS
         run: |
-          echo "Running WordPress Coding Standards check..."
-          php -d memory_limit=512M vendor/bin/phpcs --standard=WordPress-Extra --report=full --extensions=php --ignore=vendor/,tests/ .
+          echo "Running WordPress Coding Standards and PHP compatibility checks..."
+          php -d memory_limit=512M vendor/bin/phpcs
           echo "✅ PHPCS check passed"
 
   validate-readme:

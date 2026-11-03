@@ -61,6 +61,11 @@ phpunit.xml.dist
 .phpunit.result.cache
 .phpunit.cache/
 
+# PHPStan configuration
+phpstan.neon
+phpstan.neon.dist
+phpstan-baseline.neon
+
 # Build and test files
 tests/
 test/

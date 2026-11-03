@@ -25,18 +25,17 @@ Conventions du projet à respecter par tout agent (Claude Code, ou tout autre ou
 ## i18n
 
 - **Text domain** : `french-typo` (doit matcher le `Text Domain:` du header). Toujours `__()`, `_e()`, `esc_html__()`, etc. avec ce domaine pour les chaînes user-facing.
-- **`.pot` jamais édité à la main.** Régénération obligatoire via `wp i18n make-pot . languages/french-typo.pot --slug=french-typo --domain=french-typo --exclude=vendor,.git` à **chaque commit qui touche aux chaînes traduisibles** (PHP `__()`, `_e()`, commentaires `translators:`, etc.). La CI a un job `i18n POT up to date` qui régénère et diff — il échoue le PR si le POT du repo dévie. L'outillage local doit suivre la version wp-cli utilisée par la CI (`brew install wp-cli` → 2.12.0).
+- **`.pot` jamais édité à la main.** Régénération obligatoire via `wp i18n make-pot . languages/french-typo.pot --slug=french-typo --domain=french-typo --exclude=vendor,.git` à **chaque commit qui touche aux chaînes traduisibles** (PHP `__()`, `_e()`, commentaires `translators:`, etc.). La CI a un job `i18n POT up to date` qui régénère et diff — il échoue le PR si le POT du repo dévie. L'outillage local doit suivre la version wp-cli utilisée par la CI (2.12.0). En local, WP-CLI passe par Lerd : depuis un site Lerd, définir l'alias `wp(){ lerd php -d memory_limit=-1 wp-cli.phar --allow-root "$@" </dev/null; }`, ou utiliser le conteneur `docker.io/library/wordpress:cli`.
 - **Locale `.po`** : le repo embarque `languages/french-typo-fr_FR.po` comme traduction de référence. La traduction suit le skill [wp-fr-typo](https://github.com/thierrypigot/wp-fr-typo) (glossaire Polyglots FR + règles typographiques officielles). Le `.mo` compilé est ignoré par Git (`languages/*.mo` dans [`.gitignore`](.gitignore)) — régénération locale via `msgfmt languages/french-typo-fr_FR.po -o languages/french-typo-fr_FR.mo`. `.po` et `.mo` restent **exclus du ZIP WordPress.org** via [`.distignore`](.distignore) ; les language packs officiels sont servis par translate.wordpress.org.
 
 ## Tests
 
-- **Runner** : `php` CLI direct (pas de suite PHPUnit complète en CI pour l'instant). Depuis la racine, la CI lance :
-  - `php tests/french-typo-replace-test.php`
-  - `php tests/french-typo-replace-ordinal-off-test.php`
-  - `php tests/french-typo-replace-ordinal-only-test.php`
-- `tests/bootstrap.php` charge les stubs et options ; `tests/wp-html-split-wpstub.php` fournit les helpers WP HTML minimaux.
-- Lors d'une modification de `french_typo_replace()` ou des filtres associés : ajouter / étendre les scénarios dans le fichier de test approprié, et lancer les trois scripts localement avant de pousser.
-- `tests/` est exclu du PHPCS principal — garder les fichiers lisibles, `phpcs:ignore` minimal seulement où les stubs l'exigent.
+- **Runner** : PHPUnit 9.6 (`vendor/bin/phpunit`, config `phpunit.xml.dist`). `composer test` le lance ; `composer ci` enchaîne PHPCS, PHPStan et PHPUnit comme la CI. Un fichier `tests/*Test.php` est découvert automatiquement : plus aucune commande à ajouter dans `ci.yml`.
+- `tests/bootstrap.php` charge les stubs WordPress et le plugin. `add_action`/`add_filter` y enregistrent réellement les callbacks (`$GLOBALS['french_typo_test_hooks']`), ce qui permet à `HooksTest` de vérifier chaque hook, sa priorité et son nombre d'arguments. Les options, la locale et Polylang se pilotent par globales `french_typo_test_*` (voir `FrenchTypoTestCase`, qui les remet à zéro avant et après chaque test). Les stubs Polylang (`tests/polylang-stub.php`) ne se chargent que dans `PolylangTest`, exécuté dans un processus séparé.
+- La CI exécute PHPUnit sur PHP 7.4 à 8.5 : c'est ce qui justifie `Requires PHP: 7.4`. Ne pas relever ce plancher sans décision explicite.
+- Lors d'une modification de `french_typo_replace()` ou des filtres associés : ajouter / étendre les scénarios dans le test approprié et lancer `composer test` avant de pousser. Un nouveau hook ajouté à `french_typo_hooks()` doit apparaître dans `HooksTest`.
+- **PHPStan** (`composer stan`, niveau 5, `phpstan.neon.dist`) : la baseline `phpstan-baseline.neon` ne doit que diminuer. Ne pas y ajouter une erreur nouvelle, la corriger.
+- `tests/` est exclu du PHPCS principal — garder les fichiers lisibles.
 
 ## Versions & release
 

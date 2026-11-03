@@ -19,7 +19,7 @@ voir `.claude/CLAUDE.md`.
 ├── french-typo.php              # Runtime du plugin — quasi tout vit ici
 ├── admin.css                    # Styles de la page de réglages admin
 ├── docs/                        # architecture.md, configuration.md, faq.md, api.md, …
-├── tests/                       # Scripts PHP autonomes (pas de suite PHPUnit)
+├── tests/                       # Suite PHPUnit (*Test.php), bootstrap et stubs WordPress
 ├── languages/                   # french-typo.pot + french-typo-fr_FR.po/.mo (référence)
 ├── .wordpress-org/              # Assets de la fiche WordPress.org (screenshots, banner…)
 ├── .github/workflows/           # CI (lint, WPCS, POT, readme, release ZIP, wiki sync)
@@ -76,20 +76,31 @@ voir `.claude/CLAUDE.md`.
 
 ## Tests
 
-- Runner : scripts PHP autonomes exécutés en CLI directe (pas de suite
-  PHPUnit complète pour l'instant). `tests/bootstrap.php` charge les stubs et
-  options ; `tests/wp-html-split-wpstub.php` fournit les helpers WP HTML
-  minimaux.
-- Fichiers : `french-typo-replace-test.php`,
-  `french-typo-replace-ordinal-off-test.php`,
-  `french-typo-replace-ordinal-only-test.php`,
-  `french-typo-polylang-test.php`, `french-typo-site-locale-test.php`,
-  `french-typo-idempotence-test.php`.
+- Runner : suite PHPUnit 9.6 (`vendor/bin/phpunit`, config `phpunit.xml.dist`).
+  Tout fichier `tests/*Test.php` est découvert automatiquement, aucune
+  commande à ajouter dans la CI. Les classes héritent de
+  `tests/FrenchTypoTestCase.php`, qui remet à zéro avant et après chaque test
+  les globales `french_typo_test_*` lues par les stubs.
+- `tests/bootstrap.php` charge les stubs WordPress et le plugin. `add_action`
+  et `add_filter` y enregistrent réellement les callbacks
+  (`$GLOBALS['french_typo_test_hooks']`). `tests/wp-html-split-wpstub.php`
+  fournit les helpers WP HTML minimaux, `tests/polylang-stub.php` les stubs
+  Polylang (chargés seulement par `PolylangTest`, processus séparé).
+- Fichiers de tests : `ReplaceTest`, `OrdinalOptionsTest`, `IdempotenceTest`,
+  `SymbolsTest`, `EntityPunctuationTest`, `InvalidUtf8Test`,
+  `PerformanceGuardsTest`, `AdvancedOptionsTest`, `UserMetaTest`,
+  `NoticeDismissTest`, `UninstallTest`, `HooksTest`, `SiteLocaleTest`,
+  `PolylangTest`.
+- Constantes de test lues par le plugin : `FRENCH_TYPO_TEST_NO_OPTIONS_CACHE`
+  et `FRENCH_TYPO_TEST_NO_LOCALE_CACHE` désactivent les caches statiques des
+  options et de la locale, pour les scripts de comparaison.
+- Commandes : `composer lint` (PHPCS), `composer stan` (PHPStan niveau 5,
+  baseline `phpstan-baseline.neon` qui ne doit que diminuer), `composer test`
+  (PHPUnit), `composer ci` (les trois, comme la CI).
 - Toute modification de `french_typo_replace()` ou des filtres associés :
-  étendre le scénario correspondant et lancer tous les scripts localement
-  avant de pousser.
-- `tests/` est exclu du PHPCS principal — garder les fichiers lisibles,
-  `phpcs:ignore` minimal seulement où les stubs l'exigent.
+  étendre le test correspondant et lancer `composer ci` avant de pousser. Un
+  nouveau hook de `french_typo_hooks()` doit apparaître dans `HooksTest`.
+- `tests/` est exclu du PHPCS principal. Garder les fichiers lisibles.
 
 ## Versions & release
 
@@ -113,7 +124,7 @@ voir `.claude/CLAUDE.md`.
 
 | Workflow | Rôle |
 | --- | --- |
-| `ci.yml` | `lint-php` (syntaxe + tests PHP), `wpcs` (PHPCS WordPress-Extra), `validate-readme`, `i18n-pot` (POT à jour) |
+| `ci.yml` | `lint-php` (syntaxe), `tests` (PHPUnit, matrice PHP 7.4 à 8.5), `phpstan`, `wpcs` (PHPCS WordPress-Extra), `validate-readme`, `i18n-pot` (POT à jour) |
 | `release-drafter.yml` | Prépare les notes de release à chaque push/PR sur `main` |
 | `create-release-zip.yml` | Construit le ZIP de distribution sur tag/release et déploie sur WordPress.org |
 | `deploy-wordpress-org.yml` | Déploiement manuel (`workflow_dispatch`) vers WordPress.org |
@@ -140,5 +151,5 @@ outils (Cursor, Codex) acceptent de lire `.claude/CLAUDE.md` directement.
 - Le job `i18n-pot` échoue si l'outillage local wp-cli diverge de la version
   utilisée en CI (2.12.0) — vérifier la version avant de régénérer le POT
   localement.
-- `tests/` n'a pas de runner PHPUnit — un `composer test` n'existe pas ; les
-  scripts se lancent individuellement en CLI (voir `.claude/CLAUDE.md`).
+- Les tests tournent sur PHP 7.4 à 8.5 en CI : ne pas utiliser de syntaxe PHP
+  plus récente que 7.4 dans le plugin.

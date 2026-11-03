@@ -18,14 +18,17 @@ remplacement de `(c)`/`(r)`/`(tm)` par ©/®/™. Distribué sur WordPress.org.
 ## Commands
 
 ```bash
-composer install                                                       # deps dev (phpcs)
-vendor/bin/phpcs --standard=WordPress-Extra --ignore=vendor/,tests/ .  # lint WPCS
-php tests/french-typo-replace-test.php                                 # + les autres scripts sous tests/
+composer install   # deps dev (phpcs, phpstan, phpunit)
+composer lint      # PHPCS : WordPress-Extra + PHPCompatibilityWP (phpcs.xml.dist)
+composer stan      # PHPStan niveau 5 (baseline phpstan-baseline.neon)
+composer test      # PHPUnit (phpunit.xml.dist)
+composer ci        # les trois, comme la CI
 wp i18n make-pot . languages/french-typo.pot --slug=french-typo --domain=french-typo --exclude=vendor,.git
 ```
 
-Lancer les scripts de `tests/` un par un (pas de suite PHPUnit) avant de
-déclarer un changement sur `french_typo_replace()` terminé.
+Lancer `composer test` avant de déclarer un changement sur
+`french_typo_replace()` ou sur `french_typo_hooks()` terminé (un nouveau hook
+doit apparaître dans `tests/HooksTest.php`).
 
 ## Architecture
 
