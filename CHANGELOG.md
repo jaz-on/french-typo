@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-11-03
+
 ### Added
 - `uninstall.php`: deleting the plugin from the Plugins screen now removes its options (multisite included)
 
