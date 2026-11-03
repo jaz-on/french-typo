@@ -61,7 +61,6 @@ class HooksTest extends FrenchTypoTestCase {
 			'term_description', 'single_term_title', 'single_cat_title', 'single_tag_title', 'single_post_type_archive_title',
 			'get_the_archive_title', 'get_the_archive_description',
 			'comment_text', 'get_comment_author',
-			'get_the_author_description',
 		) as $hook ) {
 			$cases[ $hook ] = array( $hook, $wrapper );
 		}
@@ -79,6 +78,10 @@ class HooksTest extends FrenchTypoTestCase {
 
 	public function test_user_metadata_filter_takes_five_arguments(): void {
 		$this->assertHook( $this->registered(), 'get_user_metadata', 'french_typo_user_meta', 10, 5 );
+	}
+
+	public function test_author_description_has_no_second_filter(): void {
+		$this->assertArrayNotHasKey( 'get_the_author_description', $this->registered(), 'the biography is typographed by get_user_metadata only' );
 	}
 
 	public function test_optional_integrations_are_absent_by_default(): void {

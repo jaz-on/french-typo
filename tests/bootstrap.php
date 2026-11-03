@@ -62,6 +62,31 @@ if ( ! function_exists( 'is_admin' ) ) {
 	}
 }
 
+if ( ! function_exists( 'remove_filter' ) ) {
+	/**
+	 * No-op: the user-meta test only needs the call to succeed.
+	 *
+	 * @return true
+	 */
+	function remove_filter() { // phpcs:ignore
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_user_meta' ) ) {
+	/**
+	 * Returns the raw value in $GLOBALS['french_typo_test_user_meta'][ $key ].
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $key     Meta key.
+	 * @param bool   $single  Single value.
+	 * @return mixed
+	 */
+	function get_user_meta( $user_id, $key = '', $single = false ) { // phpcs:ignore
+		return $GLOBALS['french_typo_test_user_meta'][ $key ] ?? '';
+	}
+}
+
 if ( ! function_exists( 'plugin_basename' ) ) {
 	/**
 	 * @param string $file File path.

@@ -32,12 +32,14 @@ abstract class FrenchTypoTestCase extends TestCase {
 			'french_typo_test_polylang_current_locale',
 			'french_typo_test_polylang_languages',
 			'french_typo_test_is_admin',
+			'french_typo_test_user_meta',
 			'french_typo_test_hooks',
 			'french_typo_test_store',
 			'french_typo_test_writes',
 			'french_typo_test_deleted',
 			'french_typo_test_user_can',
 			'french_typo_test_nonce_checked',
+			'french_typo_test_split_calls',
 		) as $key ) {
 			unset( $GLOBALS[ $key ] );
 		}

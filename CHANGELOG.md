@@ -11,12 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `uninstall.php`: deleting the plugin from the Plugins screen now removes its options (multisite included)
 
 ### Fixed
+- Punctuation spacing no longer touches smileys (`:)`, `;-)`), `std::vector`, `C:\path`, IPv6 addresses, and no longer swallows line breaks (`Ligne\n!` stays on its own line)
+- Raw-zone detection: a `<code>` or `<pre>` mentioned inside an HTML comment no longer disables typography for the rest of the text, and a raw tag that is never closed is ignored instead of silencing everything after it (a closing tag now also closes a raw tag left open inside it)
+- Text starting with a shortcode or a bracket (`[Podcast] Quoi de neuf ?`, Divi / WPBakery `[et_pb_text]Bonjour : toi ![/et_pb_text]`) is now typographed instead of skipped; shortcode tags, including nested brackets, are protected from the first character
+- Non-breaking spaces are now only normalised when glued to the targeted punctuation: `&nbsp;` and U+00A0 inside `<pre>`, `<code>`, `<script>`, `<textarea>` and HTML attributes, prices and thousands separators (`12,50&nbsp;€`, `1 000`) and `&nbsp;&nbsp;&nbsp;` spacers are left exactly as written, including in narrow-space mode 2
+- ACF / Meta Box fields whose whole value is a URL, a `tel:` / `mailto:` link, CSS or JSON are no longer typographed (`tel:+33123`, `color: red; width: 100%`, `{"a": "b"}`); prose fields are unchanged
+- Text containing invalid or truncated UTF-8 no longer disappears: when a processing step fails, the original text is now returned untouched instead of an empty string
+- Settings page: the "Show advanced options" toggle no longer carries an `aria-label` that differs from its visible text (WCAG 2.5.3, label in name); the visible text is now its accessible name
 - Multilingual-plugin notice: "Dismiss this notice" on a site that never saved its settings no longer switches every typography rule off. The flag now has its own option, and a flag stored by 1.2.2 to 1.2.4 is still honoured
 - Multilingual-plugin notice: saving the settings no longer brings a dismissed notice back
+- `(c)`, `(r)` and `(tm)` no longer produce a broken entity (`&#169&#160;;`) when a narrow space is enabled: the `;` of the symbol entity was mistaken for punctuation
+- The Biography field of the profile screen (admin) no longer receives the typographic entities, so saving a profile no longer stores them in the database. The biography is also processed once on the public site instead of twice
+- `?`, `!` and `%` glued to an HTML entity (typically the curly quotes `&#8220;Pourquoi ?&#8221;` or the ellipsis `?&#8230;` produced by wptexturize, or `«&#8239;Pourquoi ?&#8239;»` with narrow spaces) now get their non-breaking space: the internal placeholders started with a word character, which defeated the punctuation rules
 
 ### Changed
 - Development tooling, no change for site visitors: the test scripts are now a PHPUnit suite (#17), `tests/HooksTest.php` checks that every filter is really attached with the right priority and argument count (#13), PHPStan level 5 runs in CI with a baseline (#16), and PHPCS configuration lives in `phpcs.xml.dist` with PHP compatibility checks for the supported floor (#15).
 - CI runs the test suite on PHP 7.4 to 8.5, which backs the `Requires PHP: 7.4` header (#15).
+- Faster processing of long HTML content (identical output): quicker tag and ordinal checks, a stronger cache key, and no caching of texts above 64 KB
+- Internal cleanup, no change for site visitors: removed the settings sections and fields registered but never rendered (the settings page is drawn by hand), the shared symbols / ordinals / non-breaking-space sequence of `french_typo_replace()` now lives in one helper, `register_setting()` uses its array form, and the ordinal regexes use the `i` modifier instead of an inline `(?i)`
+- Settings validation: input that is not an array now gives the default settings, and unknown keys are dropped before saving
+- PHPStan baseline reduced from five entries to two (the other three were a false positive and a wrong argument type)
 
 ## [1.2.4]
 
