@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPStan baseline reduced from five entries to two (the other three were a false positive and a wrong argument type)
 
 ### Compatibility
-- Tested up to WordPress 7.1.4
+- Tested up to WordPress 7.1
 
 ## [1.2.4]
 
